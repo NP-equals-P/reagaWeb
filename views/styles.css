@@ -1,0 +1,44 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.div1{
+    background-color: rgb(108, 140, 151);
+    margin: 0;
+    padding: 0;
+    height: 45px;
+}
+
+.div1 button {
+    height: 25px;
+    margin: 10px;
+    border-radius: 10px;
+}
+
+.div2 {
+    text-align: center;
+    background-color: rgb(53, 99, 115);
+    height: 100vh;
+    position: relative;
+}
+
+.div2 button {
+    height: 30px;
+    width: 100px;
+    border-radius: 10px;
+}
+
+.div2 input {
+    border-radius: 10px;
+}
+
+.div2 label {
+    color: rgb(206, 206, 206);
+    font-weight: bold;
+}
+
+.svg {
+    position: absolute;
+    height: 10%;
+}

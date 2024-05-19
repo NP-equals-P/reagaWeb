@@ -18,6 +18,8 @@ app.get('/start', (req, res) => {
     res.sendFile('./views/startPage.html', {root: __dirname})
 });
 
+app.use(express.static('views'));
+
 app.use((req, res) => {
     res.sendFile('./views/loginPage.html', {root: __dirname})
 });
