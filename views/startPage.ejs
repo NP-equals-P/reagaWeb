@@ -7,8 +7,13 @@
     </head>
     <body>
         <%- include('./partials/nav.ejs') %>
-        <div class="div2">
-
+        <div class="div1">
+            <div class="div2">
+                <% for (let i = 0; i < 5; i++) { %>
+                    <%- include('./partials/reacButton.ejs') %>
+                <% } %>
+            </div>
+            <button class="addReacButton">Add Reactor</button>
         </div>
     </body>
 </html> 
