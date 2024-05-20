@@ -1,0 +1,32 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.div1 {
+    background-color: rgb(108, 140, 151);
+    margin: 0;
+    padding: 0;
+    height: 8vh;
+    text-align: right;
+}
+
+.userIcon {
+    height: 5vh;
+    width: 5vh;
+    border-color: black;
+    border-width: 1px;
+}
+
+.div2 {
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+}
+
+.button1 {
+    background-color: rgb(184, 184, 184);
+    width: 100px;
+    height:6vh;
+    margin: 1vh;
+    text-align: right;
+}

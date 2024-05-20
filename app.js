@@ -11,15 +11,15 @@ app.get('/teste', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    res.sendFile('./views/registerPage.html', {root: __dirname})
+    res.render('registerPage')
 });
 
 app.get('/start', (req, res) => {
-    res.sendFile('./views/startPage.html', {root: __dirname})
+    res.render('startPage')
 });
 
 app.use(express.static('views'));
 
 app.use((req, res) => {
-    res.sendFile('./views/loginPage.html', {root: __dirname})
+    res.render('loginPage')
 });
