@@ -18,6 +18,10 @@ app.get('/start', (req, res) => {
     res.render('startPage')
 });
 
+app.get('/reacView', (req, res) => {
+    res.render('reacView')
+});
+
 app.use(express.static('views'));
 
 app.use((req, res) => {

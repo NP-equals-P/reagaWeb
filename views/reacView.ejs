@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/styles/reacViewStyles.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> Reac View </title>
+    </head>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        <div class="div1">
+            <label class="reactorLabel" for="reactor">Reactor:</label>
+            <select class="reactorSelect" name="reactor" id="">
+            </select>
+            <button class="erButton">Edit Reactor</button>
+
+
+            <button class="hdButton">All Historic Data</button>
+            <div class="div2">
+            </div>
+            <div class="div3">
+                <%- include('./partials/manualEvtButton.ejs') %>
+            </div>
+            <button class="ldButton">All Log Data</button>
+            <div class="div4">
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,80 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+
+.div1 {
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+}
+
+.div2 {
+    position: absolute;
+    background-color: rgb(211, 211, 211);
+    height: 40vh;
+    width: 40vw;
+    top: 26vh;
+    left: 2vw;
+    border: 3px solid black;
+}
+
+.reactorLabel {
+    color: white;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.reactorSelect {
+    width: 8vw;
+    height: 25px;
+}
+
+.hdButton {
+    font-weight: bold;
+    font-size: 15px;
+    border-radius: 10px;
+    height: 30px;
+    position: absolute;
+    top: 21vh;
+    left: 2vw;
+}
+
+.ldButton {
+    font-weight: bold;
+    font-size: 15px;
+    border-radius: 10px;
+    height: 30px;
+    position: absolute;
+    top: 21vh;
+    left: 50vw;
+}
+
+.erButton {
+    font-weight: bold;
+    font-size: 15px;
+    border-radius: 10px;
+    height: 30px;
+}
+
+.div3 {
+    position: absolute;
+    background-color: rgb(211, 211, 211);
+    height: 10vh;
+    width: 40vw;
+    top: 67vh;
+    border: 3px solid black;
+    left: 2vw;
+
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.div4 {
+    position: absolute;
+    background-color: rgb(211, 211, 211);
+    height: 40vh;
+    width: 30vw;
+    left: 50vw;
+    top: 26vh;
+    border: 3px solid black;
+}
