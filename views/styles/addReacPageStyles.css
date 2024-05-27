@@ -1,0 +1,118 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.div1 {
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+}
+
+.reacIconButton {
+    position: absolute;
+    width: 15vw;
+    height: 45vh;
+    background-color: white;
+    top: 20vh;
+    left: 10vw;
+}
+
+.nameInput {
+    position: absolute;
+    border-radius: 10px;
+    width: 10vw;
+    height: 2vh;
+    top: 67vh;
+    left: 14vw;
+}
+
+.nameLabel {
+    position: absolute;
+    top: 67vh;
+    left: 10vw;
+    font-weight: bold;
+    color: white;
+}
+
+.compModule {
+    background-color: rgb(107, 107, 107);
+    height: 45vh;
+    width: 46vw;
+    position: absolute;
+    top: 20vh;
+    left: 40vw;
+}
+
+.addSensButt {
+    position: absolute;
+    height: 8vh;
+    width: 8vh;
+    margin: 1vh;
+}
+
+.addActuButt {
+    position: absolute;
+    height: 8vh;
+    width: 8vh;
+    margin: 1vh;
+    top: 17.5vh;
+}
+
+.addAlarButt {
+    position: absolute;
+    height: 8vh;
+    width: 8vh;
+    margin: 1vh;
+    top: 35vh;
+}
+
+.sensList {
+    position: absolute;
+    height: 10vh;
+    width: 41vw;
+    background-color: white;
+    left: 10vh;
+}
+
+.actuList {
+    position: absolute;
+    height: 10vh;
+    width: 41vw;
+    background-color: white;
+    left: 10vh;
+    top: 17.5vh;
+}
+
+.alarList {
+    position: absolute;
+    height: 10vh;
+    width: 41vw;
+    background-color: white;
+    left: 10vh;
+    top: 35vh;
+}
+
+.routineModule {
+    background-color: rgb(107, 107, 107);
+    height: 20vh;
+    width: 100vw;
+    position: absolute;
+    top: 80vh;
+}
+
+.addRoutButt {
+    position: absolute;
+    height: 18vh;
+    width: 18vh;
+    margin: 1vh;
+}
+
+.routList {
+    position: absolute;
+    height: 18vh;
+    width: 89vw;
+    background-color: white;
+    margin: 1vh;
+    left: 20vh;
+    border: 2px solid black;
+}

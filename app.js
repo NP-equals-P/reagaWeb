@@ -22,6 +22,11 @@ app.get('/reacView', (req, res) => {
     res.render('reacView')
 });
 
+app.get('/addReac', (req, res) => {
+    res.render('addReacPage')
+});
+
+
 app.use(express.static('views'));
 
 app.use((req, res) => {

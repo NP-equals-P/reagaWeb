@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/addReacPageStyles.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> Add Reactor </title>
+    </head>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        <div class="div1">
+            <button class="reacIconButton"></button>
+            <label for="username" class="nameLabel">Name:</label>
+            <input type="text" id="username" name="username" class="nameInput">
+        </div>
+        <div class="compModule">
+            <button class="addSensButt"></button>
+            <div class="sensList"></div>
+
+            <button class="addActuButt"></button>
+            <div class="actuList"></div>
+
+            <button class="addAlarButt"></button>
+            <div class="alarList"></div>
+        </div>
+        <div class="routineModule">
+            <button class="addRoutButt"></button>
+            <div class="routList"></div>
+        </div>
+    </body>
+</html>
