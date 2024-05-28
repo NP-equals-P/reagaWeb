@@ -1,0 +1,118 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.div1 {
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+    text-align: center;
+}
+
+.nameLabel {
+    position: absolute;
+    top: 20vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    left: 5vw;
+}
+
+.nameInput {
+    left: 5vw;
+    position: absolute;
+    height: 3vh;
+    width: 15vw;
+    border-radius: 10px;
+    top: 25vh;
+}
+
+.normalRadio {
+    position: absolute;
+    left: 5vw;
+    top: 40vh;
+}
+
+.normalLabel {
+    position: absolute;
+    left: 7vw;
+    top: 39vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.esporadicRadio {
+    position: absolute;
+    left: 5vw;
+    top: 45vh;
+}
+
+.esporadicLabel {
+    position: absolute;
+    left: 7vw;
+    top: 44vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.div2 {
+    width: 50vw;
+    height: 50vh;
+    left: 40vw;
+    background-color: gray;
+    position: absolute;
+}
+
+.startInput {
+    position: absolute;
+    top: 65vh;
+    width: 10vw;
+    left: 40vw;
+    border-radius: 10px;
+}
+
+.startLabel {
+    position: absolute;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    top: 69vh;
+    left: 40vw;
+}
+
+.durationInput {
+    position: absolute;
+    top: 65vh;
+    width: 10vw;
+    left: 79.3vw;
+    border-radius: 10px;
+}
+
+.durationLabel {
+    position: absolute;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    top: 69vh;
+    left: 79.5vw;
+}
+
+.addActionButt {
+    width: 7vw;
+    height: 6vh;
+    position: absolute;
+    left: 32vw;
+    top: 55vh;
+    border-radius: 10px;
+}
+
+.backButt {
+    position: absolute;
+    height: 5vh;
+    width: 6vw;
+    border-radius: 10px;
+    top: 9vh;
+    left: 1vh;
+}

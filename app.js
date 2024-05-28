@@ -38,6 +38,10 @@ app.get('/addRout', (req, res) => {
     res.render('addRoutPage')
 });
 
+app.get('/addEvt', (req, res) => {
+    res.render('addEvtPage')
+});
+
 app.use(express.static('views'));
 
 app.use((req, res) => {
