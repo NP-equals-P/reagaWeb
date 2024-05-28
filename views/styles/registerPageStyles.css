@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.div1{
+    background-color: rgb(108, 140, 151);
+    margin: 0;
+    padding: 0;
+    height: 8vh;
+}
+
+.div1 button {
+    position: absolute;
+
+    width: 100px;
+    height: 30px;
+
+    margin: 1.8vh;
+    border-radius: 10px;
+}
+
+.div2 {
+    text-align: center;
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+    position: relative;
+}
+
+.div2 input {
+    border-radius: 14px;
+    width: 12vw;
+    height: 4vh;
+}
+
+.div2 label {
+    color: rgb(206, 206, 206);
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.div2 button {
+    height: 35px;
+    width: 150px;
+    border-radius: 10px;
+}

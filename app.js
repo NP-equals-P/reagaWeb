@@ -26,6 +26,17 @@ app.get('/addReac', (req, res) => {
     res.render('addReacPage')
 });
 
+app.get('/addSens', (req, res) => {
+    res.render('addSensPage')
+});
+
+app.get('/addActu', (req, res) => {
+    res.render('addActuPage')
+});
+
+app.get('/addRout', (req, res) => {
+    res.render('addRoutPage')
+});
 
 app.use(express.static('views'));
 

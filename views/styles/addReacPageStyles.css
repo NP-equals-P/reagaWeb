@@ -37,7 +37,7 @@ body {
 .compModule {
     background-color: rgb(107, 107, 107);
     height: 45vh;
-    width: 46vw;
+    width: 45.5vw;
     position: absolute;
     top: 20vh;
     left: 40vw;
@@ -68,28 +68,31 @@ body {
 
 .sensList {
     position: absolute;
-    height: 10vh;
-    width: 41vw;
+    height: 9vh;
+    width: 40vw;
     background-color: white;
     left: 10vh;
+    border: 2px solid black;
 }
 
 .actuList {
     position: absolute;
-    height: 10vh;
-    width: 41vw;
+    height: 9vh;
+    width: 40vw;
     background-color: white;
     left: 10vh;
     top: 17.5vh;
+    border: 2px solid black;
 }
 
 .alarList {
     position: absolute;
-    height: 10vh;
-    width: 41vw;
+    height: 9vh;
+    width: 40vw;
     background-color: white;
     left: 10vh;
     top: 35vh;
+    border: 2px solid black;
 }
 
 .routineModule {

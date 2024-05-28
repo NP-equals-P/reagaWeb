@@ -1,0 +1,59 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.div1 {
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+    text-align: center;
+}
+
+.inputName {
+    height: 3vh;
+    width: 15vw;
+    border-radius: 10px;
+}
+
+.nameLabel {
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.div2 {
+    width: 70vw;
+    height: 50vh;
+    background-color: aquamarine;
+    position: absolute;
+    left: 15vw;
+    top: 23vh;
+}
+
+.div3 {
+    width: 70vw;
+    height: 18vh;
+    background-color: bisque;
+    position: absolute;
+    left: 15vw;
+    top: 82vh;
+}
+
+.backButt {
+    position: absolute;
+    height: 5vh;
+    width: 6vw;
+    border-radius: 10px;
+    top: 9vh;
+    left: 1vh;
+}
+
+.addEvtButt {
+    position: absolute;
+    height: 6vh;
+    width: 7vw;
+    border-radius: 10px;
+    top: 74vh;
+    left: 87vw;
+    font-weight: bold;
+}
