@@ -9,6 +9,25 @@ body {
     text-align: center;
 }
 
+.backButt {
+    position: absolute;
+    height: 5vh;
+    width: 6vw;
+    border-radius: 10px;
+    top: 9vh;
+    left: 1vh;
+}
+
+.div2 {
+    width: 30vw;
+    height: 65vh;
+    left: 50vw;
+    top: 15vh;
+    background-color: gray;
+    position: absolute;
+    border: 3px solid black;
+}
+
 .nameLabel {
     position: absolute;
     top: 20vh;
@@ -27,13 +46,13 @@ body {
     top: 25vh;
 }
 
-.normalRadio {
+.sensorRadio {
     position: absolute;
     left: 5vw;
     top: 40vh;
 }
 
-.normalLabel {
+.sensorLabel {
     position: absolute;
     left: 7vw;
     top: 39vh;
@@ -42,13 +61,13 @@ body {
     font-size: 1.5em;
 }
 
-.esporadicRadio {
+.actuatorRadio {
     position: absolute;
     left: 5vw;
     top: 45vh;
 }
 
-.esporadicLabel {
+.actuatorLabel {
     position: absolute;
     left: 7vw;
     top: 44vh;
@@ -57,20 +76,27 @@ body {
     font-size: 1.5em;
 }
 
-.div2 {
-    width: 50vw;
-    height: 50vh;
-    left: 40vw;
-    background-color: gray;
+.componentSelect {
     position: absolute;
-    border: 3px solid black;
+    left: 5vw;
+    top: 60vh;
+    width: 10vw;
+}
+
+.componentLabel {
+    position: absolute;
+    left: 5vw;
+    top: 55vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
 }
 
 .startInput {
     position: absolute;
-    top: 65vh;
+    top: 70vh;
     width: 10vw;
-    left: 40vw;
+    left: 5vw;
     border-radius: 10px;
 }
 
@@ -79,15 +105,15 @@ body {
     font-weight: bold;
     color: rgb(206, 206, 206);
     font-size: 1.5em;
-    top: 69vh;
-    left: 40vw;
+    top: 74vh;
+    left: 5vw;
 }
 
 .durationInput {
     position: absolute;
-    top: 65vh;
+    top: 70vh;
     width: 10vw;
-    left: 79.3vw;
+    left: 25vw;
     border-radius: 10px;
 }
 
@@ -96,24 +122,6 @@ body {
     font-weight: bold;
     color: rgb(206, 206, 206);
     font-size: 1.5em;
-    top: 69vh;
-    left: 79.5vw;
-}
-
-.addActionButt {
-    width: 7vw;
-    height: 6vh;
-    position: absolute;
-    left: 32vw;
-    top: 55vh;
-    border-radius: 10px;
-}
-
-.backButt {
-    position: absolute;
-    height: 5vh;
-    width: 6vw;
-    border-radius: 10px;
-    top: 9vh;
-    left: 1vh;
+    top: 74vh;
+    left: 25vw;
 }

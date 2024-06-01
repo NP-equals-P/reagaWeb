@@ -42,6 +42,10 @@ app.get('/addEvt', (req, res) => {
     res.render('addEvtPage')
 });
 
+app.get('/addAct', (req, res) => {
+    res.render('addActPage')
+});
+
 app.use(express.static('views'));
 
 app.use((req, res) => {
