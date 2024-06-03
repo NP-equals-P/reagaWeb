@@ -46,6 +46,11 @@ app.get('/addAct', (req, res) => {
     res.render('addActPage')
 });
 
+app.get('/addAlar', (req, res) => {
+    res.render('addAlarPage')
+});
+
+
 app.use(express.static('views'));
 
 app.use((req, res) => {

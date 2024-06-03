@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.div1 {
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+    text-align: center;
+}
+
+.varLabel {
+    position: absolute;
+    top: 20vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    left: 5vw;
+}
+
+.evtLabel {
+    position: absolute;
+    top: 26vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    left: 5vw;
+}
+
+.rotLabel {
+    position: absolute;
+    top: 32vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    left: 5vw;
+}
+
+.actLabel {
+    position: absolute;
+    top: 38vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    left: 5vw;
+}
+
+.varRadio {
+    position: absolute;
+    left: 3vw;
+    top: 20vh;
+}
+
+.evtRadio {
+    position: absolute;
+    left: 3vw;
+    top: 26vh;
+}
+
+.rotRadio {
+    position: absolute;
+    left: 3vw;
+    top: 32vh;
+}
+
+.actRadio {
+    position: absolute;
+    left: 3vw;
+    top: 38vh;
+}
+
+.limitInput {
+    position: absolute;
+    left: 30vw;
+    top: 20vh;
+    border-radius: 10px;
+}
+
+.limitLabel {
+    position: absolute;
+    top: 15vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+    left: 30vw;
+}
