@@ -1,13 +1,39 @@
 const express = require("express");
+const mongoose = require('mongoose');
+
+const User = require('./models/users')
 
 const app = express();
 
+app.use(express.urlencoded({ extended: true }));
+
+const urI = 'mongodb://usrbioma:B%21omA2024@db-bioma.feagri.unicamp.br:27017/bioma?retryWrites=true&loadBalanced=false&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=bioma&authMechanism=SCRAM-SHA-256';
+
+mongoose.connect(urI)
+    .then((result) => app.listen(3000))
+    .catch((err) => console.log(err));
+
 app.set('view engine', 'ejs');
 
-app.listen(3000);
+// app.get('/teste', (req, res) => {
+//     const user = new User({
+//         username: 'mario',
+//         teste: 'teste'
+//     });
 
-app.get('/teste', (req, res) => {
-    res.render('teste', {name: 'nome'});
+//     user.save();
+//     console.log('passou');
+// });
+
+app.post('/login', (req, res) => {
+    const user = new User(req.body);
+    user.save()
+    .then((result) => {
+        res.redirect('/login');
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 });
 
 app.get('/register', (req, res) => {
