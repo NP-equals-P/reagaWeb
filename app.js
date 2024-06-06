@@ -26,18 +26,25 @@ app.set('view engine', 'ejs');
 // });
 
 app.post('/login', (req, res) => {
-    const user = new User(req.body);
-    user.save()
-    .then((result) => {
-        res.redirect('/login');
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+    
+    var pass1 = req.body.password;
+    var pass2 = req.body.password2;
+    
+    if (pass1 === pass2) {
+        const user = new User(req.body);
+        user.save()
+        .then((result) => {
+            res.redirect('/login');
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+
 });
 
 app.get('/register', (req, res) => {
-    res.render('registerPage')
+    res.render('registerPage', {appIn: app});
 });
 
 app.get('/start', (req, res) => {
