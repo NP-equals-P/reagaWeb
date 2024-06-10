@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require('mongoose');
 
-const User = require('./models/users')
+const User = require('./models/users');
+const { forEach } = require("lodash");
 
 const app = express();
 
@@ -15,36 +16,43 @@ mongoose.connect(urI)
 
 app.set('view engine', 'ejs');
 
-// app.get('/teste', (req, res) => {
-//     const user = new User({
-//         username: 'mario',
-//         teste: 'teste'
-//     });
-
-//     user.save();
-//     console.log('passou');
-// });
-
-app.post('/login', (req, res) => {
-    
-    var pass1 = req.body.password;
-    var pass2 = req.body.password2;
-    
-    if (pass1 === pass2) {
-        const user = new User(req.body);
-        user.save()
-        .then((result) => {
-            res.redirect('/login');
+app.post('/register', (req, res) => {
+    const que = User.find({});
+    que.select('username');
+    const aux = que.exec()
+        .then((ans) => {
+            return ans;
         })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
 
+    console.log(aux);
+
+    // for (let i = 0; i<ans.length; i++) {
+    //     if (newUsername === ans[i].username) {
+    //         res.render('registerPage', {mode: 'usernameTaken'});
+    //         unique = false;
+    //     }
+    // }
+
+    // var pass1 = req.body.password;
+    // var pass2 = req.body.password2;
+
+    // if (pass1 === pass2 && unique) {
+    //     const user = new User(req.body);
+    //     user.save()
+    //     .then((result) => {
+    //         res.redirect('/login');
+    //     })
+    //     .catch((err) => {
+    //         console.log(err);
+    //     });
+    // }
+    // else {
+    //     res.render('registerPage', {mode: 'passwordMistake'});
+    // }
 });
 
 app.get('/register', (req, res) => {
-    res.render('registerPage', {appIn: app});
+    res.render('registerPage', {mode: 'normal'});
 });
 
 app.get('/start', (req, res) => {

@@ -44,6 +44,11 @@ body {
     width: 150px;
     border-radius: 10px;
     position: absolute;
-    top: 52vh;
+    top: 58vh;
     left: 44.5vw;
+}
+
+.div2 .errorMsg {
+    color: rgb(255, 63, 63);
+    font-size: 1em;
 }

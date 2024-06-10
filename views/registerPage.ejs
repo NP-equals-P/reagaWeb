@@ -5,16 +5,6 @@
         <title> Resgister </title>
     </head>
     <body>
-        <script>
-            const myFunc = () => {
-                var pass1 = document.getElementById("password1Input").value;
-                var pass2 = document.getElementById("password2Input").value;
-
-                if (pass1 === pass2) {
-
-                };
-            };
-        </script>
         <div class="div1">
             <a href="/">
                 <button class="loginButton">Login</button>
@@ -22,7 +12,7 @@
         </div>
         <div class="div2">
             <br><br><br><br><br><br><br>
-            <form action="/login" method="post">
+            <form action="/register" method="post">
                 <label for="">Username</label>
                 <br>
                 <input type="username" name="username" id="usernameInput">
@@ -36,6 +26,13 @@
                 <label for="">Repeat Password</label>
                 <br>
                 <input type="password" name="password2" id="password2Input">
+                <% if (mode === 'passwordMistake') {%>
+                    <br><br>
+                    <label class="errorMsg">The passwords didn't match</label>
+                <% } else if (mode === 'usernameTaken') { %>
+                    <br><br>
+                    <label class="errorMsg">Username already taken</label>
+                    <% } %>
                 <button class="createButt">Create Account</button>
             </form>
         </div>
