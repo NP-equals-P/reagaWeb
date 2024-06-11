@@ -19,36 +19,36 @@ app.set('view engine', 'ejs');
 app.post('/register', (req, res) => {
     const que = User.find({});
     que.select('username');
-    const aux = que.exec()
+    que.exec()
         .then((ans) => {
-            return ans;
-        })
+            var newUsername = req.body.username;
 
-    console.log(aux);
+            for (let i = 0; i<ans.length; i++) {
+                if (newUsername === ans[i].username) {
+                    res.render('registerPage', {mode: 'usernameTaken'});
+                    return
+                }
+            }
 
-    // for (let i = 0; i<ans.length; i++) {
-    //     if (newUsername === ans[i].username) {
-    //         res.render('registerPage', {mode: 'usernameTaken'});
-    //         unique = false;
-    //     }
-    // }
+            var pass1 = req.body.password;
+            var pass2 = req.body.password2;
 
-    // var pass1 = req.body.password;
-    // var pass2 = req.body.password2;
-
-    // if (pass1 === pass2 && unique) {
-    //     const user = new User(req.body);
-    //     user.save()
-    //     .then((result) => {
-    //         res.redirect('/login');
-    //     })
-    //     .catch((err) => {
-    //         console.log(err);
-    //     });
-    // }
-    // else {
-    //     res.render('registerPage', {mode: 'passwordMistake'});
-    // }
+            if (pass1 === pass2) {
+                const user = new User(req.body);
+                user.save()
+                .then((result) => {
+                    res.redirect('/login');
+                    return
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+            }
+            else {
+                res.render('registerPage', {mode: 'passwordMistake'});
+                return
+            }
+        });
 });
 
 app.get('/register', (req, res) => {
