@@ -119,3 +119,11 @@ body {
     left: 20vh;
     border: 2px solid black;
 }
+
+.backButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    margin: 6px;
+}

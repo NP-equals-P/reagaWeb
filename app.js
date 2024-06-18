@@ -6,6 +6,8 @@ const { forEach } = require("lodash");
 
 const app = express();
 
+var logUser;
+
 app.use(express.urlencoded({ extended: true }));
 
 const urI = 'mongodb://usrbioma:B%21omA2024@db-bioma.feagri.unicamp.br:27017/bioma?retryWrites=true&loadBalanced=false&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=bioma&authMechanism=SCRAM-SHA-256';
@@ -15,6 +17,10 @@ mongoose.connect(urI)
     .catch((err) => console.log(err));
 
 app.set('view engine', 'ejs');
+
+app.post('/addReac', (req, res) => {
+    console.log(req.body);
+});
 
 app.post('/register', (req, res) => {
     const que = User.find({});
@@ -34,7 +40,11 @@ app.post('/register', (req, res) => {
             var pass2 = req.body.password2;
 
             if (pass1 === pass2) {
-                const user = new User(req.body);
+                const user = new User({
+                    username: newUsername, 
+                    password:pass1, 
+                    reactors: []
+                });
                 user.save()
                 .then((result) => {
                     res.redirect('/login');
@@ -51,12 +61,38 @@ app.post('/register', (req, res) => {
         });
 });
 
+app.post('/start', (req, res) => {
+    const que = User.find({});
+    que.exec()
+        .then((ans) => {
+            var tryUsername = req.body.username;
+            var tryPassword = req.body.password;
+
+            for (let i = 0; i<ans.length; i++) {
+                if (tryUsername === ans[i].username) {
+                    if (tryPassword === ans[i].password) {
+                        res.render('startPage', {user: ans[i]});
+                        logUser = ans[i];
+                        return
+                    }
+                    else {
+                        res.render('loginPage', {mode: 'error'});
+                        return
+                    }
+                }
+            }
+            res.render('loginPage', {mode: 'error'});
+            return
+        });
+});
+
 app.get('/register', (req, res) => {
     res.render('registerPage', {mode: 'normal'});
 });
 
 app.get('/start', (req, res) => {
-    res.render('startPage')
+    console.log(req);
+    res.render('startPage', {user: logUser})
 });
 
 app.get('/reacView', (req, res) => {
@@ -95,5 +131,5 @@ app.get('/addAlar', (req, res) => {
 app.use(express.static('views'));
 
 app.use((req, res) => {
-    res.render('loginPage')
+    res.render('loginPage', {mode: 'normal'})
 });

@@ -47,8 +47,8 @@ body {
 }
 
 svg {
-    height: 300px;
-    top: 10px;
+    height: 280px;
+    top: 15px;
 }
 
 .div3{
@@ -56,4 +56,9 @@ svg {
     margin: 0;
     padding: 0;
     height: 8vh;
+}
+
+.div2 .errorMsg {
+    color: rgb(255, 63, 63);
+    font-size: 1em;
 }

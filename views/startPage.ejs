@@ -6,14 +6,21 @@
         <title> Start </title>
     </head>
     <body>
+        <!-- <label for=""><%= user.username %></label> -->
         <%- include('./partials/nav.ejs') %>
         <div class="div1">
             <div class="div2">
-                <% for (let i = 0; i < 5; i++) { %>
+                <% for (let i = 0; i < user.reactors.length; i++) { %>
                     <%- include('./partials/reacButton.ejs') %>
                 <% } %>
             </div>
-            <button class="addReacButton">Add Reactor</button>
+            <!-- <a href="/addReac">
+                <button class="addReacButton">Add Reactor</button>
+            </a> -->
+            <form action="/addReac" method="post">
+                <button class="addReacButton" id="addReacButton">Add Reactor</button>
+                <input type="text" value=<%= user.username%> name="user">
+            </form>
         </div>
     </body>
 </html> 
