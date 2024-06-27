@@ -6,7 +6,6 @@
         <title> Start </title>
     </head>
     <body>
-        <!-- <label for=""><%= user.username %></label> -->
         <%- include('./partials/nav.ejs') %>
         <div class="div1">
             <div class="div2">
@@ -14,12 +13,8 @@
                     <%- include('./partials/reacButton.ejs') %>
                 <% } %>
             </div>
-            <!-- <a href="/addReac">
-                <button class="addReacButton">Add Reactor</button>
-            </a> -->
             <form action="/addReac" method="post">
                 <button class="addReacButton" id="addReacButton">Add Reactor</button>
-                <input type="text" value=<%= user.username%> name="user">
             </form>
         </div>
     </body>

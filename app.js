@@ -1,22 +1,31 @@
 const express = require("express");
 const mongoose = require('mongoose');
-
-const User = require('./models/users');
 const { forEach } = require("lodash");
 
-const app = express();
+// ---------- Mongoose Models ----------
+const User = require('./models/users');
+// ---------- Mongoose Models ----------
 
-var logUser;
+
+// ---------- Configs ----------
+const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 
+app.set('view engine', 'ejs');
+
+app.use(express.static('views'));
+// ---------- Configs ----------
+
+
+// ---------- Connect to DB ----------
 const urI = 'mongodb://usrbioma:B%21omA2024@db-bioma.feagri.unicamp.br:27017/bioma?retryWrites=true&loadBalanced=false&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=bioma&authMechanism=SCRAM-SHA-256';
 
 mongoose.connect(urI)
     .then((result) => app.listen(3000))
     .catch((err) => console.log(err));
+// ---------- Connect to DB ----------
 
-app.set('view engine', 'ejs');
 
 app.post('/addReac', (req, res) => {
     console.log(req.body);
@@ -42,7 +51,7 @@ app.post('/register', (req, res) => {
             if (pass1 === pass2) {
                 const user = new User({
                     username: newUsername, 
-                    password:pass1, 
+                    password: pass1, 
                     reactors: []
                 });
                 user.save()
@@ -86,6 +95,9 @@ app.post('/start', (req, res) => {
         });
 });
 
+// ----------------------
+
+// ---------- Get Requests ----------
 app.get('/register', (req, res) => {
     res.render('registerPage', {mode: 'normal'});
 });
@@ -126,9 +138,8 @@ app.get('/addAct', (req, res) => {
 app.get('/addAlar', (req, res) => {
     res.render('addAlarPage')
 });
+// ---------- Get Requests ----------
 
-
-app.use(express.static('views'));
 
 app.use((req, res) => {
     res.render('loginPage', {mode: 'normal'})
