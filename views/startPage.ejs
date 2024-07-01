@@ -6,7 +6,7 @@
         <title> Start </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs') %>
+        <%- include('./partials/nav.ejs', {name: user.username}) %>
         <div class="div1">
             <div class="div2">
                 <% for (let i = 0; i < user.reactors.length; i++) { %>
@@ -15,6 +15,7 @@
             </div>
             <form action="/addReac" method="post">
                 <button class="addReacButton" id="addReacButton">Add Reactor</button>
+                <input type="text" id="id" name="id" class="infoHolder" value=<%=user._id%>>
             </form>
         </div>
     </body>

@@ -10,7 +10,7 @@ body {
 
 .div2 {
     position: absolute;
-    background-color: rgb(99, 181, 209);
+    background-color: rgb(46, 131, 160);
     height: 52vh;
     width: 60vw;
     left: 20vw;
@@ -31,4 +31,8 @@ body {
     left: 45vw;
     border-radius: 10px;
     font-weight: bold;
+}
+
+.infoHolder {
+    display: none;
 }

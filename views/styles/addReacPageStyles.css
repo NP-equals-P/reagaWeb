@@ -15,6 +15,7 @@ body {
     background-color: white;
     top: 20vh;
     left: 10vw;
+    background: url(../pictures/chooseImageIcon.jpg);
 }
 
 .nameInput {
@@ -70,7 +71,7 @@ body {
     position: absolute;
     height: 9vh;
     width: 40vw;
-    background-color: white;
+    background-color: rgb(46, 131, 160);
     left: 10vh;
     border: 2px solid black;
 }
@@ -79,7 +80,7 @@ body {
     position: absolute;
     height: 9vh;
     width: 40vw;
-    background-color: white;
+    background-color: rgb(46, 131, 160);
     left: 10vh;
     top: 17.5vh;
     border: 2px solid black;
@@ -89,7 +90,7 @@ body {
     position: absolute;
     height: 9vh;
     width: 40vw;
-    background-color: white;
+    background-color: rgb(46, 131, 160);
     left: 10vh;
     top: 35vh;
     border: 2px solid black;
@@ -114,7 +115,7 @@ body {
     position: absolute;
     height: 18vh;
     width: 89vw;
-    background-color: white;
+    background-color: rgb(46, 131, 160);
     margin: 1vh;
     left: 20vh;
     border: 2px solid black;
@@ -126,4 +127,24 @@ body {
     border-radius: 10px;
     font-weight: bold;
     margin: 6px;
+}
+
+.confirmButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    right: 6px;
+    top: 73vh;
+}
+
+.discardButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 6px;
+    top: 73vh;
 }

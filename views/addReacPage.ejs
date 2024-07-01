@@ -6,14 +6,22 @@
         <title> Add Reactor </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs') %>
+        <%- include('./partials/nav.ejs', {name: user.username}) %>
         <div class="div1">
-            <a href="/start">
+            <form action="/start" method="post">
                 <button class="backButt">Back</button>
-            </a>
+                <input type="hidden" id="id" name="id" value=<%=user._id%>>
+                <input type="hidden" id="type" name="type" value="in">
+            </form>
             <button class="reacIconButton"></button>
-            <label for="username" class="nameLabel">Name:</label>
-            <input type="text" id="username" name="username" class="nameInput">
+            <form action="/start" method="post">
+                <label for="username" class="nameLabel">Name:</label>
+                <input type="text" id="name" name="name" class="nameInput">
+                <input type="hidden" id="id" name="id" value=<%=user._id%>>
+                <input type="hidden" id="type" name="type" value="addReac">
+                <button class="confirmButt">Save</button>
+            </form>
+            <button class="discardButt">Discard</button>
         </div>
         <div class="compModule">
             <button class="addSensButt"></button>
@@ -29,5 +37,6 @@
             <button class="addRoutButt"></button>
             <div class="routList"></div>
         </div>
+        
     </body>
 </html>
