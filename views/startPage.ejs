@@ -10,13 +10,12 @@
         <div class="div1">
             <div class="div2">
                 <% for (let i = 0; i < reactors.length; i++) { %>
-                    <%- include('./partials/reacButton.ejs') %>
+                    <%- include('./partials/reacButton.ejs', {name: reactors[i].name, reacId: reactors[i]._id}) %>
                 <% } %>
             </div>
-            <form action="/addReac" method="post">
-                <button class="addReacButton" id="addReacButton">Add Reactor</button>
-                <input type="text" id="id" name="id" class="infoHolder" value=<%=_id%>>
-            </form>
+            <a href="/addReac?_id=<%= _id %>">
+                <button class="addReacButton">Add Reactor</button>
+            </a>
         </div>
     </body>
 </html> 

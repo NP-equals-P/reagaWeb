@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 
 const reacSchema = new Schema({
     name: {
-        type: String,
-        required: true
+        type: String
     },
     sensors: {
         type: Array,
@@ -21,6 +20,9 @@ const reacSchema = new Schema({
     alarms: {
         type: Array,
         value: []
+    },
+    isEdit: {
+        type: Boolean
     }
 });
 

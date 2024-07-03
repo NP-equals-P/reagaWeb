@@ -3,12 +3,13 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
     username: {
-        type: String,
-        required: true
+        type: String
     },
     reactors: {
-        type: Array,
-        required: true
+        type: Array
+    },
+    reacEdit: {
+        type: String
     }
 });
 

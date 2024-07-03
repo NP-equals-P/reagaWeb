@@ -14,7 +14,7 @@ body {
     height: 45vh;
     background-color: white;
     top: 20vh;
-    left: 10vw;
+    left: 15vw;
     background: url(../pictures/chooseImageIcon.jpg);
 }
 
@@ -24,13 +24,13 @@ body {
     width: 10vw;
     height: 2vh;
     top: 67vh;
-    left: 14vw;
+    left: 19vw;
 }
 
 .nameLabel {
     position: absolute;
     top: 67vh;
-    left: 10vw;
+    left: 15vw;
     font-weight: bold;
     color: white;
 }
@@ -147,4 +147,15 @@ body {
     position: absolute;
     left: 6px;
     top: 73vh;
+}
+
+.deleteButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    color: red;
+    position: absolute;
+    left: 6px;
+    top: 66vh;
 }

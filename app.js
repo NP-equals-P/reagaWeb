@@ -109,17 +109,6 @@ app.post('/start', (req, res) => {
         });
 });
 
-app.post('/addReac', (req, res) => {
-    let AUser = findUserByID(req.body.id)
-
-    AUser.then(function(result) {
-        if (result != null) {
-            res.render('addReacPage', {user: result});
-        }
-    });
-    
-});
-
 app.post("/tryLogin", (req, res) => { 
     var tryUsername = req.body.loginUsername;
 
@@ -159,18 +148,50 @@ app.post('/tryRegister', (req, res) => {
                 }
             }
 
-            const user = new User({
-                username: username, 
-                reactors: []
+            const editReac = new Reac({name: "", isEdit: true});
+            editReac.save().then((resR) => {
+                const user = new User({
+                    username: username, 
+                    reactors: [],
+                    reacEdit: resR._id
+                });
+                user.save().then((result) => {
+                    res.redirect('/login');
+                    return;
+                })
             });
-            user.save().then((result) => {
-                res.redirect('/login');
-                return;
-            })
+
         });
     } else {
         res.redirect("/register?mode=" + 'matchError');
         return;
+    }
+
+});
+
+app.post("/discardNewReacEdit", (req, res) => {
+    console.log("CABO");
+});
+
+app.post("/createOrSave", (req, res) => {
+    if (req.body.type === "create") {
+        var reacName = req.body.name;
+        var userId = req.body._id;
+    
+        const newReac = new Reac({
+            name: reacName
+        });
+    
+        newReac.save().then((_) => {
+            User.findByIdAndUpdate(userId, { $push: {reactors: newReac._id}}).then((ans) => {
+                res.redirect("/start?_id=" + userId);
+            })
+        });
+    }
+    else {
+        console.log(req.body.reacId);
+        Reac.findByIdAndUpdate(req.body.reacId, {name: req.body.name})
+        res.redirect("/start?_id=" + req.body._id);
     }
 
 });
@@ -190,10 +211,22 @@ app.get("/start", (req, res) => {
     var logedId = req.query._id;
 
     if (logedId) {
-        User.findById(logedId).then((ans) =>{
+        User.findById(logedId).then(async (ans) =>{
+
+            var newList = [];
+            var aux;
+        
+            for (let i=0; i<ans.reactors.length; i+=1) {
+                aux = await Reac.findById(ans.reactors[i]._id);
+                newList.push({
+                    name: aux.name,
+                    _id: aux._id
+                });
+            }
+
             res.render('startPage', {
                 username: ans.username,
-                reactors: ans.reactors,
+                reactors: newList,
                 _id: ans._id});
             return;
         })
@@ -204,7 +237,59 @@ app.get("/start", (req, res) => {
         res.redirect("/login");
         return;
     }
-}); 
+});
+
+app.get("/addReac", (req, res) => {
+    var logedId = req.query._id;
+
+    if (logedId) {
+        User.findById(logedId).then((ans) => {
+            Reac.findById(ans.reacEdit).then((ansR) => {
+                res.render('addReacPage', {
+                    username: ans.username,
+                    _id: ans._id,
+                    reac: ansR,
+                    reacId: ansR._id
+                });
+            });
+        })
+
+        return;
+    }
+    else {
+        res.redirect("/login");
+        return;
+    }
+});
+
+app.get("/editReac", (req, res) => {
+    var logedId = req.query._id;
+    var reacId = req.query.reacId
+
+    if (logedId && reacId) {
+        User.findById(logedId).then((ans) =>{
+            Reac.findById(reacId).then((ansR)=> {
+                res.render('addReacPage', {
+                    username: ans.username,
+                    _id: ans._id,
+                    reac: ansR,
+                    reacId: ansR._id
+                });
+                return;
+            })
+            return;
+        })
+
+        return;
+    }
+    else {
+        res.redirect("/login");
+        return;
+    }
+
+    console.log(logedId);
+    console.log(reacId);
+});
 // ---------- Get Requests ----------
 
 app.use((req, res) => {
