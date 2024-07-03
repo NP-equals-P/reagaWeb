@@ -10,7 +10,7 @@ body {
     height: 8vh;
 }
 
-.div1 button {
+.loginButton {
     position: absolute;
 
     width: 100px;
@@ -27,13 +27,13 @@ body {
     position: relative;
 }
 
-.div2 input {
+.registerInput {
     border-radius: 14px;
     width: 12vw;
     height: 4vh;
 }
 
-.div2 label {
+.registerLabel {
     color: rgb(206, 206, 206);
     font-weight: bold;
     font-size: 1.5em;
@@ -48,7 +48,8 @@ body {
     left: 44.5vw;
 }
 
-.div2 .errorMsg {
+.errorMsg {
     color: rgb(255, 63, 63);
+    font-weight: bold;
     font-size: 1em;
 }

@@ -12,30 +12,30 @@
         </div>
         <div class="div2">
             <br><br><br><br><br><br><br>
-            <!-- action="/register" method="post" -->
-            <form action="/register" method="post">
-                <label for="" >Username</label>
+            <form action="/tryRegister" method="post">
+                <label for="username" class="registerLabel">Username</label>
                 <br>
-                <input type="username" name="username" id="usernameInput">
-                <br> <br>
+                <input type="text" name="username" id="username" class="registerInput">
+                <br><br>
     
-                <label for="">Password</label>
+                <label for="repeatUsername" class="registerLabel">Repeat Username</label>
                 <br>
-                <input type="password" name="password" id="password1Input">
-                <br> <br>
-    
-                <label for="">Repeat Password</label>
+                <input type="text" name="repeatUsername" id="repeatUsername" class="registerInput">
+                <br><br>
+                
+                <label for="email" class="registerLabel">E-mail</label>
                 <br>
-                <input type="password" name="password2" id="password2Input">
-                <% if (mode === 'passwordMistake') {%>
-                    <br><br>
-                    <label class="errorMsg">The passwords didn't match</label>
-                <% } else if (mode === 'usernameTaken') { %>
-                    <br><br>
+                <input type="email" name="email" id="email" class="registerInput" disabled>
+                <br><br>
+
+                <% if (mode === "matchError") {%>
+                    <label class="errorMsg">Usernames dont't match</label>
+                <% } else if (mode === "takenError") { %>
                     <label class="errorMsg">Username already taken</label>
-                    <% } %>
-                    <button class="createButt">Create Account</button>
-                </form>
+                <% } %>
+
+                <button class="createButt">Create Account</button>
+            </form>
         </div>
     </body>
 </html>

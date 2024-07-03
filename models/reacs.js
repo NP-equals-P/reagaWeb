@@ -5,6 +5,22 @@ const reacSchema = new Schema({
     name: {
         type: String,
         required: true
+    },
+    sensors: {
+        type: Array,
+        value: []
+    },
+    actuators: {
+        type: Array,
+        value: []
+    },
+    routines: {
+        type: Array,
+        value: []
+    },
+    alarms: {
+        type: Array,
+        value: []
     }
 });
 

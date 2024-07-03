@@ -6,12 +6,9 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    password: {
-        type: String,
-        required: true
-    },
     reactors: {
-        type: Array
+        type: Array,
+        required: true
     }
 });
 

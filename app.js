@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require('mongoose');
 const { forEach } = require("lodash");
 const { ObjectId } = require("mongodb");
+const url = require('node:url');
 
 let findUserByID = function(id) {
 
@@ -96,7 +97,12 @@ app.post('/start', (req, res) => {
                             }
                         })
                             .then((result) => {
-                                res.render('startPage', {user: result});
+                                res.redirect(url.format({
+                                    pathname: "/start",
+                                    query: {
+                                        "type": "in"
+                                    }
+                                }));
                             });
                     });
             }
@@ -114,55 +120,91 @@ app.post('/addReac', (req, res) => {
     
 });
 
-app.post('/register', (req, res) => {
-    const que = User.find({});
-    que.select('username');
-    que.exec()
-        .then((ans) => {
-            var newUsername = req.body.username;
+app.post("/tryLogin", (req, res) => { 
+    var tryUsername = req.body.loginUsername;
 
+    const que = User.find({});
+
+    que.select('username');
+
+    que.exec().then((ans) => {
+        for (let i = 0; i<ans.length; i++) {
+            if (tryUsername === ans[i].username) {
+                res.redirect("/start?_id=" + ans[i]._id.toString());
+                return;
+            }
+        }
+
+        res.redirect("/login?mode=" + 'loginError');
+
+        return;
+    });
+
+});
+
+app.post('/tryRegister', (req, res) => {
+    var username = req.body.username;
+    var repeatUsername = req.body.repeatUsername;
+
+    if (username === repeatUsername) {
+        const que = User.find({});
+
+        que.select('username');
+
+        que.exec().then((ans) => {
             for (let i = 0; i<ans.length; i++) {
-                if (newUsername === ans[i].username) {
-                    res.render('registerPage', {mode: 'usernameTaken'});
-                    return
+                if (username === ans[i].username) {
+                    res.redirect("/register?mode=" + 'takenError');
+                    return;
                 }
             }
 
-            var pass1 = req.body.password;
-            var pass2 = req.body.password2;
-
-            if (pass1 === pass2) {
-                const user = new User({
-                    username: newUsername, 
-                    password: pass1, 
-                    reactors: []
-                });
-                user.save()
-                .then((result) => {
-                    res.redirect('/login');
-                    return
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-            }
-            else {
-                res.render('registerPage', {mode: 'passwordMistake'});
-                return
-            }
+            const user = new User({
+                username: username, 
+                reactors: []
+            });
+            user.save().then((result) => {
+                res.redirect('/login');
+                return;
+            })
         });
+    } else {
+        res.redirect("/register?mode=" + 'matchError');
+        return;
+    }
+
 });
 // ---------- Post Requests ----------
 
 
 // ---------- Get Requests ----------
 app.get('/register', (req, res) => {
-    res.render('registerPage', {mode: 'normal'});
+    res.render('registerPage', {mode: req.query.mode});
 });
 
 app.get('/login', (req, res) => {
-    res.render('loginPage', {mode: 'normal'});
+    res.render('loginPage', {mode: req.query.mode});
 });
+
+app.get("/start", (req, res) => {
+    var logedId = req.query._id;
+
+    if (logedId) {
+        User.findById(logedId).then((ans) =>{
+            res.render('startPage', {
+                username: ans.username,
+                reactors: ans.reactors,
+                _id: ans._id});
+            return;
+        })
+
+        return;
+    }
+    else {
+        res.redirect("/login");
+        return;
+    }
+}); 
 // ---------- Get Requests ----------
 
 app.use((req, res) => {

@@ -10,7 +10,7 @@ body {
     height: 8vh;
 }
 
-.div1 button {
+.registerButton {
     position: absolute;
 
     width: 100px;
@@ -28,19 +28,19 @@ body {
     position: relative;
 }
 
-.div2 button {
+.loginButton {
     height: 30px;
     width: 100px;
     border-radius: 10px;
 }
 
-.div2 input {
+.loginInput {
     border-radius: 10px;
     width: 10%;
     height: 10%;
 }
 
-.div2 label {
+.loginLabel {
     color: rgb(206, 206, 206);
     font-weight: bold;
     font-size: 1.5em;
@@ -48,17 +48,18 @@ body {
 
 svg {
     height: 280px;
-    top: 15px;
+    top: 30px;
 }
 
-.div3{
+.div3 {
     background-color: rgb(108, 140, 151);
     margin: 0;
     padding: 0;
     height: 8vh;
 }
 
-.div2 .errorMsg {
+.errorMsg {
     color: rgb(255, 63, 63);
     font-size: 1em;
+    font-weight: bold;
 }
