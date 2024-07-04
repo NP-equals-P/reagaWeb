@@ -23,6 +23,13 @@ const reacSchema = new Schema({
     },
     isEdit: {
         type: Boolean
+    },
+    isCreationEdit: {
+        type: Boolean
+    },
+    edit: {
+        type: String,
+        value: null
     }
 });
 

@@ -177,23 +177,57 @@ app.post("/createOrSave", (req, res) => {
     if (req.body.type === "create") {
         var reacName = req.body.name;
         var userId = req.body._id;
+        var reacId = req.body.reacId
     
-        const newReac = new Reac({
-            name: reacName
+        const newEdit = new Reac({
+            name: "",
+            isEdit: true,
+            isCreationEdit: true
         });
-    
-        newReac.save().then((_) => {
-            User.findByIdAndUpdate(userId, { $push: {reactors: newReac._id}}).then((ans) => {
-                res.redirect("/start?_id=" + userId);
-            })
+
+        const newReacEdit = new Reac({
+            name:reacName,
+            isEdit: true,
+            isCreationEdit: false
+        });
+
+        newEdit.save().then((result) => {
+            newReacEdit.save().then((resultE) => {
+                Reac.findByIdAndUpdate(reacId, {$set: {isEdit: false, isCreationEdit: null, name: reacName, edit: resultE._id}}).then((resultR) => {
+                    User.findByIdAndUpdate(userId, {$set: {reacEdit: result._id}, $push: {reactors: resultR._id}}).then((resultU) => {
+                        res.redirect("/start?_id=" + userId);
+                    });
+                });
+            });
         });
     }
     else {
-        console.log(req.body.reacId);
-        Reac.findByIdAndUpdate(req.body.reacId, {name: req.body.name})
-        res.redirect("/start?_id=" + req.body._id);
+        Reac.findByIdAndUpdate(req.body.reacId, {$set: {name: req.body.name}}).then((ans) => {
+            res.redirect("/start?_id=" + req.body._id);
+        });
     }
 
+});
+
+app.post("/deleteReac", (req, res) => {
+    var reacId = req.body.reacId;
+    var logedId = req.body._id;
+
+    Reac.findByIdAndDelete(reacId).then((result) => {
+        User.findByIdAndUpdate(logedId, { $pull: {reactors: new ObjectId(reacId)}}).then((resultU) => {
+            res.redirect("/start?_id=" + logedId);
+        });
+    })
+});
+
+app.post("/dicardEdit", (req, res) => {
+    var logedId = req.body._id;
+
+    User.findById(logedId).then((result) => {
+        Reac.findByIdAndUpdate(result.reacEdit, {$set: {name: ""}}).then((resultM) => {
+            res.redirect("/addReac?_id=" + logedId);
+        });
+    });
 });
 // ---------- Post Requests ----------
 
@@ -227,7 +261,8 @@ app.get("/start", (req, res) => {
             res.render('startPage', {
                 username: ans.username,
                 reactors: newList,
-                _id: ans._id});
+                _id: ans._id,
+                editId: ans.reacEdit});
             return;
         })
 
@@ -242,6 +277,7 @@ app.get("/start", (req, res) => {
 app.get("/addReac", (req, res) => {
     var logedId = req.query._id;
 
+    console.log("AAA");
     if (logedId) {
         User.findById(logedId).then((ans) => {
             Reac.findById(ans.reacEdit).then((ansR) => {
@@ -249,7 +285,8 @@ app.get("/addReac", (req, res) => {
                     username: ans.username,
                     _id: ans._id,
                     reac: ansR,
-                    reacId: ansR._id
+                    reacId: ansR._id,
+                    editId: ansR.edit
                 });
             });
         })
@@ -286,9 +323,6 @@ app.get("/editReac", (req, res) => {
         res.redirect("/login");
         return;
     }
-
-    console.log(logedId);
-    console.log(reacId);
 });
 // ---------- Get Requests ----------
 

@@ -5,18 +5,10 @@
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Reactor </title>
 
-        <script>
-            function tryDiscard() {
-                console.log("FAZER");                
-            }
-        </script>
     </head>
     <body>
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
-            <!-- <form action="/saveEdit" method="post">
-                <button class="backButt">Back</button>
-            </form> -->
 
             <button class="reacIconButton"></button>
 
@@ -25,19 +17,28 @@
                 <input type="text" id="name" name="name" class="nameInput" value="<%= reac.name %>">
                 <input type="hidden" id="_id" name="_id" value="<%= _id  %>">
                 <input type="hidden" id="reacId" name="reacId" value="<%= reac._id %>">
-                <button class="confirmButt" name="type" value="create">Create Reactor</button>
+                <% if (!reac.isEdit) { %>
+                    <button class="confirmButt" name="type" value="save">Save Changes</button>
+                <% } else { %>
+                    <button class="confirmButt" name="type" value="create">Create Reactor</button>
+                <% } %>
                 <button class="backButt" name="type" value="save">Back</button>
             </form>
 
             <% if (!reac.isEdit) { %>
-                <form action="/discardReac" method="post">
-                    <button class="deleteButt" onclick="tryDiscard()">Delete Reactor</button>
+                <form action="/deleteReac" method="post">
+                    <button class="deleteButt">Delete Reactor</button>
+                    <input type="hidden" id="reacId" name="reacId" value="<%= reac._id %>">
+                    <input type="hidden" id="_id" name="_id" value="<%= _id  %>">
                 </form>
             <% } %>
 
-            <form action="/discardNewReacEdit" method="post">
-                <button class="discardButt" onclick="tryDiscard()">Discard Edit</button>
-            </form>
+            <% if (reac.isEdit) { %>
+                <form action="/dicardEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" id="_id" name="_id" value="<%= _id  %>">
+                </form>
+            <% } %>
         </div>
         <div class="compModule">
             <button class="addSensButt"></button>

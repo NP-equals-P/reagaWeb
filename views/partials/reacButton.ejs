@@ -3,9 +3,16 @@
         width: 15vw;
         height: 45vh;
         background-color: white;
+        left: 10vw;
+    }
+
+    .hyperLink {
+        display: inline-block;
+        width: 15vw;
+        height: 45vh;
         margin: 1vw;
     }
 </style>
-<a href="/editReac?_id=<%= _id %>&reacId=<%= reacId %>">
+<a href="/editReac?_id=<%= _id %>&reacId=<%= reacId %>" class="hyperLink">
     <button class="reacButton"><%= name  %></button>
 </a>
