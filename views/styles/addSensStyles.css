@@ -15,9 +15,10 @@ body {
     top: 20vh;
     left: 50vw;
     background-color: rgb(196, 196, 196);
+    border: 2px solid black;
 }
 
-.div1 label {
+.inputLabel {
     position: absolute;
     color: rgb(206, 206, 206);
     font-weight: bold;
@@ -25,7 +26,7 @@ body {
     left: 10vw;
 }
 
-.div1 input {
+.dataInput {
     position: absolute;
     border-radius: 10px;
     width: 12vw;
@@ -33,7 +34,7 @@ body {
     left: 10vw;
 }
 
-.div1 select {
+.modelSelect {
     position: absolute;
     left: 10vw;
     width: 12vw;
@@ -46,8 +47,40 @@ body {
 }
 
 .backButt {
-    height: 5vh;
-    width: 6vw;
+    height: 6vh;
+    width: 8vw;
     border-radius: 10px;
-    margin: 1vh;
+    font-weight: bold;
+    margin: 6px;
+}
+
+.discardButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 6px;
+    top: 93vh;
+}
+
+.confirmButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    right: 6px;
+    top: 93vh;
+}
+
+.deleteButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    color: red;
+    position: absolute;
+    left: 6px;
+    top: 86vh;
 }

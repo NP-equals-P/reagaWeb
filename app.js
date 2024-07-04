@@ -23,6 +23,8 @@ let findUserByID = function(id) {
 const User = require('./models/users');
 
 const Reac = require('./models/reacs');
+
+const Sens = require('./models/sens');
 // ---------- Mongoose Models ----------
 
 
@@ -201,9 +203,15 @@ app.post("/createOrSave", (req, res) => {
             });
         });
     }
-    else {
+    else if (req.body.type === "save") {
         Reac.findByIdAndUpdate(req.body.reacId, {$set: {name: req.body.name}}).then((ans) => {
             res.redirect("/start?_id=" + req.body._id);
+        });
+    } else {
+        Reac.findByIdAndUpdate(req.body.reacId, {$set: {name: req.body.name}}).then((ansR) => {
+            Reac.findByIdAndUpdate(req.body.tempId, {$set: {name: req.body.name}}).then((ansE) => {
+                res.redirect("/start?_id=" + req.body._id);
+            });
         });
     }
 
@@ -214,20 +222,32 @@ app.post("/deleteReac", (req, res) => {
     var logedId = req.body._id;
 
     Reac.findByIdAndDelete(reacId).then((result) => {
-        User.findByIdAndUpdate(logedId, { $pull: {reactors: new ObjectId(reacId)}}).then((resultU) => {
-            res.redirect("/start?_id=" + logedId);
+        Reac.findByIdAndDelete(result.edit).then((resultE) => {
+            User.findByIdAndUpdate(logedId, { $pull: {reactors: new ObjectId(reacId)}}).then((resultU) => {
+                res.redirect("/start?_id=" + logedId);
+            });
         });
     })
 });
 
 app.post("/dicardEdit", (req, res) => {
     var logedId = req.body._id;
+    var reacId = req.body.reacId;
 
-    User.findById(logedId).then((result) => {
-        Reac.findByIdAndUpdate(result.reacEdit, {$set: {name: ""}}).then((resultM) => {
-            res.redirect("/addReac?_id=" + logedId);
+    if (reacId) {
+        Reac.findById(reacId).then((result) => {
+            Reac.findByIdAndUpdate(result.edit, {$set: {name: result.name}}).then((resultE) => {
+                res.redirect("/editReac?_id=" + logedId + "&reacId=" + reacId);
+            });
         });
-    });
+    } else {
+        User.findById(logedId).then((result) => {
+            Reac.findByIdAndUpdate(result.reacEdit, {$set: {name: ""}}).then((resultM) => {
+                res.redirect("/addReac?_id=" + logedId);
+            });
+        });
+    }
+
 });
 // ---------- Post Requests ----------
 
@@ -277,7 +297,6 @@ app.get("/start", (req, res) => {
 app.get("/addReac", (req, res) => {
     var logedId = req.query._id;
 
-    console.log("AAA");
     if (logedId) {
         User.findById(logedId).then((ans) => {
             Reac.findById(ans.reacEdit).then((ansR) => {
@@ -286,7 +305,8 @@ app.get("/addReac", (req, res) => {
                     _id: ans._id,
                     reac: ansR,
                     reacId: ansR._id,
-                    editId: ansR.edit
+                    data: ansR,
+                    isCreationEdit: true
                 });
             });
         })
@@ -305,12 +325,17 @@ app.get("/editReac", (req, res) => {
 
     if (logedId && reacId) {
         User.findById(logedId).then((ans) =>{
-            Reac.findById(reacId).then((ansR)=> {
-                res.render('addReacPage', {
-                    username: ans.username,
-                    _id: ans._id,
-                    reac: ansR,
-                    reacId: ansR._id
+            Reac.findById(reacId).then((ansR) => {
+                Reac.findById(ansR.edit).then((ansE) => {
+                    res.render('addReacPage', {
+                        username: ans.username,
+                        _id: ans._id,
+                        reac: ansR,
+                        data: ansE,
+                        reacId: ansR._id,
+                        editId: ansR.edit,
+                        isCreationEdit: false
+                    });
                 });
                 return;
             })
@@ -323,6 +348,10 @@ app.get("/editReac", (req, res) => {
         res.redirect("/login");
         return;
     }
+});
+
+app.get("/sensor", (req, res) => {
+    res.render("addSensPage", {username: "AQUi"});
 });
 // ---------- Get Requests ----------
 

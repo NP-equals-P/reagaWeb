@@ -14,18 +14,19 @@
 
             <form action="/createOrSave" method="post">
                 <label for="username" class="nameLabel">Name:</label>
-                <input type="text" id="name" name="name" class="nameInput" value="<%= reac.name %>">
+                <input type="text" id="name" name="name" class="nameInput" value="<%= data.name %>">
                 <input type="hidden" id="_id" name="_id" value="<%= _id  %>">
-                <input type="hidden" id="reacId" name="reacId" value="<%= reac._id %>">
+                <input type="hidden" id="reacId" name="reacId" value="<%= data._id %>">
+                <input type="hidden" id="tempId" name="tempId" value="<%= reac._id %>">
                 <% if (!reac.isEdit) { %>
-                    <button class="confirmButt" name="type" value="save">Save Changes</button>
+                    <button class="confirmButt" name="type" value="concrete">Save Changes</button>
                 <% } else { %>
                     <button class="confirmButt" name="type" value="create">Create Reactor</button>
                 <% } %>
                 <button class="backButt" name="type" value="save">Back</button>
             </form>
 
-            <% if (!reac.isEdit) { %>
+            <% if (!isCreationEdit) { %>
                 <form action="/deleteReac" method="post">
                     <button class="deleteButt">Delete Reactor</button>
                     <input type="hidden" id="reacId" name="reacId" value="<%= reac._id %>">
@@ -33,15 +34,23 @@
                 </form>
             <% } %>
 
-            <% if (reac.isEdit) { %>
+            <% if (isCreationEdit) { %>
                 <form action="/dicardEdit" method="post">
                     <button class="discardButt">Discard Edit</button>
                     <input type="hidden" id="_id" name="_id" value="<%= _id  %>">
                 </form>
+            <% } else { %>
+                <form action="/dicardEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" id="_id" name="_id" value="<%= _id  %>">
+                    <input type="hidden" id="reacId" name="reacId" value="<%= reac._id  %>">
+                </form>
             <% } %>
         </div>
         <div class="compModule">
-            <button class="addSensButt"></button>
+            <a href="/sensor">
+                <button class="addSensButt">+</button>
+            </a>
             <div class="sensList"></div>
 
             <button class="addActuButt"></button>

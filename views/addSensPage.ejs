@@ -6,26 +6,29 @@
         <title> Add Sensor </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs') %>
+        <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
             <button class="backButt">Back</button>
             <div class="formModule">
                 <form action="">
-                    <label for="">Name</label>
+                    <label for="" class="inputLabel">Name</label>
                     <br><br>
-                    <input type="text">
+                    <input type="text" class="dataInput">
                     <br><br><br>
-                    <label for="">Exit</label>
+                    <label for="" class="inputLabel">Exit</label>
                     <br><br>
-                    <input type="text">
+                    <input type="text" class="dataInput">
                     <br><br><br>
-                    <label for="">Model</label>
+                    <label for="" class="inputLabel">Model</label>
                     <br><br>
-                    <select name="" id=""></select>
+                    <select name="" id="" class="modelSelect"></select>
                 </form>
             </div>
             <div class="div2">
             </div>
+            <button class="deleteButt">Delete Sensor</button>
+            <button class="discardButt">Discard Edit</button>
+            <button class="confirmButt" name="type" value="concrete">Save Changes</button>
         </div>
     </body>
 </html>
