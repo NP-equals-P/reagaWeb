@@ -52,6 +52,9 @@ body {
     border-radius: 10px;
     font-weight: bold;
     margin: 6px;
+    position: absolute;
+    left: -10vw;
+    top: -12vh;
 }
 
 .discardButt {
@@ -70,8 +73,8 @@ body {
     border-radius: 10px;
     font-weight: bold;
     position: absolute;
-    right: 6px;
-    top: 93vh;
+    left: 81vw;
+    top: 73vh;
 }
 
 .deleteButt {

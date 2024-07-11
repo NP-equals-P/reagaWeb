@@ -22,9 +22,7 @@ let findUserByID = function(id) {
 // ---------- Mongoose Models ----------
 const User = require('./models/users');
 
-const Reac = require('./models/reacs');
-
-const Sens = require('./models/sens');
+const Reac = require('./models/reactors');
 // ---------- Mongoose Models ----------
 
 
@@ -51,6 +49,188 @@ mongoose.connect(urI)
 
 
 // ---------- Post Requests ----------
+app.post('/tryRegister', (req, res) => {
+    var username = req.body.username;
+    var repeatUsername = req.body.repeatUsername;
+
+    if (username === repeatUsername) {
+        const que = User.find({});
+
+        que.select('username');
+
+        que.exec().then((ans) => {
+            for (let i = 0; i<ans.length; i++) {
+                if (username === ans[i].username) {
+                    res.redirect("/register?mode=" + 'takenError');
+                    return;
+                }
+            }
+
+            const registerSensorEdit = {
+                name: "",
+                exit: "",
+                model: ""
+            };
+
+            const registerActuatorEdit = {
+                name: "",
+                exit: "",
+                model: ""
+            };
+
+            const registerReactorEdit = {
+                name: "",
+                sensorCrationEdit: registerSensorEdit,
+                actuatorCreationEdit: registerActuatorEdit
+            };
+
+            User.create({
+                username: username, reactors: [], reactorCreationEdit: registerReactorEdit}).then((result) => {
+                res.redirect('/login');
+            });
+        });
+    } else {
+        res.redirect("/register?mode=" + 'matchError');
+    }
+});
+
+app.post("/tryLogin", (req, res) => { 
+    var tryUsername = req.body.loginUsername;
+
+    const que = User.find({});
+
+    que.select('username');
+
+    que.exec().then((ans) => {
+        for (let i = 0; i<ans.length; i++) {
+            if (tryUsername === ans[i].username) {
+                res.redirect("/start?_id=" + ans[i]._id.toString());
+                return;
+            }
+        }
+
+        res.redirect("/login?mode=" + 'loginError');
+    });
+});
+
+app.post("/dicardCreationEdit", (req, res) => {
+    var logedId = req.body._id;
+    
+    const cleanSensorCreationEdit = {
+        name: "",
+        exit: "",
+        model: ""
+    }
+
+    const cleanActuatorCreationEdit = {
+        name: "",
+        exit: "",
+        model: ""
+    }
+
+    const cleanCreationEdit = {
+        name: "",
+        sensors: [],
+        actuators: [],
+        sensorCrationEdit: cleanSensorCreationEdit,
+        actuatorCreationEdit: cleanActuatorCreationEdit
+    }
+
+    User.findByIdAndUpdate(logedId, {$set: {reactorCreationEdit: cleanCreationEdit}}).then((result) => {
+        res.redirect("/start?_id=" + logedId);
+    });
+
+});
+
+app.post("/createOrSaveSensorUser", (req, res) => {
+    const type = req.body.type;
+
+    switch (type) {
+        case "create":
+            break;
+        default:
+            User.findById(_id).then((result) => {
+                result.reactorCreationEdit.name = newName;
+
+            });
+    }
+});
+
+
+app.post("/createOrSave", (req, res) => {
+    const type = req.body.type;
+    const _id = req.body._id;
+    const newName = req.body.newReacName;
+
+    switch (type) {
+        case "create":
+            
+            User.findById(_id).then((result) => {
+                const newSensorCreationEdit = {
+                    name: "",
+                    exit: "",
+                    model: ""
+                }
+
+                const newActuatorCreationEdit = {
+                    name: "",
+                    exit: "",
+                    model: ""
+                }
+
+                const newEdit = {
+                    name: result.reactorCreationEdit.name,
+                    sensors: result.reactorCreationEdit.sensors,
+                    actuators: result.reactorCreationEdit.actuators,
+                    sensorCrationEdit: newSensorCreationEdit,
+                    actuatorCreationEdit: newActuatorCreationEdit
+                }
+
+                Reac.create({
+                    name: result.reactorCreationEdit.name,
+                    sensors: result.reactorCreationEdit.sensors,
+                    actuators: result.reactorCreationEdit.actuators,
+                    edit: newEdit
+                }).then((resultR) => {
+                    result.reactorCreationEdit.name = "";
+                    result.reactorCreationEdit.sensors = [];
+                    result.reactorCreationEdit.sensorCrationEdit = newSensorCreationEdit;
+                    result.reactorCreationEdit.actuatorCreationEdit = newActuatorCreationEdit;
+
+                    result.save().then((resultU) => {
+                        User.findByIdAndUpdate(_id, {$push: {reactors: resultR._id}}).then((resultF) => {
+                            res.redirect("/start?_id=" + _id);
+                        });
+                    });
+                });
+            });
+
+            break;
+        case "realize": 
+            console.log("Realize");
+            break;
+        default:
+            User.findById(_id).then((result) => {
+                result.reactorCreationEdit.name = newName;
+                result.save().then((resultS) => {
+                    switch (type) {
+                        case "saveRedSensors":
+                            res.redirect("/addSensor");
+                            break;
+                        case "saveRedActuators":
+                            // res.redirect("/actuator");
+                            break;
+                        default:
+                            res.redirect("/start?_id=" + _id);
+                    }
+                });
+            });
+    }   
+});
+
+
+
+
 app.post('/start', (req, res) => {
     const que = User.find({});
     que.exec()
@@ -111,110 +291,8 @@ app.post('/start', (req, res) => {
         });
 });
 
-app.post("/tryLogin", (req, res) => { 
-    var tryUsername = req.body.loginUsername;
-
-    const que = User.find({});
-
-    que.select('username');
-
-    que.exec().then((ans) => {
-        for (let i = 0; i<ans.length; i++) {
-            if (tryUsername === ans[i].username) {
-                res.redirect("/start?_id=" + ans[i]._id.toString());
-                return;
-            }
-        }
-
-        res.redirect("/login?mode=" + 'loginError');
-
-        return;
-    });
-
-});
-
-app.post('/tryRegister', (req, res) => {
-    var username = req.body.username;
-    var repeatUsername = req.body.repeatUsername;
-
-    if (username === repeatUsername) {
-        const que = User.find({});
-
-        que.select('username');
-
-        que.exec().then((ans) => {
-            for (let i = 0; i<ans.length; i++) {
-                if (username === ans[i].username) {
-                    res.redirect("/register?mode=" + 'takenError');
-                    return;
-                }
-            }
-
-            const editReac = new Reac({name: "", isEdit: true});
-            editReac.save().then((resR) => {
-                const user = new User({
-                    username: username, 
-                    reactors: [],
-                    reacEdit: resR._id
-                });
-                user.save().then((result) => {
-                    res.redirect('/login');
-                    return;
-                })
-            });
-
-        });
-    } else {
-        res.redirect("/register?mode=" + 'matchError');
-        return;
-    }
-
-});
-
 app.post("/discardNewReacEdit", (req, res) => {
     console.log("CABO");
-});
-
-app.post("/createOrSave", (req, res) => {
-    if (req.body.type === "create") {
-        var reacName = req.body.name;
-        var userId = req.body._id;
-        var reacId = req.body.reacId
-    
-        const newEdit = new Reac({
-            name: "",
-            isEdit: true,
-            isCreationEdit: true
-        });
-
-        const newReacEdit = new Reac({
-            name:reacName,
-            isEdit: true,
-            isCreationEdit: false
-        });
-
-        newEdit.save().then((result) => {
-            newReacEdit.save().then((resultE) => {
-                Reac.findByIdAndUpdate(reacId, {$set: {isEdit: false, isCreationEdit: null, name: reacName, edit: resultE._id}}).then((resultR) => {
-                    User.findByIdAndUpdate(userId, {$set: {reacEdit: result._id}, $push: {reactors: resultR._id}}).then((resultU) => {
-                        res.redirect("/start?_id=" + userId);
-                    });
-                });
-            });
-        });
-    }
-    else if (req.body.type === "save") {
-        Reac.findByIdAndUpdate(req.body.reacId, {$set: {name: req.body.name}}).then((ans) => {
-            res.redirect("/start?_id=" + req.body._id);
-        });
-    } else {
-        Reac.findByIdAndUpdate(req.body.reacId, {$set: {name: req.body.name}}).then((ansR) => {
-            Reac.findByIdAndUpdate(req.body.tempId, {$set: {name: req.body.name}}).then((ansE) => {
-                res.redirect("/start?_id=" + req.body._id);
-            });
-        });
-    }
-
 });
 
 app.post("/deleteReac", (req, res) => {
@@ -253,19 +331,19 @@ app.post("/dicardEdit", (req, res) => {
 
 
 // ---------- Get Requests ----------
-app.get('/register', (req, res) => {
-    res.render('registerPage', {mode: req.query.mode});
-});
-
 app.get('/login', (req, res) => {
     res.render('loginPage', {mode: req.query.mode});
+});
+
+app.get('/register', (req, res) => {
+    res.render('registerPage', {mode: req.query.mode});
 });
 
 app.get("/start", (req, res) => {
     var logedId = req.query._id;
 
     if (logedId) {
-        User.findById(logedId).then(async (ans) =>{
+        User.findById(logedId).then(async (ans) => {
 
             var newList = [];
             var aux;
@@ -281,41 +359,36 @@ app.get("/start", (req, res) => {
             res.render('startPage', {
                 username: ans.username,
                 reactors: newList,
-                _id: ans._id,
-                editId: ans.reacEdit});
-            return;
+                _id: ans._id});
         })
-
-        return;
     }
     else {
         res.redirect("/login");
-        return;
     }
 });
 
+app.get("/addSensor", (req, res) => {
+    res.render("addSensPage", {username: "AQUi"});
+});
+
+
 app.get("/addReac", (req, res) => {
     var logedId = req.query._id;
+    var mode = req.query.mode;
 
     if (logedId) {
         User.findById(logedId).then((ans) => {
-            Reac.findById(ans.reacEdit).then((ansR) => {
-                res.render('addReacPage', {
-                    username: ans.username,
-                    _id: ans._id,
-                    reac: ansR,
-                    reacId: ansR._id,
-                    data: ansR,
-                    isCreationEdit: true
-                });
+            res.render('addReacPage', {
+                username: ans.username,
+                _id: ans._id,
+                edit: ans.reactorCreationEdit,
+                mode: mode
             });
         })
-
-        return;
     }
     else {
+        console.log(logedId + "AAA");
         res.redirect("/login");
-        return;
     }
 });
 
@@ -348,10 +421,6 @@ app.get("/editReac", (req, res) => {
         res.redirect("/login");
         return;
     }
-});
-
-app.get("/sensor", (req, res) => {
-    res.render("addSensPage", {username: "AQUi"});
 });
 // ---------- Get Requests ----------
 

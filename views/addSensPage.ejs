@@ -8,27 +8,30 @@
     <body>
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
-            <button class="backButt">Back</button>
             <div class="formModule">
                 <form action="">
+                    <button class="backButt" name="type" value="saveBack">Back</button>
+
                     <label for="" class="inputLabel">Name</label>
                     <br><br>
-                    <input type="text" class="dataInput">
+                    <input type="text" class="dataInput" id="sensorName" name="sensorName">
                     <br><br><br>
+
                     <label for="" class="inputLabel">Exit</label>
                     <br><br>
                     <input type="text" class="dataInput">
                     <br><br><br>
+
                     <label for="" class="inputLabel">Model</label>
                     <br><br>
                     <select name="" id="" class="modelSelect"></select>
+
+                    <button class="confirmButt" name="type" value="create">Create Sensor</button>
                 </form>
             </div>
             <div class="div2">
             </div>
-            <button class="deleteButt">Delete Sensor</button>
             <button class="discardButt">Discard Edit</button>
-            <button class="confirmButt" name="type" value="concrete">Save Changes</button>
         </div>
     </body>
 </html>

@@ -18,7 +18,11 @@
 
                 <input type="hidden" id="_id" name="_id" value=<%= _id %>>
 
-                <button class="confirmButt" name="type" value="create">Create Reactor</button>
+                <% if (mode === "creation") { %>
+                    <button class="confirmButt" name="type" value="create">Create Reactor</button>
+                <% } else { %>
+                    <button class="confirmButt" name="type" value="concrete">Concrete Changes</button>
+                <% } %>
 
                 <button class="backButt" name="type" value="saveBack">Back</button>
 
@@ -31,9 +35,18 @@
                 </div>
             </form>
 
-            <form action="/dicardCreationEdit" method="post">
-                <button class="discardButt">Discard Edit</button>
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+            <% if (!(mode === "creation")) { %>
+                <form action="/deleteReac" method="post">
+                    <button class="deleteButt">Delete Reactor</button>
+                </form>
+            <% } %>
+
+            <form action="/dicardEdit" method="post">
+                <% if ((mode === "creation")) { %>
+                    <button class="discardButt">Discard Edit</button>
+                <% } else { %>
+                    <button class="discardButt">Discard Edit</button>
+                <% } %>
             </form>
         </div>
 
