@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/addReacPageStyles.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> Add Reactor </title>
+
+    </head>
+    <body>
+        <%- include('./partials/nav.ejs', {name: username}) %>
+
+        <% var confirmText %>
+        <% var concreteText %>
+        <% if (mode === "creation") { %>
+            <% confirmText = "Create Reactor" %>
+            <% concreteText = "create" %>
+        <% } else { %>
+            <% confirmText = "Save Changes" %>
+            <% concreteText = "concrete" %>
+        <% } %>
+
+        <div class="div1">
+            <button class="reacIconButton"></button>
+
+            <form action="/createChangeSaveReac" method="post">
+                <label for="newReacName" class="nameLabel">Name:</label>
+                <input type="text" class="nameInput" id="newReacName" name="newReacName" value="<%= edit.name %>">
+
+                <button class="confirmButt" name="type" value=<%= concreteText %>><%= confirmText %></button>
+                
+                <button class="backButt" name="type" value="saveBack">Back</button>
+                
+                <div class="compModule">
+                    <span for="" class="sensorsLabel">Sensors</span>
+                    <button class="addSensButt" name="type" value="saveSensors">+</button>
+                    <div class="sensList">
+                        <!-- <% for (let i = 0; i < 10; i += 1) { %>
+                            <%- include('./partials/sensButton.ejs', {name: "AAAA"}) %>
+                        <% } %> -->
+                    </div>
+
+                    <span for="" class="actuatorsLabel">Actuators</span>
+                    <button class="addActuButt" name="type" value="saveActuators">+</button>
+                    <div class="actuList">
+                    </div>
+
+                    <span for="" class="alarmsLabel">Alarms</span>
+                    <button class="addAlarButt" name="type" value="saveAlarms">+</button>
+                    <div class="alarList">
+                    </div>
+                </div>
+
+                
+                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                <input type="hidden" id="mode" name="mode" value=<%= mode %>>
+            </form>
+
+            <form action="/dicardReactorEdit" method="post">
+                <button class="discardButt">Discard Edit</button>
+                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                <input type="hidden" id="mode" name="mode" value=<%= mode %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+            </form>
+
+            <% if (mode === "edition") { %>
+                <form action="/deleteReactor" method="post">
+                    <button class="deleteButt">Delete Reactor</button>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                </form>
+            <% } %>
+        </div>
+
+        <div class="routineModule">
+            <button class="addRoutButt">+</button>
+            <div class="routList"></div>
+        </div>
+        
+
+
+    </body>
+</html>

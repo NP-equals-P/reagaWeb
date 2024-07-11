@@ -104,7 +104,7 @@ app.post("/tryLogin", (req, res) => {
     que.exec().then((ans) => {
         for (let i = 0; i<ans.length; i++) {
             if (tryUsername === ans[i].username) {
-                res.redirect("/start?_id=" + ans[i]._id.toString());
+                res.redirect("/start?_id=" + ans[i]._id);
                 return;
             }
         }
@@ -113,218 +113,143 @@ app.post("/tryLogin", (req, res) => {
     });
 });
 
-app.post("/dicardCreationEdit", (req, res) => {
-    var logedId = req.body._id;
-    
-    const cleanSensorCreationEdit = {
-        name: "",
-        exit: "",
-        model: ""
-    }
-
-    const cleanActuatorCreationEdit = {
-        name: "",
-        exit: "",
-        model: ""
-    }
-
-    const cleanCreationEdit = {
-        name: "",
-        sensors: [],
-        actuators: [],
-        sensorCrationEdit: cleanSensorCreationEdit,
-        actuatorCreationEdit: cleanActuatorCreationEdit
-    }
-
-    User.findByIdAndUpdate(logedId, {$set: {reactorCreationEdit: cleanCreationEdit}}).then((result) => {
-        res.redirect("/start?_id=" + logedId);
-    });
-
-});
-
-app.post("/createOrSaveSensorUser", (req, res) => {
+app.post("/createChangeSaveReac", (req, res) => {
+    const mode = req.body.mode;
     const type = req.body.type;
-
-    switch (type) {
-        case "create":
-            break;
-        default:
-            User.findById(_id).then((result) => {
-                result.reactorCreationEdit.name = newName;
-
-            });
-    }
-});
-
-
-app.post("/createOrSave", (req, res) => {
-    const type = req.body.type;
-    const _id = req.body._id;
+    const userId = req.body._id;
     const newName = req.body.newReacName;
 
-    switch (type) {
-        case "create":
-            
-            User.findById(_id).then((result) => {
-                const newSensorCreationEdit = {
-                    name: "",
-                    exit: "",
-                    model: ""
-                }
-
-                const newActuatorCreationEdit = {
-                    name: "",
-                    exit: "",
-                    model: ""
-                }
-
-                const newEdit = {
-                    name: result.reactorCreationEdit.name,
-                    sensors: result.reactorCreationEdit.sensors,
-                    actuators: result.reactorCreationEdit.actuators,
-                    sensorCrationEdit: newSensorCreationEdit,
-                    actuatorCreationEdit: newActuatorCreationEdit
-                }
-
-                Reac.create({
-                    name: result.reactorCreationEdit.name,
-                    sensors: result.reactorCreationEdit.sensors,
-                    actuators: result.reactorCreationEdit.actuators,
-                    edit: newEdit
-                }).then((resultR) => {
-                    result.reactorCreationEdit.name = "";
-                    result.reactorCreationEdit.sensors = [];
-                    result.reactorCreationEdit.sensorCrationEdit = newSensorCreationEdit;
-                    result.reactorCreationEdit.actuatorCreationEdit = newActuatorCreationEdit;
-
-                    result.save().then((resultU) => {
-                        User.findByIdAndUpdate(_id, {$push: {reactors: resultR._id}}).then((resultF) => {
-                            res.redirect("/start?_id=" + _id);
+    switch (mode) {
+        case "creation": 
+            switch (type) {
+                case "create":
+                    User.findById(userId).then((result) => {
+                        const newSensorCreationEdit = {
+                            name: "",
+                            exit: "",
+                            model: ""
+                        }
+        
+                        const newActuatorCreationEdit = {
+                            name: "",
+                            exit: "",
+                            model: ""
+                        }
+        
+                        const newEdit = {
+                            name: newName,
+                            sensors: result.reactorCreationEdit.sensors,
+                            actuators: result.reactorCreationEdit.actuators,
+                            sensorCrationEdit: newSensorCreationEdit,
+                            actuatorCreationEdit: newActuatorCreationEdit
+                        }
+        
+                        Reac.create({
+                            name: newName,
+                            sensors: result.reactorCreationEdit.sensors,
+                            actuators: result.reactorCreationEdit.actuators,
+                            edit: newEdit
+                        }).then((resultR) => {
+                            result.reactorCreationEdit.name = "";
+                            result.reactorCreationEdit.sensors = [];
+                            result.reactorCreationEdit.actuators = [];
+                            result.reactorCreationEdit.sensorCrationEdit = newSensorCreationEdit;
+                            result.reactorCreationEdit.actuatorCreationEdit = newActuatorCreationEdit;
+        
+                            result.save().then((resultU) => {
+                                User.findByIdAndUpdate(userId, {$push: {reactors: resultR._id}}).then((resultF) => {
+                                    res.redirect("/start?_id=" + userId);
+                                });
+                            });
                         });
                     });
-                });
-            });
-
-            break;
-        case "realize": 
-            console.log("Realize");
-            break;
-        default:
-            User.findById(_id).then((result) => {
-                result.reactorCreationEdit.name = newName;
-                result.save().then((resultS) => {
-                    switch (type) {
-                        case "saveRedSensors":
-                            res.redirect("/addSensor");
-                            break;
-                        case "saveRedActuators":
-                            // res.redirect("/actuator");
-                            break;
-                        default:
-                            res.redirect("/start?_id=" + _id);
-                    }
-                });
-            });
-    }   
-});
-
-
-
-
-app.post('/start', (req, res) => {
-    const que = User.find({});
-    que.exec()
-        .then((ans) => {
-            if (req.body.type === "auth") {
-                var tryUsername = req.body.username;
-                var tryPassword = req.body.password;
-    
-                for (let i = 0; i<ans.length; i++) {
-                    if (tryUsername === ans[i].username) {
-                        if (tryPassword === ans[i].password) {
-                            res.render('startPage', {user: ans[i]});
-                            return
-                        }
-                        else {
-                            res.render('loginPage', {mode: 'error'});
-                            return
-                        }
-                    }
-                }
-                res.render('loginPage', {mode: 'error'});
-                return
-            } else if (req.body.type === "in") {
-
-                let AUser = findUserByID(req.body.id)
-
-                AUser.then(function(result) {
-                    if (result != null) {
-                        res.render('startPage', {user: result});
-                    }
-                });
-            } else if (req.body.type === "addReac") {
-                var reacName = req.body.name;
-                var userId = req.body.id;
-
-                const reac = new Reac({
-                    name: reacName
-                });
-
-                
-                reac.save()
-                .then(() => {
-                        User.findByIdAndUpdate(userId, {
-                            $push: {
-                                reactors: reac._id
+                    break;
+                default:
+                    User.findById(userId).then((result) => {
+                        result.reactorCreationEdit.name = newName;
+                        result.save().then((resultS) => {
+                            switch (type) {
+                                case "saveSensors":
+                                    res.redirect("/addSensor?_id=" + userId);
+                                    break;
+                                default:
+                                    res.redirect("/start?_id=" + userId);
                             }
-                        })
-                            .then((result) => {
-                                res.redirect(url.format({
-                                    pathname: "/start",
-                                    query: {
-                                        "type": "in"
-                                    }
-                                }));
-                            });
+                        });
                     });
             }
-        });
+            break;
+        default:
+            const reacId = req.body.reacId;
+
+            switch (type) {
+                case "concrete":
+                    Reac.findById(reacId).then((resultR) => {
+                        resultR.name = newName;
+                        resultR.edit.name = newName;
+                        resultR.sensors = resultR.edit.sensors;
+                        resultR.actuators = resultR.edit.actuators;
+                        resultR.save().then((resultS) => {
+                            res.redirect("/reacView?_id=" + userId + "&reacId=" + reacId);
+                        });
+                    });
+                    break;
+                default:
+                    Reac.findById(reacId).then((resultR) => {
+                        resultR.edit.name = newName;
+                        resultR.save().then((resultS) => {
+                            switch (type) {
+                                case "saveSensors":
+                                    res.redirect("/addSensor?_id=" + userId);
+                                    break;
+                                default:
+                                    res.redirect("/reacView?_id=" + userId + "&reacId=" + reacId);
+                            }
+                        });
+                    });
+            }
+    }
 });
 
-app.post("/discardNewReacEdit", (req, res) => {
-    console.log("CABO");
-});
-
-app.post("/deleteReac", (req, res) => {
+app.post("/deleteReactor", (req, res) => {
     var reacId = req.body.reacId;
     var logedId = req.body._id;
 
-    Reac.findByIdAndDelete(reacId).then((result) => {
-        Reac.findByIdAndDelete(result.edit).then((resultE) => {
-            User.findByIdAndUpdate(logedId, { $pull: {reactors: new ObjectId(reacId)}}).then((resultU) => {
-                res.redirect("/start?_id=" + logedId);
-            });
+    User.findByIdAndUpdate(logedId, { $pull: {reactors: new ObjectId(reacId)}}).then((resultU) => {
+        Reac.findByIdAndDelete(reacId).then((resultD) => {
+            res.redirect("/start?_id=" + logedId);
         });
-    })
+    });
 });
 
-app.post("/dicardEdit", (req, res) => {
+app.post("/dicardReactorEdit", (req, res) => {
     var logedId = req.body._id;
     var reacId = req.body.reacId;
+    var mode = req.body.mode;
 
-    if (reacId) {
+    if (mode === "edition") {
         Reac.findById(reacId).then((result) => {
-            Reac.findByIdAndUpdate(result.edit, {$set: {name: result.name}}).then((resultE) => {
+            result.edit.name = result.name;
+            result.edit.sensors = result.sensors;
+            result.edit.actuators = result.actuators;
+            result.save().then((resultS) => {
                 res.redirect("/editReac?_id=" + logedId + "&reacId=" + reacId);
             });
         });
     } else {
         User.findById(logedId).then((result) => {
-            Reac.findByIdAndUpdate(result.reacEdit, {$set: {name: ""}}).then((resultM) => {
+            result.reactorCreationEdit.name = "";
+            result.reactorCreationEdit.sensors = [];
+            result.reactorCreationEdit.actuators = [];
+            result.save().then((resultS) => {
                 res.redirect("/addReac?_id=" + logedId);
             });
         });
     }
+
+});
+
+app.post("/createChangeSaveSensor", (req, res) => {
 
 });
 // ---------- Post Requests ----------
@@ -342,87 +267,100 @@ app.get('/register', (req, res) => {
 app.get("/start", (req, res) => {
     var logedId = req.query._id;
 
-    if (logedId) {
-        User.findById(logedId).then(async (ans) => {
+    User.findById(logedId).then(async (ans) => {
 
-            var newList = [];
-            var aux;
-        
-            for (let i=0; i<ans.reactors.length; i+=1) {
-                aux = await Reac.findById(ans.reactors[i]._id);
-                newList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
+        var newList = [];
+        var aux;
+    
+        for (let i=0; i<ans.reactors.length; i+=1) {
+            aux = await Reac.findById(ans.reactors[i]._id);
+            newList.push({
+                name: aux.name,
+                _id: aux._id
+            });
+        }
 
-            res.render('startPage', {
-                username: ans.username,
-                reactors: newList,
-                _id: ans._id});
-        })
-    }
-    else {
-        res.redirect("/login");
-    }
+        res.render('startPage', {
+            username: ans.username,
+            reactors: newList,
+            _id: ans._id});
+    })
 });
-
-app.get("/addSensor", (req, res) => {
-    res.render("addSensPage", {username: "AQUi"});
-});
-
 
 app.get("/addReac", (req, res) => {
     var logedId = req.query._id;
-    var mode = req.query.mode;
 
-    if (logedId) {
-        User.findById(logedId).then((ans) => {
-            res.render('addReacPage', {
-                username: ans.username,
-                _id: ans._id,
-                edit: ans.reactorCreationEdit,
-                mode: mode
-            });
-        })
-    }
-    else {
-        console.log(logedId + "AAA");
-        res.redirect("/login");
-    }
+    User.findById(logedId).then((ans) => {
+        res.render('reacSettingsPage', {
+            username: ans.username,
+            _id: ans._id,
+            reacId: null,
+            edit: ans.reactorCreationEdit,
+            mode: "creation"
+        });
+    })
+});
+
+app.get("/reacView", (req, res) => {
+    var userId = req.query._id;
+    var reacId = req.query.reacId;
+
+    User.findById(userId).then((resultU) => {
+        Reac.findById(reacId).then((resultR) => {
+            res.render("reacView", {
+                username: resultU.username,
+                _id: userId,
+                reac: resultR
+            })
+        });
+    });
+
 });
 
 app.get("/editReac", (req, res) => {
     var logedId = req.query._id;
-    var reacId = req.query.reacId
+    var reacId = req.query.reacId;
 
-    if (logedId && reacId) {
-        User.findById(logedId).then((ans) =>{
-            Reac.findById(reacId).then((ansR) => {
-                Reac.findById(ansR.edit).then((ansE) => {
-                    res.render('addReacPage', {
-                        username: ans.username,
-                        _id: ans._id,
-                        reac: ansR,
-                        data: ansE,
-                        reacId: ansR._id,
-                        editId: ansR.edit,
-                        isCreationEdit: false
+    User.findById(logedId).then((user) => {
+        for (let i=0; i < user.reactors.length; i+=1) {
+            if (reacId === user.reactors[i].toString()) {
+                Reac.findById(user.reactors[i]).then((reac) => {
+                    res.render('reacSettingsPage', {
+                        username: user.username,
+                        _id: logedId,
+                        reacId: reacId,
+                        edit: reac.edit,
+                        mode: "edition"
                     });
                 });
-                return;
-            })
-            return;
-        })
+                break;
+            }
+        }
+    });
+});
 
-        return;
+app.get("/addSensor", (req, res) => {
+    var logedId = req.query._id;
+    var mode = req.query.mode;
+
+    switch (mode) {
+        case "creation":
+                User.findById(logedId).then((resultU) => {
+                    res.render("sensSettingsPage", {
+                        username: resultU.username,
+                        _id: logedId,
+                        sensorData: resultU.reactorCreationEdit.sensorCrationEdit
+                    });
+                });
+            break;
+        default:
+            break;
     }
-    else {
-        res.redirect("/login");
-        return;
-    }
+
+    res.render("addSensPage", {username: "A", _id: logedId});
 });
 // ---------- Get Requests ----------
+
 
 app.use((req, res) => {
     res.render('loginPage', {mode: 'normal'})

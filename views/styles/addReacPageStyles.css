@@ -37,7 +37,7 @@ body {
 
 .compModule {
     background-color: rgb(107, 107, 107);
-    height: 45vh;
+    height: 46.6vh;
     width: 45.5vw;
     position: absolute;
     top: 20vh;
@@ -51,6 +51,16 @@ body {
     margin: 1vh;
     border-radius: 7px;
     font-size: 25px;
+    top: 3.5vh;
+}
+
+.sensorsLabel {
+    position: absolute;
+    color: rgb(228, 228, 228);
+    font-weight: bold;
+    left: 9px;
+    top: 3px;
+    font-size: 14px;
 }
 
 .addActuButt {
@@ -58,10 +68,18 @@ body {
     height: 8vh;
     width: 8vh;
     margin: 1vh;
-    top: 17.5vh;
+    top: 20.5vh;
     border-radius: 7px;
-    font-weight: bold;
     font-size: 25px;
+}
+
+.actuatorsLabel {
+    position: absolute;
+    color: rgb(228, 228, 228);
+    font-weight: bold;
+    left: 2px;
+    top: 115px;
+    font-size: 14px;
 }
 
 .addAlarButt {
@@ -69,38 +87,49 @@ body {
     height: 8vh;
     width: 8vh;
     margin: 1vh;
-    top: 35vh;
+    top: 37.5vh;
     border-radius: 7px;
-    font-weight: bold;
     font-size: 25px;
+}
+
+.alarmsLabel {
+    position: absolute;
+    color: rgb(228, 228, 228);
+    font-weight: bold;
+    left: 10px;
+    top: 230px;
+    font-size: 14px;
 }
 
 .sensList {
     position: absolute;
-    height: 9vh;
+    height: 12vh;
     width: 40.35vw;
     background-color: rgb(46, 131, 160);
     left: 10vh;
     border: 2px solid black;
+
+    overflow: auto;
+    white-space: nowrap;
 }
 
 .actuList {
     position: absolute;
-    height: 9vh;
+    height: 12vh;
     width: 40.35vw;
     background-color: rgb(46, 131, 160);
     left: 10vh;
-    top: 17.5vh;
+    top: 17vh;
     border: 2px solid black;
 }
 
 .alarList {
     position: absolute;
-    height: 9vh;
+    height: 12vh;
     width: 40.35vw;
     background-color: rgb(46, 131, 160);
     left: 10vh;
-    top: 35.29vh;
+    top: 34vh;
     border: 2px solid black;
 }
 
@@ -118,6 +147,7 @@ body {
     width: 18vh;
     margin: 1vh;
     border-radius: 8px;
+    font-size: 50px;
 }
 
 .routList {

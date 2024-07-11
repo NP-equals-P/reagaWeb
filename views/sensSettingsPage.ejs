@@ -9,23 +9,24 @@
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
             <div class="formModule">
-                <form action="">
+                <form action="/createOrSaveSensorUser" method="post">
                     <button class="backButt" name="type" value="saveBack">Back</button>
 
                     <label for="" class="inputLabel">Name</label>
                     <br><br>
-                    <input type="text" class="dataInput" id="sensorName" name="sensorName">
+                    <input type="text" class="dataInput" id="sensorName" name="sensorName" value="<%= sensorData.nome %>">
                     <br><br><br>
 
                     <label for="" class="inputLabel">Exit</label>
                     <br><br>
-                    <input type="text" class="dataInput">
+                    <input type="text" class="dataInput" value="<%= sensorData.exit %>">
                     <br><br><br>
 
                     <label for="" class="inputLabel">Model</label>
                     <br><br>
                     <select name="" id="" class="modelSelect"></select>
 
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
                     <button class="confirmButt" name="type" value="create">Create Sensor</button>
                 </form>
             </div>

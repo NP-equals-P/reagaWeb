@@ -13,10 +13,7 @@
                     <%- include('./partials/reacButton.ejs', {name: reactors[i].name, reacId: reactors[i]._id}) %>
                 <% } %>
             </div>
-            <!-- <a href="/addReac?_id=&editId=">
-                <button class="addReacButton">Add Reactor</button>
-            </a> -->
-            <a href="/addReac?_id=<%= _id %>&mode=creation">
+            <a href="/addReac?_id=<%= _id %>">
                 <button class="addReacButton">Add Reactor</button>
             </a>
         </div>

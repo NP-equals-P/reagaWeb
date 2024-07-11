@@ -13,7 +13,7 @@ body {
     background-color: rgb(211, 211, 211);
     height: 40vh;
     width: 40vw;
-    top: 26vh;
+    top: 30vh;
     left: 2vw;
     border: 3px solid black;
 }
@@ -22,11 +22,17 @@ body {
     color: white;
     font-weight: bold;
     font-size: 25px;
+    position: absolute;
+    left: 43vw;
+    top: 9vh;
 }
 
 .reactorSelect {
     width: 8vw;
     height: 25px;
+    position: absolute;
+    left: 50vw;
+    top: 9vh;
 }
 
 .hdButton {
@@ -35,7 +41,7 @@ body {
     border-radius: 10px;
     height: 30px;
     position: absolute;
-    top: 21vh;
+    top: 25vh;
     left: 2vw;
 }
 
@@ -45,7 +51,7 @@ body {
     border-radius: 10px;
     height: 30px;
     position: absolute;
-    top: 21vh;
+    top: 25vh;
     left: 50vw;
 }
 
@@ -54,6 +60,9 @@ body {
     font-size: 15px;
     border-radius: 10px;
     height: 30px;
+    position: absolute;
+    right: 0.5vw;
+    bottom: 1vh;
 }
 
 .div3 {
@@ -61,7 +70,7 @@ body {
     background-color: rgb(211, 211, 211);
     height: 10vh;
     width: 40vw;
-    top: 67vh;
+    top: 71vh;
     border: 3px solid black;
     left: 2vw;
 
@@ -75,6 +84,15 @@ body {
     height: 40vh;
     width: 30vw;
     left: 50vw;
-    top: 26vh;
+    top: 30vh;
     border: 3px solid black;
+}
+
+.backButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bolder;
+    font-size: 15px;
+    margin: 6px;
 }

@@ -6,19 +6,25 @@
         <title> Reac View </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs') %>
+        <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
+            <a href="/start?_id=<%= _id %>">
+                <button class="backButt">Back</button>
+            </a>
+
             <label class="reactorLabel" for="reactor">Reactor:</label>
-            <select class="reactorSelect" name="reactor" id="">
+            <select class="reactorSelect" name="reactor" id="" disabled>
+                <option value="<%= reac.name %>"><%= reac.name %></option>
             </select>
-            <button class="erButton">Edit Reactor</button>
+            <a href="/editReac?_id=<%= _id %>&reacId=<%= reac._id %>">
+                <button class="erButton">Edit Reactor</button>
+            </a>
 
 
             <button class="hdButton">All Historic Data</button>
             <div class="div2">
             </div>
             <div class="div3">
-                <%- include('./partials/manualEvtButton.ejs') %>
             </div>
             <button class="ldButton">All Log Data</button>
             <div class="div4">
