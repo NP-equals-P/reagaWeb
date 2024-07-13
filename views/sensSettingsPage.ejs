@@ -9,17 +9,17 @@
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
             <div class="formModule">
-                <form action="/createOrSaveSensorUser" method="post">
+                <form action="/createSaveSensor" method="post">
                     <button class="backButt" name="type" value="saveBack">Back</button>
 
                     <label for="" class="inputLabel">Name</label>
                     <br><br>
-                    <input type="text" class="dataInput" id="sensorName" name="sensorName" value="<%= sensorData.nome %>">
+                    <input type="text" class="dataInput" id="newSensName" name="newSensName" value="<%= data.name %>">
                     <br><br><br>
 
                     <label for="" class="inputLabel">Exit</label>
                     <br><br>
-                    <input type="text" class="dataInput" value="<%= sensorData.exit %>">
+                    <input type="text" class="dataInput" id="newExit" name="newExit" value="<%= data.exit %>">
                     <br><br><br>
 
                     <label for="" class="inputLabel">Model</label>
@@ -27,12 +27,30 @@
                     <select name="" id="" class="modelSelect"></select>
 
                     <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <button class="confirmButt" name="type" value="create">Create Sensor</button>
+                    <input type="hidden" id="sensId" name="sensId" value=<%= data._id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <% if (data.isCreation) { %>
+                        <button class="confirmButt" name="type" id="type" value="create">Create Sensor</button>
+                    <% } %>
                 </form>
             </div>
             <div class="div2">
             </div>
-            <button class="discardButt">Discard Edit</button>
+
+            <% if (data.isCreation) { %>
+                <form action="/dicardSensorEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="sensId" name="sensId" value=<%= data._id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                </form>
+            <% } else { %>
+                <form action="/deleteSensor" method="post">
+                    <button class="deleteButt">Delete Sensor</button>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="sensId" name="sensId" value=<%= data._id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+            <% } %>
         </div>
     </body>
 </html>

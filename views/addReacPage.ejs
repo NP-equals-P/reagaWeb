@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/addReacPageStyles.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> Add Reactor </title>
+
+    </head>
+    <body>
+        <%- include('./partials/nav.ejs', {name: username}) %>
+
+        <div class="div1">
+            <button class="reacIconButton"></button>
+
+            <form action="/createSaveReac" method="post">
+                <label for="newReacName" class="nameLabel">Name:</label>
+                <input type="text" class="nameInput" id="newReacName" name="newReacName" value="<%= data.reactor.name %>">
+
+                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= data.reactor._id %>>
+                
+                <button class="backButt" name="type" value="saveBack">Back</button>
+
+                <% if (data.reactor.isCreation) { %>
+                    <button class="confirmButt" name="type" value="create">Create Reactor</button>
+                <% } %>
+
+                <div class="compModule">
+                    <span for="" class="sensorsLabel">Sensors</span>
+                    <button class="addSensButt" name="type" value="saveSensors">+</button>
+                    <div class="sensList">
+                        <% for (let i=0; i<data.sensors.length; i+=1) { %>
+                            <%- include("./partials/sensButton.ejs", {sensor: data.sensors[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% } %>
+                    </div>
+
+                    <span for="" class="actuatorsLabel">Actuators</span>
+                    <button class="addActuButt" name="type" value="saveActuators">+</button>
+                    <div class="actuList">
+                    </div>
+
+                    <span for="" class="alarmsLabel">Alarms</span>
+                    <button class="addAlarButt" name="type" value="saveAlarms">+</button>
+                    <div class="alarList">
+                    </div>
+                </div>
+            </form>
+
+            <% if (data.reactor.isCreation) { %>
+                <form action="/dicardReactorEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= data.reactor._id %>>
+                </form>
+            <% } %>
+        </div>
+
+        <div class="routineModule">
+            <button class="addRoutButt">+</button>
+            <div class="routList"></div>
+        </div>
+        
+
+
+    </body>
+</html>

@@ -14,12 +14,17 @@
 
             <label class="reactorLabel" for="reactor">Reactor:</label>
             <select class="reactorSelect" name="reactor" id="" disabled>
-                <option value="<%= reac.name %>"><%= reac.name %></option>
+                <option value="<%= data.name %>"><%= data.name %></option>
             </select>
-            <a href="/editReac?_id=<%= _id %>&reacId=<%= reac._id %>">
+            <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
                 <button class="erButton">Edit Reactor</button>
             </a>
 
+            <form action="/deleteReactor" method="post">
+                <button class="deleteButt">Delete Reactor</button>
+                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
+            </form>
 
             <button class="hdButton">All Historic Data</button>
             <div class="div2">

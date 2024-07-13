@@ -62,7 +62,7 @@ body {
     height: 30px;
     position: absolute;
     right: 0.5vw;
-    bottom: 1vh;
+    top: 94.5vh;
 }
 
 .div3 {
@@ -95,4 +95,14 @@ body {
     font-weight: bolder;
     font-size: 15px;
     margin: 6px;
+}
+
+.deleteButt {
+    height: 30px;
+    border-radius: 10px;
+    font-weight: bold;
+    color: red;
+    position: absolute;
+    left: 6px;
+    top: 94.5vh;
 }
