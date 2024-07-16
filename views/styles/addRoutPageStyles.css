@@ -24,19 +24,21 @@ body {
 .div2 {
     width: 70vw;
     height: 50vh;
-    background-color: aquamarine;
+    background-color: rgb(46, 131, 160);
     position: absolute;
     left: 15vw;
     top: 23vh;
+    border: 2px solid black;
 }
 
 .div3 {
     width: 70vw;
     height: 18vh;
-    background-color: bisque;
+    background-color: rgb(46, 131, 160);
     position: absolute;
     left: 15vw;
-    top: 82vh;
+    top: 80vh;
+    border: 2px solid black;
 }
 
 .backButt {

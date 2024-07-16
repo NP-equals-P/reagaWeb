@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 const actuatorSchema = new Schema({
     name: String,
     exit: String,
-    model: String
+    model: String,
+    isCreation: Boolean
 });
 
 const Actuator = mongoose.model('actuator', actuatorSchema);

@@ -12,6 +12,7 @@ const url = require('node:url');
 const User = require('./models/users');
 const Reac = require('./models/reactors');
 const Sens = require('./models/sensors');
+const Actu = require('./models/actuators');
 // ---------- Mongoose Models ----------
 
 
@@ -54,11 +55,15 @@ app.post('/tryRegister', (req, res) => {
                     return;
                 }
             }
-            Sens.create({isCreation: true}).then((sensor) => {
-                Reac.create({isCreation: true, creationSensor: sensor._id}).then((resultR) => {
-                    User.create({username: username, creationReactor: resultR._id}).then((resultU) => {
-                        res.redirect('/login');
-                    });
+            Actu.create({isCreation: true}).then((actuator) => {
+                Sens.create({isCreation: true}).then((sensor) => {
+                    Reac.create({isCreation: true, 
+                        creationSensor: sensor._id,
+                        creationActuator: actuator._id}).then((resultR) => {
+                            User.create({username: username, creationReactor: resultR._id}).then((resultU) => {
+                                res.redirect('/login');
+                            });
+                        });
                 });
             });
         });
@@ -113,6 +118,9 @@ app.post("/createSaveReac", (req, res) => {
                     case "saveSensors":
                         res.redirect("/addSensor?_id=" + userId + "&reacId=" + reacId);
                         break;
+                    case "saveActuators":
+                        res.redirect("/addActuator?_id=" + userId + "&reacId=" + reacId);
+                        break;
                     default:
                         if (reactor.isCreation) {
                             res.redirect("/start?_id=" + userId);
@@ -143,7 +151,17 @@ app.post("/deleteReactor", (req, res) => {
     var logedId = req.body._id;
 
     User.findByIdAndUpdate(logedId, { $pull: {reactors: reacId}}).then((resultU) => {
-        Reac.findByIdAndDelete(reacId).then((resultD) => {
+        Reac.findByIdAndDelete(reacId).then(async (resultD) => {
+                for (let i=0; i<resultD.sensors.length; i+=1) {
+                    await Sens.findByIdAndDelete(resultD.sensors[i]);
+                }
+                for (let i=0; i<resultD.actuators.length; i+=1) {
+                    await Actu.findByIdAndDelete(resultD.actuators[i]);
+                }
+
+                await Sens.findByIdAndDelete(resultD.creationSensor);
+                await Actu.findByIdAndDelete(resultD.creationActuator);
+
             res.redirect("/start?_id=" + logedId);
         });
     });
@@ -218,6 +236,76 @@ app.post("/deleteSensor", (req, res) => {
         });
     });
 });
+
+app.post("/createSaveActuator", (req, res) => {
+    const type = req.body.type;
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+    const actuId = req.body.actuId;
+
+    const newName = req.body.newActuName;
+    const newExit = req.body.newExit;
+
+    switch (type) {
+        case "create":
+            Actu.findByIdAndUpdate(actuId, {$set: {name: newName, exit: newExit, isCreation: false}}).then((actuator) => {
+                Actu.create({isCreation: true}).then((creationActuator) => {
+                    Reac.findByIdAndUpdate(reacId, {
+                        $set: {
+                            creationActuator: creationActuator._id
+                        }, 
+                        $push: {
+                            actuators: actuator._id
+                        }
+                    }).then((reactor) => {
+                        if (reactor.isCreation) {
+                            res.redirect("/addReac?_id=" + userId);
+                        } else {
+                            res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId)
+                        }
+                    });
+                });
+            });
+            break;
+        default:
+            Actu.findByIdAndUpdate(actuId, {$set: {name: newName, exit: newExit}}).then((actuator) => {
+                Reac.findById(reacId).then((reactor) => {
+                    if (reactor.isCreation) {
+                        res.redirect("/addReac?_id=" + userId);
+                    } else {
+                        res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+                    }
+                });
+            });
+            break;
+    }
+});
+
+app.post("/dicardActuatorEdit", (req, res) => {
+    var userId = req.body._id;
+    var reacId = req.body.reacId;
+    var actuId = req.body.actuId;
+
+    Actu.create({isCreation: true}).then((creationActu) => {
+        Reac.findByIdAndUpdate(reacId, {$set: {creationActuator: creationActu._id}}).then((reac) => {
+            Actu.findByIdAndDelete(actuId).then((deletedActu) => {
+                res.redirect("/addActuator?_id=" + userId + "&reacId=" + reacId);
+            });
+        });
+    });
+});
+
+app.post("/deleteActuator", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+    var actuId = req.body.actuId;
+
+    Reac.findByIdAndUpdate(reacId, { $pull: {actuators: actuId}}).then((reactor) => {
+        Actu.findByIdAndDelete(actuId).then((actuator) => {
+            res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+        });
+    });
+});
 // ---------- Post Requests ----------
 
 
@@ -270,7 +358,7 @@ app.get("/addReac", (req, res) => {
                 });
             }
 
-            res.render('addReacPage', {
+            res.render('reacSettingsPage', {
                 username: user.username,
                 _id: logedId,
                 data: {reactor: reactor, sensors: newSensList}
@@ -287,6 +375,7 @@ app.get("/editReac", (req, res) => {
         Reac.findById(reacId).then(async (reac) => {
 
             var newSensList = [];
+            var newActuList = [];
             var aux;
 
             for (let i=0; i<reac.sensors.length; i+=1) {
@@ -297,10 +386,18 @@ app.get("/editReac", (req, res) => {
                 });
             }
 
-            res.render('addReacPage', {
+            for (let i=0; i<reac.actuators.length; i+=1) {
+                aux = await Actu.findById(reac.actuators[i]._id);
+                newActuList.push({
+                    name: aux.name,
+                    _id: aux._id
+                });
+            }
+
+            res.render('reacSettingsPage', {
                 username: user.username,
                 _id: logedId,
-                data: {reactor: reac, sensors: newSensList}
+                data: {reactor: reac, sensors: newSensList, actuators: newActuList}
             });
         });
     });
@@ -354,6 +451,45 @@ app.get("/editSensor", (req, res) => {
             });
         });
     });
+});
+
+app.get("/addActuator", (req, res) => {
+    var userId = req.query._id;
+    var reacId = req.query.reacId;
+
+    User.findById(userId).then((user) => {
+        Reac.findById(reacId).then((reac) => {
+            Actu.findById(reac.creationActuator).then((actuator) => {
+                res.render("actuSettingsPage", {
+                    username: user.username,
+                    _id: userId,
+                    reacId: reacId,
+                    data: actuator
+                });
+            });
+        });
+    });
+});
+
+app.get("/editActuator", (req, res) => {
+    var userId = req.query._id;
+    var reacId = req.query.reacId;
+    var actuId = req.query.actuId;
+
+    User.findById(userId).then((user) => {
+        Actu.findById(actuId).then((actuator) => {
+            res.render("actuSettingsPage", {
+                username: user.username,
+                _id: userId,
+                reacId: reacId,
+                data: actuator
+            });
+        });
+    });
+});
+
+app.get("/addRoutine", (req, res) => {
+    res.render("routSettingsPage", {username: "AAAA"});
 });
 // ---------- Get Requests ----------
 

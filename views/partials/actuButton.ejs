@@ -1,5 +1,5 @@
 <style>
-    .sensButton {
+    .actuButton {
         width: 6vw;
         height: 4vw;
         background-color: white;
@@ -13,6 +13,6 @@
     }
 
 </style>
-<a href=<%= "/editSensor?_id=" + _id + "&reacId=" + reacId + "&sensId=" + sensor._id%> class="hyperLink">
-    <button class="sensButton" type="button"><%= sensor.name %></button>
+<a href=<%= "/editActuator?_id=" + _id + "&reacId=" + reacId + "&actuId=" + actuator._id%> class="hyperLink">
+    <button class="actuButton" type="button"><%= actuator.name %></button>
 </a>

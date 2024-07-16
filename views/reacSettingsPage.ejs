@@ -37,12 +37,14 @@
                     <span for="" class="actuatorsLabel">Actuators</span>
                     <button class="addActuButt" name="type" value="saveActuators">+</button>
                     <div class="actuList">
+                        <% for (let i=0; i<data.actuators.length; i+=1) { %>
+                            <%- include("./partials/actuButton.ejs", {actuator: data.actuators[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% } %>
                     </div>
-
-                    <span for="" class="alarmsLabel">Alarms</span>
-                    <button class="addAlarButt" name="type" value="saveAlarms">+</button>
-                    <div class="alarList">
-                    </div>
+                </div>
+                <div class="routineModule">
+                    <button class="addRoutButt" name="type" value="saveRoutines">+</button>
+                    <div class="routList"></div>
                 </div>
             </form>
 
@@ -54,13 +56,5 @@
                 </form>
             <% } %>
         </div>
-
-        <div class="routineModule">
-            <button class="addRoutButt">+</button>
-            <div class="routList"></div>
-        </div>
-        
-
-
     </body>
 </html>
