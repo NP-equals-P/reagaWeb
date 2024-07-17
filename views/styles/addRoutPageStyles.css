@@ -37,7 +37,7 @@ body {
     background-color: rgb(46, 131, 160);
     position: absolute;
     left: 15vw;
-    top: 80vh;
+    top: 75vh;
     border: 2px solid black;
 }
 
@@ -48,6 +48,7 @@ body {
     border-radius: 10px;
     top: 9vh;
     left: 1vh;
+    font-weight: bold;
 }
 
 .addEvtButt {
@@ -55,7 +56,39 @@ body {
     height: 6vh;
     width: 7vw;
     border-radius: 10px;
-    top: 74vh;
+    top: 68vh;
     left: 87vw;
     font-weight: bold;
+    font-size: 15px;
+}
+
+.confirmButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 91vw;
+    top: 93vh;
+}
+
+.deleteButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    color: red;
+    position: absolute;
+    left: 6px;
+    top: 93vh;
+}
+
+.discardButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 6px;
+    top: 93vh;
 }

@@ -5,7 +5,7 @@
         background-color: white;
     }
 
-    .hyperLink {
+    .hyperLinkActuator {
         display: inline-block;
         width: 6vw;
         height: 4vw;
@@ -13,6 +13,6 @@
     }
 
 </style>
-<a href=<%= "/editActuator?_id=" + _id + "&reacId=" + reacId + "&actuId=" + actuator._id%> class="hyperLink">
+<a href=<%= "/editActuator?_id=" + _id + "&reacId=" + reacId + "&actuId=" + actuator._id%> class="hyperLinkActuator">
     <button class="actuButton" type="button"><%= actuator.name %></button>
 </a>

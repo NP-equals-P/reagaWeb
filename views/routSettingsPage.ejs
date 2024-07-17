@@ -8,18 +8,42 @@
     <body>
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
-            <button class="backButt">Back</button>
-            <br>
-            <label for="" class="nameLabel">Name</label>
-            <br>
-            <input type="text" name="" id="" class="inputName">
-            <div class="div2">
-                
-            </div>
-            <button class="addEvtButt">Add Event</button>
-            <div class="div3">
+            <form action="/createSaveRoutine", method="post">
+                <button class="backButt" name="type" value="saveBack">Back</button>
+                <br>
+                <label for="" class="nameLabel">Name</label>
+                <br>
+                <input type="text" name="newRoutName" id="newRoutName" class="inputName" value="<%= data.name %>">
+                <div class="div2">
+                    
+                </div>
+                <button class="addEvtButt" name="type" value="saveEvents">Add Event</button>
+                <div class="div3">
+                </div>
 
-            </div>
+                <input type="hidden" id="routId" name="routId" value=<%= data._id %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+
+                <% if (data.isCreation) { %>
+                    <button class="confirmButt" name="type" id="type" value="create">Create Routine</button>
+                <% } %>
+            </form>
+            <% if (data.isCreation) { %>
+                <form action="/dicardEventEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" id="routId" name="routId" value=<%= data._id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                </form>
+            <% } else { %>
+                <form action="/deleteRoutine" method="post">
+                    <button class="deleteButt">Delete Routine</button>
+                    <input type="hidden" id="routId" name="routId" value=<%= data._id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                </form>
+            <% } %>
         </div>
     </body>
 </html>

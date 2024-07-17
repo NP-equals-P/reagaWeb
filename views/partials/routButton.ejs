@@ -1,0 +1,18 @@
+<style>
+    .routButton {
+        width: 12vw;
+        height: 13vh;
+        background-color: white;
+        left: 10vw;
+    }
+
+    .hyperLinkRoutine {
+        display: inline-block;
+        width: 12vw;
+        height: 13vh;
+        margin: 0.5vw;
+    }
+</style>
+<a href=<%= "/editRoutine?_id=" + _id + "&reacId=" + reacId + "&routId=" + routine._id %> class="hyperLinkRoutine">
+    <button class="routButton" type="button"><%= routine.name %></button>
+</a>

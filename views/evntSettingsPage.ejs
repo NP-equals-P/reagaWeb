@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/addEvtPageStyles.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> Add Event </title>
+    </head>
+    <body>
+        <%- include('./partials/nav.ejs', {name: username}) %>
+        <div class="div1">
+            <form action="/createSaveEvent" method="post">
+                <input type="hidden" id="evntId" name="evntId" value=<%= data._id %>>
+                <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+
+                <button class="backButt" name="type" value="saveBack">Back</button>
+
+                <label for="" class="nameLabel">Name</label>
+                <input type="text" name="newEvntName" id="newEvntName" class="nameInput" value="<%= data.name %>">
+                <br><br>
+
+                <% if (data.type === "esporadic") { %>
+                    <label for="" class="normalLabel">Normal</label>
+                    <input type="radio" name="group" id="newNormalType" class="normalRadio" value="normal">
+                    <label for="" class="esporadicLabel">Esporadic</label>
+                    <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" value="esporadic" checked>
+                <% } else { %>
+                    <label for="" class="normalLabel">Normal</label>
+                    <input type="radio" name="group" id="newNormalType" class="normalRadio" value="normal" checked>
+                    <label for="" class="esporadicLabel">Esporadic</label>
+                    <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" value="esporadic">
+                <% } %>
+
+    
+                <div class="div2">
+                </div>
+
+                <input type="number" name="newStart" id="newStart" class="startInput" value="<%= data.start %>">
+                <label for="" class="startLabel">Start</label>
+    
+                <input type="number" name="newDuration" id="newDuration" class="durationInput" value="<%= data.duration %>">
+                <label for="" class="durationLabel">Duration</label>
+
+                <button class="addActionButt">Add Action</button>
+
+                <% if (data.isCreation) { %>
+                    <button class="confirmButt" name="type" id="type" value="create">Create Event</button>
+                <% } %>
+            </form>
+
+            <% if (data.isCreation) { %>
+                <form action="/dicardEventEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" id="evntId" name="evntId" value=<%= data._id %>>
+                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                </form>
+            <% } else { %>
+                <form action="/deleteEvent" method="post">
+                    <button class="deleteButt">Delete Event</button>
+                    <input type="hidden" id="evntId" name="evntId" value=<%= data._id %>>
+                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                </form>
+            <% } %>
+        </div>
+    </body>
+</html>

@@ -7,7 +7,7 @@
 
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
 
         <div class="div1">
             <button class="reacIconButton"></button>
@@ -44,7 +44,11 @@
                 </div>
                 <div class="routineModule">
                     <button class="addRoutButt" name="type" value="saveRoutines">+</button>
-                    <div class="routList"></div>
+                    <div class="routList">
+                        <% for (let i=0; i<data.routines.length; i+=1) { %>
+                            <%- include("./partials/routButton.ejs", {routine: data.routines[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% } %>
+                    </div>
                 </div>
             </form>
 

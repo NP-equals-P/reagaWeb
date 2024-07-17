@@ -3,8 +3,9 @@ const Schema = mongoose.Schema;
 
 const actionSchema = new Schema({
     name: String,
-    start: String,
-    duration: String,
+    isCreation: Boolean,
+    start: Number,
+    duration: Number,
     component: {
         type: mongoose.Schema.Types.ObjectId,
     }

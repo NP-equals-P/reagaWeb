@@ -6,7 +6,7 @@
         <title> Start </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
         <div class="div1">
             <div class="div2">
                 <% for (let i = 0; i < reactors.length; i++) { %>

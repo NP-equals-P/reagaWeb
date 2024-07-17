@@ -6,7 +6,7 @@
         <title> Add Sensor </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
         <div class="div1">
             <div class="formModule">
                 <form action="/createSaveSensor" method="post">
@@ -26,9 +26,9 @@
                     <br><br>
                     <select name="" id="" class="modelSelect"></select>
 
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="sensId" name="sensId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" id="_id" name="_id" value='<%= _id %>'>
+                    <input type="hidden" id="sensId" name="sensId" value='<%= data._id %>'>
+                    <input type="hidden" id="reacId" name="reacId" value='<%= reacId %>'>
                     <% if (data.isCreation) { %>
                         <button class="confirmButt" name="type" id="type" value="create">Create Sensor</button>
                     <% } %>

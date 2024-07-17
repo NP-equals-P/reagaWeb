@@ -17,22 +17,12 @@ const reactorSchema = new Schema({
     actuators: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "actuators"
+            ref: "actuators",
         }
     ],
     creationActuator: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "actuators"
-    },
-    alarms: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "alarms"
-        }
-    ],
-    creationAlarm: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "alarms"
     },
     routines: [
         {

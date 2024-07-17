@@ -121,6 +121,9 @@ body {
     left: 10vh;
     top: 17vh;
     border: 2px solid black;
+
+    overflow: auto;
+    white-space: nowrap;
 }
 
 .alarList {
@@ -158,6 +161,9 @@ body {
     margin: 1vh;
     left: 20vh;
     border: 2px solid black;
+
+    overflow: auto;
+    white-space: nowrap;
 }
 
 .backButt {

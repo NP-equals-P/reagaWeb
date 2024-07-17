@@ -6,7 +6,7 @@
         <title> Reac View </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
         <div class="div1">
             <a href="/start?_id=<%= _id %>">
                 <button class="backButt">Back</button>

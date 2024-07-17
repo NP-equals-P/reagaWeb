@@ -6,6 +6,73 @@ const url = require('node:url');
 
 // ---------- My Functions ----------
 
+async function deleteFullEvent(evntId) {
+    Evnt.findByIdAndDelete(evntId).then(async (event) => {
+        for (let i=0; i<event.actions.lenght; i+=1) {
+            await Acti.findByIdAndDelete(event.actions[i]);
+        }
+
+        await Acti.findByIdAndDelete(event.creationAction);
+    });
+}
+
+async function deleteFullRoutine(routId) {
+    Rout.findByIdAndDelete(routId).then(async (routine) => {
+        for (let i=0; i<routine.events.lenght; i+=1) {
+            await deleteFullEvent(routine.events[i]);
+        }
+
+        await deleteFullEvent(routine.creationEvent);
+
+        for (let i=0; i<routine.alarms.length; i+=1) {
+            await Alrm.findByIdAndDelete(routine.alarms[i]);
+        }
+
+        await Alrm.findByIdAndDelete(routine.creationAlarm);
+    });
+}
+
+async function deleteFullReactor(reacId) {
+    Reac.findByIdAndDelete(reacId).then(async (resultD) => {
+        for (let i=0; i<resultD.sensors.length; i+=1) {
+            await Sens.findByIdAndDelete(resultD.sensors[i]);
+        }
+        for (let i=0; i<resultD.actuators.length; i+=1) {
+            await Actu.findByIdAndDelete(resultD.actuators[i]);
+        }
+        for (let i=0; i<resultD.routines.length; i+=1) {
+            await deleteFullRoutine(resultD.routines[i]);
+        }
+    
+        await Sens.findByIdAndDelete(resultD.creationSensor);
+        await Actu.findByIdAndDelete(resultD.creationActuator);
+        await deleteFullRoutine(resultD.creationRoutine);
+    });
+}
+
+async function createCleanReactor() {
+    Acti.create({isCreation: true}).then((action) => {
+        Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
+            Alrm.create({isCreation: true}).then((alarm) => {
+                Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((rotuine) => {
+                    Actu.create({isCreation: true}).then((actuator) => {
+                        Sens.create({isCreation: true}).then((sensor) => {
+                            Reac.create({isCreation: true, 
+                                creationSensor: sensor._id,
+                                creationActuator: actuator._id,
+                                creationRoutine: rotuine._id}).then((resultR) => {
+                                    User.create({username: username, creationReactor: resultR._id}).then((resultU) => {
+                                        res.redirect('/login');
+                                    });
+                                });
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
 // ---------- My Functions ----------
 
 // ---------- Mongoose Models ----------
@@ -13,6 +80,10 @@ const User = require('./models/users');
 const Reac = require('./models/reactors');
 const Sens = require('./models/sensors');
 const Actu = require('./models/actuators');
+const Rout = require('./models/routines');
+const Evnt = require('./models/events');
+const Acti = require('./models/actions');
+const Alrm = require('./models/alarms');
 // ---------- Mongoose Models ----------
 
 
@@ -55,15 +126,25 @@ app.post('/tryRegister', (req, res) => {
                     return;
                 }
             }
-            Actu.create({isCreation: true}).then((actuator) => {
-                Sens.create({isCreation: true}).then((sensor) => {
-                    Reac.create({isCreation: true, 
-                        creationSensor: sensor._id,
-                        creationActuator: actuator._id}).then((resultR) => {
-                            User.create({username: username, creationReactor: resultR._id}).then((resultU) => {
-                                res.redirect('/login');
+
+            Acti.create({isCreation: true}).then((action) => {
+                Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
+                    Alrm.create({isCreation: true}).then((alarm) => {
+                        Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((rotuine) => {
+                            Actu.create({isCreation: true}).then((actuator) => {
+                                Sens.create({isCreation: true}).then((sensor) => {
+                                    Reac.create({isCreation: true, 
+                                        creationSensor: sensor._id,
+                                        creationActuator: actuator._id,
+                                        creationRoutine: rotuine._id}).then((resultR) => {
+                                            User.create({username: username, creationReactor: resultR._id}).then((resultU) => {
+                                                res.redirect('/login');
+                                            });
+                                        });
+                                });
                             });
                         });
+                    });
                 });
             });
         });
@@ -91,6 +172,20 @@ app.post("/tryLogin", (req, res) => {
     });
 });
 
+app.get("/deleteUser", (req, res) => {
+    var logedId = req.query._id;
+
+    User.findByIdAndDelete(logedId).then(async (user) => {
+        for (let i=0; i<user.reactors.length; i+=1) {
+            await deleteFullReactor(user.reactors);
+        }
+
+        await deleteFullReactor(user.creationReactor);
+
+        res.redirect("/login");
+    });
+});
+
 app.post("/createSaveReac", (req, res) => {
     const type = req.body.type;
     const userId = req.body._id;
@@ -99,17 +194,36 @@ app.post("/createSaveReac", (req, res) => {
 
     switch (type) {
         case "create":
-            Reac.findByIdAndUpdate(reacId, {$set: {isCreation: false, name: newName}}).then((reactor) => {
-                Sens.create({isCreation: true}).then((sensor) => {
-                    Reac.create({isCreation: true, creationSensor: sensor._id}).then((creationReactor) => {
-                        User.findByIdAndUpdate(userId, {
-                            $set: {creationReactor: creationReactor._id},
-                            $push: {reactors: reactor._id}
-                        }).then((user) => {
-                            res.redirect("/start?_id=" + userId);
+            Reac.findByIdAndUpdate(reacId, {$set: {isCreation: false, name: newName}}).then(async (reactor) => {
+                Alrm.create({isCreation: true}).then((alarm) => {
+                    Acti.create({isCreation: true}).then((action) => {
+                        Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
+                            Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((routine) => {
+                                Sens.create({isCreation: true}).then((sensor) => {
+                                    Actu.create({isCreation: true}).then((actuator) => {
+                                        Reac.create({isCreation: true, creationSensor: sensor._id, creationActuator: actuator._id, creationRoutine: routine._id}).then((creationReactor) => {
+                                            User.findByIdAndUpdate(userId, {
+                                                $set: {creationReactor: creationReactor._id},
+                                                $push: {reactors: reactor._id}
+                                            }).then((user) => {
+                                                res.redirect("/start?_id=" + userId);
+                                            });
+                                        });
+                                    });
+                                });
+                            });
                         });
                     });
                 });
+
+                // newCreationReactor = await createCleanReactor();
+
+                // User.findByIdAndUpdate(userId, {
+                //     $set: {creationReactor: newCreationReactor._id},
+                //     $push: {reactors: reactor._id}
+                // }).then((user) => {
+                //     res.redirect("/start?_id=" + userId);
+                // });
             });
             break;
         default:
@@ -120,6 +234,9 @@ app.post("/createSaveReac", (req, res) => {
                         break;
                     case "saveActuators":
                         res.redirect("/addActuator?_id=" + userId + "&reacId=" + reacId);
+                        break;
+                    case "saveRoutines":
+                        res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
                         break;
                     default:
                         if (reactor.isCreation) {
@@ -136,11 +253,21 @@ app.post("/dicardReactorEdit", (req, res) => {
     var logedId = req.body._id;
     var reacId = req.body.reacId;
 
-    Reac.create({isCreation: true}).then((creationReac) => {
-        User.findByIdAndUpdate(logedId, {$set: {creationReactor: creationReac._id}}).then((user) => {
-            Reac.findByIdAndDelete(reacId).then((deletedReac) => {
-                console.log(deletedReac);
-                res.redirect("/addReac?_id=" + logedId);
+    Alrm.create({isCreation: true}).then((alarm) => {
+        Acti.create({isCreation: true}).then((action) => {
+            Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
+                Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((routine) => {
+                    Sens.create({isCreation: true}).then((sensor) => {
+                        Actu.create({isCreation: true}).then((actuator) => {
+                            Reac.create({isCreation: true, creationSensor: sensor._id, creationActuator: actuator._id, creationRoutine: routine._id}).then((creationReac) => {
+                                User.findByIdAndUpdate(logedId, {$set: {creationReactor: creationReac._id}}).then(async (user) => {
+                                    await deleteFullReactor(reacId);
+                                    res.redirect("/addReac?_id=" + logedId);
+                                });
+                            });
+                        });
+                    });
+                });
             });
         });
     });
@@ -150,18 +277,8 @@ app.post("/deleteReactor", (req, res) => {
     var reacId = req.body.reacId;
     var logedId = req.body._id;
 
-    User.findByIdAndUpdate(logedId, { $pull: {reactors: reacId}}).then((resultU) => {
-        Reac.findByIdAndDelete(reacId).then(async (resultD) => {
-                for (let i=0; i<resultD.sensors.length; i+=1) {
-                    await Sens.findByIdAndDelete(resultD.sensors[i]);
-                }
-                for (let i=0; i<resultD.actuators.length; i+=1) {
-                    await Actu.findByIdAndDelete(resultD.actuators[i]);
-                }
-
-                await Sens.findByIdAndDelete(resultD.creationSensor);
-                await Actu.findByIdAndDelete(resultD.creationActuator);
-
+    User.findByIdAndUpdate(logedId, { $pull: {reactors: reacId}}).then(async (resultU) => {
+        await deleteFullReactor(reacId).then((resultD) => {
             res.redirect("/start?_id=" + logedId);
         });
     });
@@ -232,7 +349,12 @@ app.post("/deleteSensor", (req, res) => {
 
     Reac.findByIdAndUpdate(reacId, { $pull: {sensors: sensId}}).then((reactor) => {
         Sens.findByIdAndDelete(sensId).then((sensor) => {
-            res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+            if (reactor.isCreation) {
+                res.redirect("/addReac?_id=" + userId);
+            }
+            else {
+                res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+            }
         });
     });
 });
@@ -302,8 +424,189 @@ app.post("/deleteActuator", (req, res) => {
 
     Reac.findByIdAndUpdate(reacId, { $pull: {actuators: actuId}}).then((reactor) => {
         Actu.findByIdAndDelete(actuId).then((actuator) => {
-            res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+            if (reactor.isCreation) {
+                res.redirect("/addReac?_id=" + userId);
+            }
+            else {
+                res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+            }
         });
+    });
+});
+
+app.post("/createSaveRoutine", (req, res) => {
+    const type = req.body.type;
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+    const routId = req.body.routId;
+
+    const newName = req.body.newRoutName;
+
+    switch (type) {
+        case "create":
+            Rout.findByIdAndUpdate(routId, {$set: {name: newName, isCreation: false}}).then((routine) => {
+                Acti.create({isCreation: true}).then((creationAction) => {
+                    Evnt.create({isCreation: true, creationAction: creationAction._id}).then((creationEvent) => {
+                        Alrm.create({isCreation: true}).then((creationAlarm) => {
+                            Rout.create({isCreation: true, creationEvent: creationEvent._id, creationAlarm: creationAlarm._id}).then((creationRoutine) => {
+                                Reac.findByIdAndUpdate(reacId, {
+                                    $set: {
+                                        creationRoutine: creationRoutine._id
+                                    }, 
+                                    $push: {
+                                        routines: routine._id
+                                    }
+                                }).then((reactor) => {
+                                    if (reactor.isCreation) {
+                                        res.redirect("/addReac?_id=" + userId);
+                                    } else {
+                                        res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId)
+                                    }
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+            break;
+        default:
+            Rout.findByIdAndUpdate(routId, {$set: {name: newName}}).then((routine) => {
+                switch (type) {
+                    case "saveEvents": {
+                        res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+                        break;
+                    }
+                    default:
+                        Reac.findById(reacId).then((reactor) => {
+                            if (reactor.isCreation) {
+                                res.redirect("/addReac?_id=" + userId);
+                            } else {
+                                res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+                            }
+                        });
+                        break;
+                }
+            });
+            break;
+    }
+});
+
+app.post("/dicardRoutineEdit", (req, res) => {
+    var userId = req.body._id;
+    var reacId = req.body.reacId;
+    var routId = req.body.routId;
+    
+    Acti.create({isCreation: true}).then((creationActi) => {
+        Evnt.create({isCreation: true, creationAction: creationActi._id}).then((creationEvnt) => {
+            Alrm.create({isCreation: true}).then((creationAlrm) => {
+                Rout.create({isCreation: true, creationEvent: creationEvnt._id, creationAlarm: creationAlrm._id}).then((creationRout) => {
+                    Reac.findByIdAndUpdate(reacId, {$set: {creationRoutine: creationRout._id}}).then(async (reac) => {
+                        await deleteFullRoutine(routId);
+                        res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
+                    });
+                }); 
+            });
+        });
+    });
+
+});
+
+app.post("/deleteRoutine", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+    var routId = req.body.routId;
+
+    Reac.findByIdAndUpdate(reacId, { $pull: {routines: routId}}).then(async (reactor) => {
+        await deleteFullRoutine(routId);
+        if (reactor.isCreation) {
+            res.redirect("/addReac?_id=" + userId);
+        }
+        else {
+            res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
+        }
+    });
+});
+
+app.post("/createSaveEvent", (req, res) => {
+    const type = req.body.type;
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+    const routId = req.body.routId;
+    const evntId = req.body.evntId;
+
+    const newName = req.body.newEvntName;
+    const newGroup = req.body.group;
+    const newStart = req.body.newStart;
+    const newDuration = req.body.newDuration;
+
+    switch (type) {
+        case "create":
+            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, isCreation: false, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+                Acti.create({isCreation: true}).then((creationActi) => {
+                    Evnt.create({isCreation: true, creationAction: creationActi._id}).then((creationEvnt) => {
+                        Rout.findByIdAndUpdate(routId, {
+                            $set: {
+                                creationEvent: creationEvnt._id
+                            }, 
+                            $push: {
+                                events: event._id
+                            }
+                        }).then((routine) => {
+                            if (routine.isCreation) {
+                                res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
+                            } else {
+                                res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId)
+                            }
+                        });
+                    });
+                });
+            });
+            break;
+        default:
+            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+                Rout.findById(routId).then((routine) => {
+                    if (routine.isCreation) {
+                        res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
+                    } else {
+                        res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+                    }
+                });
+            });
+            break;
+    }
+});
+
+app.post("/dicardEventEdit", (req, res) => {
+    var userId = req.body._id;
+    var routId = req.body.routId;
+    var reacId = req.body.reacId;
+    var evntId = req.body.evntId;
+
+
+    Acti.create({isCreation: true}).then((creationActi) => {
+        Evnt.create({isCreation: true, creationAction: creationActi._id}).then((creationEvnt) => {
+            Rout.findByIdAndUpdate(routId, {$set: {creationEvent: creationEvnt._id}}).then(async (routine) => {
+                await deleteFullEvent(evntId)
+                res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+            });
+        });
+    });
+});
+
+app.post("/deleteEvent", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+    var routId = req.body.routId;
+    var evntId = req.body.evntId;
+
+    Rout.findByIdAndUpdate(routId, { $pull: {events: evntId}}).then(async (routine) => {
+        await deleteFullEvent(evntId);
+        if (routine.isCreation) {
+            res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
+        }
+        else {
+            res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+        }
     });
 });
 // ---------- Post Requests ----------
@@ -348,6 +651,8 @@ app.get("/addReac", (req, res) => {
         Reac.findById(user.creationReactor).then(async (reactor) => {
 
             var newSensList = [];
+            var newActuList = [];
+            var newRoutList = [];
             var aux;
 
             for (let i=0; i<reactor.sensors.length; i+=1) {
@@ -358,10 +663,26 @@ app.get("/addReac", (req, res) => {
                 });
             }
 
+            for (let i=0; i<reactor.actuators.length; i+=1) {
+                aux = await Actu.findById(reactor.actuators[i]._id);
+                newActuList.push({
+                    name: aux.name,
+                    _id: aux._id
+                });
+            }
+
+            for (let i=0; i<reactor.routines.length; i+=1) {
+                aux = await Rout.findById(reactor.routines[i]._id);
+                newRoutList.push({
+                    name: aux.name,
+                    _id: aux._id
+                });
+            }
+
             res.render('reacSettingsPage', {
                 username: user.username,
                 _id: logedId,
-                data: {reactor: reactor, sensors: newSensList}
+                data: {reactor: reactor, sensors: newSensList, actuators: newActuList, routines: newRoutList}
             });
         });
     });
@@ -376,6 +697,7 @@ app.get("/editReac", (req, res) => {
 
             var newSensList = [];
             var newActuList = [];
+            var newRoutList = [];
             var aux;
 
             for (let i=0; i<reac.sensors.length; i+=1) {
@@ -394,10 +716,18 @@ app.get("/editReac", (req, res) => {
                 });
             }
 
+            for (let i=0; i<reac.routines.length; i+=1) {
+                aux = await Rout.findById(reac.routines[i]._id);
+                newRoutList.push({
+                    name: aux.name,
+                    _id: aux._id
+                });
+            }
+
             res.render('reacSettingsPage', {
                 username: user.username,
                 _id: logedId,
-                data: {reactor: reac, sensors: newSensList, actuators: newActuList}
+                data: {reactor: reac, sensors: newSensList, actuators: newActuList, routines: newRoutList}
             });
         });
     });
@@ -489,8 +819,60 @@ app.get("/editActuator", (req, res) => {
 });
 
 app.get("/addRoutine", (req, res) => {
-    res.render("routSettingsPage", {username: "AAAA"});
+    var userId = req.query._id;
+    var reacId = req.query.reacId;
+
+    User.findById(userId).then((user) => {
+        Reac.findById(reacId).then((reac) => {
+            Rout.findById(reac.creationRoutine).then((routine) => {
+                res.render("routSettingsPage", {
+                    username: user.username,
+                    _id: userId,
+                    reacId: reacId,
+                    data: routine
+                });
+            });
+        });
+    });
 });
+
+app.get("/editRoutine", (req, res) => {
+    var userId = req.query._id;
+    var reacId = req.query.reacId;
+    var routId = req.query.routId;
+
+    User.findById(userId).then((user) => {
+        Rout.findById(routId).then((routine) => {
+            res.render("routSettingsPage", {
+                username: user.username,
+                _id: userId,
+                reacId: reacId,
+                data: routine
+            });
+        });
+    });
+});
+
+app.get("/addEvent", (req, res) => {
+    var userId = req.query._id;
+    var routId = req.query.routId;
+    var reacId = req.query.reacId;
+
+    User.findById(userId).then((user) => {
+        Rout.findById(routId).then((routine) => {
+            Evnt.findById(routine.creationEvent).then((event) => {
+                res.render("evntSettingsPage", {
+                    username: user.username,
+                    _id: userId,
+                    reacId: reacId,
+                    routId: routId,
+                    data: event
+                });
+            });
+        });
+    });
+});
+
 // ---------- Get Requests ----------
 
 

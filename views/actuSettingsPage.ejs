@@ -6,7 +6,7 @@
         <title> Add Actuator </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
         <div class="div1">
             <div class="formModule">
                 <form action="/createSaveActuator" method="post">
