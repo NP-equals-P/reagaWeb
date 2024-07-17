@@ -107,6 +107,7 @@ body {
     left: 32vw;
     top: 55vh;
     border-radius: 10px;
+    font-weight: bold;
 }
 
 .backButt {

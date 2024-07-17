@@ -23,12 +23,16 @@ body {
 
 .div2 {
     width: 70vw;
-    height: 50vh;
+    height: 49vh;
     background-color: rgb(46, 131, 160);
     position: absolute;
     left: 15vw;
     top: 23vh;
     border: 2px solid black;
+    row-gap: 20px;
+
+    overflow-y:scroll;
+    white-space: nowrap;
 }
 
 .div3 {

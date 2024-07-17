@@ -14,9 +14,13 @@
                 <label for="" class="nameLabel">Name</label>
                 <br>
                 <input type="text" name="newRoutName" id="newRoutName" class="inputName" value="<%= data.name %>">
+
                 <div class="div2">
-                    
+                    <% for (let i=0; i<events.length; i+=1) { %>
+                        <%- include("./partials/evntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id}) %>
+                    <% } %>
                 </div>
+
                 <button class="addEvtButt" name="type" value="saveEvents">Add Event</button>
                 <div class="div3">
                 </div>
@@ -30,7 +34,7 @@
                 <% } %>
             </form>
             <% if (data.isCreation) { %>
-                <form action="/dicardEventEdit" method="post">
+                <form action="/dicardRoutineEdit" method="post">
                     <button class="discardButt">Discard Edit</button>
                     <input type="hidden" id="routId" name="routId" value=<%= data._id %>>
                     <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>

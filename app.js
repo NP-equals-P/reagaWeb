@@ -8,7 +8,7 @@ const url = require('node:url');
 
 async function deleteFullEvent(evntId) {
     Evnt.findByIdAndDelete(evntId).then(async (event) => {
-        for (let i=0; i<event.actions.lenght; i+=1) {
+        for (let i=0; i<event.actions.length; i+=1) {
             await Acti.findByIdAndDelete(event.actions[i]);
         }
 
@@ -18,7 +18,7 @@ async function deleteFullEvent(evntId) {
 
 async function deleteFullRoutine(routId) {
     Rout.findByIdAndDelete(routId).then(async (routine) => {
-        for (let i=0; i<routine.events.lenght; i+=1) {
+        for (let i=0; i<routine.events.length; i+=1) {
             await deleteFullEvent(routine.events[i]);
         }
 
@@ -564,13 +564,20 @@ app.post("/createSaveEvent", (req, res) => {
             break;
         default:
             Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
-                Rout.findById(routId).then((routine) => {
-                    if (routine.isCreation) {
-                        res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
-                    } else {
-                        res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
-                    }
-                });
+                switch (type) {
+                    case "saveActions":
+                        res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
+                        break;
+                    default:
+                        Rout.findById(routId).then((routine) => {
+                            if (routine.isCreation) {
+                                res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
+                            } else {
+                                res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+                            }
+                        });
+                        break;
+                }
             });
             break;
     }
@@ -824,12 +831,25 @@ app.get("/addRoutine", (req, res) => {
 
     User.findById(userId).then((user) => {
         Reac.findById(reacId).then((reac) => {
-            Rout.findById(reac.creationRoutine).then((routine) => {
+            Rout.findById(reac.creationRoutine).then(async (routine) => {
+                var newEvntList = [];
+
+                for (let i=0; i<routine.events.length; i+=1) {
+                    aux = await Evnt.findById(routine.events[i]._id);
+                    newEvntList.push({
+                        name: aux.name,
+                        _id: aux._id,
+                        relativeStart: aux.start,
+                        relativeDuration: aux.duration
+                    });
+                }
+
                 res.render("routSettingsPage", {
                     username: user.username,
                     _id: userId,
                     reacId: reacId,
-                    data: routine
+                    data: routine,
+                    events: newEvntList
                 });
             });
         });
@@ -842,12 +862,25 @@ app.get("/editRoutine", (req, res) => {
     var routId = req.query.routId;
 
     User.findById(userId).then((user) => {
-        Rout.findById(routId).then((routine) => {
+        Rout.findById(routId).then(async (routine) => {
+            var newEvntList = [];
+
+            for (let i=0; i<routine.events.length; i+=1) {
+                aux = await Evnt.findById(routine.events[i]._id);
+                newEvntList.push({
+                    name: aux.name,
+                    _id: aux._id,
+                    relativeStart: aux.start,
+                    relativeDuration: aux.duration
+                });
+            }
+
             res.render("routSettingsPage", {
                 username: user.username,
                 _id: userId,
                 reacId: reacId,
-                data: routine
+                data: routine,
+                events: newEvntList
             });
         });
     });
@@ -873,6 +906,46 @@ app.get("/addEvent", (req, res) => {
     });
 });
 
+app.get("/editEvent", (req, res) => {
+    var userId = req.query._id;
+    var routId = req.query.routId;
+    var reacId = req.query.reacId;
+    var evntId = req.query.evntId;
+
+    User.findById(userId).then((user) => {
+        Evnt.findById(evntId).then((event) => {
+            res.render("evntSettingsPage", {
+                username: user.username,
+                _id: userId,
+                reacId: reacId,
+                routId: routId,
+                data: event
+            });
+        });
+    });
+});
+
+app.get("/addAction", (req, res) => {
+    var userId = req.query._id;
+    var evntId = req.query.evntId;
+    var routId = req.query.routId;
+    var reacId = req.query.reacId;
+
+    User.findById(userId).then((user) => {
+        Evnt.findById(evntId).then((event) => {
+            Acti.findById(event.creationAction).then((action) => {
+                res.render("actiSettingsPage", {
+                    username: user.username,
+                    _id: userId,
+                    reacId: reacId,
+                    routId: routId,
+                    evntId: evntId,
+                    data: action
+                });
+            });
+        });
+    });
+});
 // ---------- Get Requests ----------
 
 
