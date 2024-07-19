@@ -616,6 +616,91 @@ app.post("/deleteEvent", (req, res) => {
         }
     });
 });
+
+app.post("/createSaveAction", (req, res) => {
+    const type = req.body.type;
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+    const routId = req.body.routId;
+    const evntId = req.body.evntId;
+    const actiId = req.body.actiId;
+
+    const newName = req.body.newActiName;
+    const newGroup = req.body.group;
+    const newStart = req.body.newStart;
+    const newDuration = req.body.newDuration;
+    const newComponent = req.body.newComponent;
+
+    switch (type) {
+        case "create":
+            Acti.findByIdAndUpdate(actiId, {$set: {isCreation: false, name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent}}).then((action) => {
+                Acti.create({isCreation: true}).then((creationActi) => {
+                    Evnt.findByIdAndUpdate(evntId, {
+                        $set: {
+                            creationAction: creationActi._id
+                        }, 
+                        $push: {
+                            actions: action._id
+                        }
+                    }).then((event) => {
+                        if (event.isCreation) {
+                            res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+                        } else {
+                            res.redirect("/editEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
+                        }
+                    });
+                });
+            });
+            break;
+        default:
+            Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent}}).then((action) => {
+                Evnt.findById(evntId).then((event) => {
+                    if (event.isCreation) {
+                        res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+                    } else {
+                        res.redirect("/editEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
+                    }
+                });
+            });
+            break;
+    }
+});
+
+app.post("/dicardActionEdit", (req, res) => {
+    var userId = req.body._id;
+    var routId = req.body.routId;
+    var reacId = req.body.reacId;
+    var evntId = req.body.evntId;
+    var actiId = req.body.actiId;
+
+
+    Acti.create({isCreation: true}).then((creationActi) => {
+        Evnt.findByIdAndUpdate(evntId, {$set: {creationAction: creationActi._id}}).then(async (event) => {
+            Acti.findByIdAndDelete(actiId).then((deletedActi) => {
+                res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
+            });
+        });
+    });
+});
+
+app.post("/deleteAction", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+    var routId = req.body.routId;
+    var evntId = req.body.evntId;
+    var actiId = req.body.actiId;
+
+    Evnt.findByIdAndUpdate(evntId, { $pull: {actions: actiId}}).then(async (event) => {
+        Acti.findByIdAndDelete(actiId).then((action) => {
+            if (event.isCreation) {
+                res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+            }
+            else {
+                res.redirect("/editEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
+            }
+        });
+    });
+});
 // ---------- Post Requests ----------
 
 
@@ -893,13 +978,35 @@ app.get("/addEvent", (req, res) => {
 
     User.findById(userId).then((user) => {
         Rout.findById(routId).then((routine) => {
-            Evnt.findById(routine.creationEvent).then((event) => {
+            Evnt.findById(routine.creationEvent).then(async (event) => {
+                var newActiList = [];
+
+                for (let i=0; i<event.actions.length; i+=1) {
+                    aux = await Acti.findById(event.actions[i]._id);
+                    newActiList.push({
+                        name: aux.name,
+                        _id: aux._id,
+                        relativeStart: aux.start,
+                        relativeDuration: aux.duration
+                    });
+                }
+
+                var max = 0;
+
+                for (let i=0; i<newActiList.length; i+=1) {
+                    if (newActiList.relativeStart + newActiList.relativeDuration > max) {
+                        max = newActiList.relativeStart + newActiList.relativeDuration;
+                    }
+                }
+
                 res.render("evntSettingsPage", {
                     username: user.username,
                     _id: userId,
                     reacId: reacId,
                     routId: routId,
-                    data: event
+                    data: event,
+                    actions: newActiList,
+                    minDuration: max
                 });
             });
         });
@@ -913,13 +1020,35 @@ app.get("/editEvent", (req, res) => {
     var evntId = req.query.evntId;
 
     User.findById(userId).then((user) => {
-        Evnt.findById(evntId).then((event) => {
+        Evnt.findById(evntId).then(async (event) => {
+            var newActiList = [];
+
+            for (let i=0; i<event.actions.length; i+=1) {
+                aux = await Acti.findById(event.actions[i]._id);
+                newActiList.push({
+                    name: aux.name,
+                    _id: aux._id,
+                    relativeStart: aux.start,
+                    relativeDuration: aux.duration
+                });
+            }
+
+            var max = 0;
+
+            for (let i=0; i<newActiList.length; i+=1) {
+                if (newActiList[i].relativeStart + newActiList[i].relativeDuration > max) {
+                    max = newActiList[i].relativeStart + newActiList[i].relativeDuration;
+                }
+            }
+
             res.render("evntSettingsPage", {
                 username: user.username,
                 _id: userId,
                 reacId: reacId,
                 routId: routId,
-                data: event
+                data: event,
+                actions: newActiList,
+                minDuration: max
             });
         });
     });
@@ -934,13 +1063,79 @@ app.get("/addAction", (req, res) => {
     User.findById(userId).then((user) => {
         Evnt.findById(evntId).then((event) => {
             Acti.findById(event.creationAction).then((action) => {
+                Reac.findById(reacId).then(async (reactor) => {
+                    var newSensList = [];
+                    var newActuList = [];
+
+                    for (let i=0; i<reactor.sensors.length; i+=1) {
+                        aux = await Sens.findById(reactor.sensors[i]._id);
+                        newSensList.push({
+                            name: aux.name,
+                            _id: aux._id
+                        });
+                    }
+
+                    for (let i=0; i<reactor.actuators.length; i+=1) {
+                        aux = await Actu.findById(reactor.actuators[i]._id);
+                        newActuList.push({
+                            name: aux.name,
+                            _id: aux._id
+                        });
+                    }
+
+                    res.render("actiSettingsPage", {
+                        username: user.username,
+                        _id: userId,
+                        reacId: reacId,
+                        routId: routId,
+                        evntId: evntId,
+                        data: action,
+                        sensors: newSensList,
+                        actuators: newActuList
+                    });
+                });
+            });
+        });
+    });
+});
+
+app.get("/editAction", (req, res) => {
+    var userId = req.query._id;
+    var routId = req.query.routId;
+    var reacId = req.query.reacId;
+    var evntId = req.query.evntId;
+    var actiId = req.query.actiId;
+
+    User.findById(userId).then((user) => {
+        Acti.findById(actiId).then((action) => {
+            Reac.findById(reacId).then(async (reactor) => {
+                var newSensList = [];
+                var newActuList = [];
+    
+                for (let i=0; i<reactor.sensors.length; i+=1) {
+                    aux = await Sens.findById(reactor.sensors[i]._id);
+                    newSensList.push({
+                        name: aux.name,
+                        _id: aux._id
+                    });
+                }
+    
+                for (let i=0; i<reactor.actuators.length; i+=1) {
+                    aux = await Actu.findById(reactor.actuators[i]._id);
+                    newActuList.push({
+                        name: aux.name,
+                        _id: aux._id
+                    });
+                }
                 res.render("actiSettingsPage", {
                     username: user.username,
                     _id: userId,
                     reacId: reacId,
                     routId: routId,
                     evntId: evntId,
-                    data: action
+                    data: action,
+                    sensors: newSensList,
+                    actuators: newActuList
                 });
             });
         });

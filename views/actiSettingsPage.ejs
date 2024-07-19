@@ -1,5 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+    <script>
+        
+        function myFunc() {
+            if (document.getElementById("sensorRadio").checked) {
+                document.getElementById("selectActuator").disabled = true;
+                document.getElementById("selectActuator").style.display = "none";
+
+                document.getElementById("selectSensor").disabled = false;
+                document.getElementById("selectSensor").style.display = "block";
+            } else {
+                document.getElementById("selectActuator").disabled = false;
+                document.getElementById("selectActuator").style.display = "block";
+
+                document.getElementById("selectSensor").disabled = true;
+                document.getElementById("selectSensor").style.display = "none";
+            }
+        }
+        
+    </script>
     <head>
         <link rel="stylesheet" href="/styles/addActPageStyles.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
@@ -8,28 +27,105 @@
     <body>
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
-            <button class="backButt">Back</button>
-            <label for="" class="nameLabel">Name</label>
-            <input type="text" name="" id="" class="nameInput">
+            <form action="/createSaveAction" method="post">
+                <button class="backButt" name="type" value="saveBack">Back</button>
 
-            <label for="" class="sensorLabel">Sensor</label>
-            <input type="radio" name="type" id="" class="sensorRadio">
-            <label for="" class="actuatorLabel">Actuator</label>
-            <input type="radio" name="type" id="" class="actuatorRadio">
+                <label for="" class="nameLabel">Name</label>
+                <input type="text" name="newActiName" id="newActiName" class="nameInput" value="<%= data.name %>">
 
-            <label for="" class="componentLabel">Chosen component:</label>
-            <select name="" id="" class="componentSelect">
+                <% if (data.type === "actuator") { %>
+                    <label for="" class="sensorLabel">Sensor</label>
+                    <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" onclick="myFunc()">
+                    <label for="" class="actuatorLabel">Actuator</label>
+                    <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" checked onclick="myFunc()">
+                <% } else { %>
+                    <label for="" class="sensorLabel">Sensor</label>
+                    <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" checked onclick="myFunc()">
+                    <label for="" class="actuatorLabel">Actuator</label>
+                    <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" onclick="myFunc()">
+                <% } %>
 
-            </select>
+                <label for="" class="componentLabel">Chosen component:</label>
 
-            <label for="" class="startLabel">Start</label>
-            <input type="number" name="" id="" class="startInput">
-            <label for="" class="durationLabel">Duration</label>
-            <input type="number" name="" id="" class="durationInput">
+                <% if (data.type === "actuator") { %>
+                    <select name="newComponent" id="selectActuator" class="componentSelect">
+                        <% for (let i=0; i<actuators.length; i+=1) { %>
+                            <% if (data.component && actuators[i]._id.toString() === data.component.toString()) { %>
+                                <option value="<%= actuators[i]._id %>" selected><%= actuators[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= actuators[i]._id %>"><%= actuators[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                    <select name="newComponent" id="selectSensor" class="componentSelect" disabled style="display: none;">
+                        <% for (let i=0; i<sensors.length; i+=1) { %>
+                            <% if (data.component && sensors[i]._id.toString() === data.component.toString()) { %>
+                                <option value="<%= sensors[i]._id %>" selected><%= sensors[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= sensors[i]._id %>"><%= sensors[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                <% } else { %>
+                    <select name="newComponent" id="selectActuator" class="componentSelect" disabled style="display: none;">
+                        <% for (let i=0; i<actuators.length; i+=1) { %>
+                            <% if (data.component && actuators[i]._id.toString() == data.component.toString()) { %>
+                                <option value="<%= actuators[i]._id %>" selected><%= actuators[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= actuators[i]._id %>"><%= actuators[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                    <select name="newComponent" id="selectSensor" class="componentSelect">
+                        <% for (let i=0; i<sensors.length; i+=1) { %>
+                            <% if (data.component && sensors[i]._id.toString() == data.component.toString()) { %>
+                                <option value="<%= sensors[i]._id %>" selected><%= sensors[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= sensors[i]._id %>"><%= sensors[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                <% } %>
 
+                <label for="" class="startLabel">Start</label>
+                <input type="number" name="newStart" id="" class="startInput" value="<%=data.start%>">
+
+                <label for="" class="durationLabel">Duration</label>
+                <input type="number" name="newDuration" id="" class="durationInput" value="<%=data.duration%>">
+
+                <input type="hidden" id="actiId" name="actiId" value=<%= data._id %>>
+                <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+                <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+
+                <% if (data.isCreation) { %>
+                    <button class="confirmButt" name="type" id="type" value="create">Create Action</button>
+                <% } %>
+            </form>
+            
             <div class="div2">
-
             </div>
+
+            <% if (data.isCreation) { %>
+                <form action="/dicardActionEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" id="actiId" name="actiId" value=<%= data._id %>>
+                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+                    <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                </form>
+            <% } else { %>
+                <form action="/deleteAction" method="post">
+                    <button class="deleteButt">Delete Event</button>
+                    <input type="hidden" id="actiId" name="actiId" value=<%= data._id %>>
+                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+                    <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                </form>
+            <% } %>
         </div>
     </body>
 </html>

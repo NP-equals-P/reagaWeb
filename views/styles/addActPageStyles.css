@@ -125,3 +125,34 @@ body {
     top: 74vh;
     left: 25vw;
 }
+
+.confirmButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 91vw;
+    top: 93vh;
+}
+
+.deleteButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    color: red;
+    position: absolute;
+    left: 6px;
+    top: 93vh;
+}
+
+.discardButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 6px;
+    top: 93vh;
+}

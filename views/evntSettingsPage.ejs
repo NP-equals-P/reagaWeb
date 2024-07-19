@@ -4,8 +4,38 @@
         <link rel="stylesheet" href="/styles/addEvtPageStyles.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Event </title>
+        <script>
+            function changeSizes() {
+                const buttName = "actiButt";
+                const hyprName = "actiHypr";
+                var i = 0;
+                var currButt = true;
+                var currHypr = true;
+                var size = document.getElementById("newDuration").value;
+                var fullSize = 50;
+
+                while (currButt) {
+                    currButt = document.getElementById(buttName + i);
+                    currHypr = document.getElementById(hyprName + i);
+
+                    if (currButt) {
+                        var start = Number(currButt.name);
+                        var duration = Number(currButt.value);
+
+                        var newSize = fullSize * (duration/size);
+                        var newLeft = fullSize * (start/size);
+
+                        currButt.style.width = newSize + "vw";
+                        currHypr.style.left = newLeft + "vw";
+                    }
+
+                    i += 1;
+                }
+                
+            }
+        </script>
     </head>
-    <body>
+    <body onload="changeSizes()">
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
             <form action="/createSaveEvent" method="post">
@@ -34,12 +64,15 @@
 
     
                 <div class="div2">
+                    <% for (let i=0; i<actions.length; i+=1) { %>
+                        <%- include('./partials/actiButton.ejs', {action: actions[i], _id: _id, reacId: reacId, routId: routId, evntId: data._id, index: i}) %>
+                    <% } %>
                 </div>
 
                 <input type="number" name="newStart" id="newStart" class="startInput" value="<%= data.start %>">
                 <label for="" class="startLabel">Start</label>
     
-                <input type="number" name="newDuration" id="newDuration" class="durationInput" value="<%= data.duration %>">
+                <input type="number" name="newDuration" id="newDuration" class="durationInput" value="<%= Math.max(data.duration, minDuration) %>" min="<%= minDuration %>" onchange="changeSizes()">
                 <label for="" class="durationLabel">Duration</label>
 
                 <button class="addActionButt" name="type" value="saveActions">Add Action</button>
@@ -59,7 +92,7 @@
                 </form>
             <% } else { %>
                 <form action="/deleteEvent" method="post">
-                    <button class="deleteButt">Delete Event</button>
+                    <button class="deleteButt">Delete Action</button>
                     <input type="hidden" id="evntId" name="evntId" value=<%= data._id %>>
                     <input type="hidden" id="routId" name="routId" value=<%= routId %>>
                     <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>

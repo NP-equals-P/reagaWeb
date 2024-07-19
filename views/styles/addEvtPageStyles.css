@@ -61,7 +61,7 @@ body {
     width: 50vw;
     height: 50vh;
     left: 40vw;
-    background-color: gray;
+    background-color: rgb(46, 131, 160);
     position: absolute;
     border: 3px solid black;
 }

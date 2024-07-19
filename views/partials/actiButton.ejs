@@ -1,0 +1,30 @@
+<style>
+    .actiButton {
+        width: 12vw;
+        height: 6vh;
+        background-color: white;
+    }
+
+    .hyperLinkActi {
+        display: inline-block;
+        height: 6vh;
+        position: absolute;
+        left: 0vh;
+        margin-top: 1vh;
+        margin-bottom: 1vh;
+    }
+
+    .dynActiDiv {
+        display:flex;
+        width: 50vw;
+        height: 8vh;
+        margin: 0;
+        padding: 0;
+        border-bottom: 1px solid rgb(71, 71, 71);
+    }
+</style>
+<div class="dynActiDiv">
+    <a id=<%="actiHypr" + index%> style=<%= "left:" + action.relativeStart + "vh; width:" + action.relativeDuration + "vw;" %> href="<%= "/editAction?_id=" + _id + "&reacId=" + reacId + "&evntId=" + evntId + "&routId=" + routId + "&actiId=" + action._id %>" class="hyperLinkActi">
+        <button name="<%=action.relativeStart%>" value="<%=action.relativeDuration%>" id=<%="actiButt" + index%> class="actiButton" type="button" style=<%= "width:" + action.relativeDuration + "vw;" %>><%= action.name %></button>
+    </a>
+</div>
