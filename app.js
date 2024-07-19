@@ -929,12 +929,21 @@ app.get("/addRoutine", (req, res) => {
                     });
                 }
 
+                var max = 0;
+
+                for (let i=0; i<newEvntList.length; i+=1) {
+                    if (newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
+                        max = newEvntList[i].relativeStart + newEvntList[i].relativeDuration;
+                    }
+                }
+
                 res.render("routSettingsPage", {
                     username: user.username,
                     _id: userId,
                     reacId: reacId,
                     data: routine,
-                    events: newEvntList
+                    events: newEvntList,
+                    minDuration: max
                 });
             });
         });
@@ -960,12 +969,21 @@ app.get("/editRoutine", (req, res) => {
                 });
             }
 
+            var max = 0;
+
+            for (let i=0; i<newEvntList.length; i+=1) {
+                if (newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
+                    max = newEvntList[i].relativeStart + newEvntList[i].relativeDuration;
+                }
+            }
+
             res.render("routSettingsPage", {
                 username: user.username,
                 _id: userId,
                 reacId: reacId,
                 data: routine,
-                events: newEvntList
+                events: newEvntList,
+                minDuration: max
             });
         });
     });

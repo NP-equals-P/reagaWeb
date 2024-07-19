@@ -17,7 +17,7 @@
 
                 <div class="div2">
                     <% for (let i=0; i<events.length; i+=1) { %>
-                        <%- include("./partials/evntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id}) %>
+                        <%- include("./partials/evntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id, index: i, totalDuration: minDuration}) %>
                     <% } %>
                 </div>
 

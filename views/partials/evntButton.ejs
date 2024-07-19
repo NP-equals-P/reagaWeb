@@ -16,7 +16,7 @@
 
     .dynEvntDiv {
         display:flex;
-        width: 68.8vw;
+        width: 68.9vw;
         height: 8vh;
         margin: 0;
         padding: 0;
@@ -24,7 +24,8 @@
     }
 </style>
 <div class="dynEvntDiv">
-    <a style=<%= "left:" + event.relativeStart + "vw; width:" + event.relativeDuration + "vh;" %> href="<%= "/editEvent?_id=" + _id + "&reacId=" + reacId + "&evntId=" + event._id + "&routId=" + routId%>" class="hyperLinkEvnt">
-        <button class="evntButton" type="button" style=<%= "width:" + event.relativeDuration + "vh;" %>><%= event.name %></button>
+    <% var fullSize = 68.9; %>
+    <a id=<%="evntHypr" + index%> style=<%= "left:" + fullSize*(event.relativeStart/totalDuration) + "vw; width:" + event.relativeDuration + "vh;" %> href="<%= "/editEvent?_id=" + _id + "&reacId=" + reacId + "&evntId=" + event._id + "&routId=" + routId%>" class="hyperLinkEvnt">
+        <button name="<%=event.relativeStart%>" value="<%=event.relativeDuration%>" id=<%="evntButt" + index%> class="evntButton" type="button" style=<%= "width:" + fullSize*(event.relativeDuration/totalDuration) + "vw;" %>><%= event.name %></button>
     </a>
 </div>
