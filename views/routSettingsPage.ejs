@@ -17,12 +17,19 @@
 
                 <div class="div2">
                     <% for (let i=0; i<events.length; i+=1) { %>
-                        <%- include("./partials/evntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id, index: i, totalDuration: minDuration}) %>
+                        <% if (events[i].type === "normal") { %>
+                            <%- include("./partials/normalEvntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id, index: i, totalDuration: minDuration}) %>
+                        <% } %>
                     <% } %>
                 </div>
 
                 <button class="addEvtButt" name="type" value="saveEvents">Add Event</button>
                 <div class="div3">
+                    <% for (let i=0; i<events.length; i+=1) { %>
+                        <% if (events[i].type === "esporadic") { %>
+                            <%- include("./partials/esporadicEvntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id, index: i, totalDuration: minDuration}) %>
+                        <% } %>
+                    <% } %>
                 </div>
 
                 <input type="hidden" id="routId" name="routId" value=<%= data._id %>>

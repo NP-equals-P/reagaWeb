@@ -106,3 +106,51 @@ body {
     left: 6px;
     top: 94.5vh;
 }
+
+.activationButt {
+    position: absolute;
+    height: 6vh;
+    width: 9vw;
+    border-radius: 10px;
+    font-weight: bolder;
+    margin: 6px;
+    top: 8vh;
+    left: 90vw;
+}
+
+.activeStatus {
+    position: absolute;
+    color: white;
+    left: 47vw;
+    top: 13vh;
+}
+
+.activeRoutineSelect {
+    position: absolute;
+    width: 9vw;
+    left: 90.5vw;
+}
+
+.pauseButt {
+    position: absolute;
+    height: 5.5vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bolder;
+    margin: 6px;
+    top: 8vh;
+    left: 81vw;
+}
+
+.div5 {
+    position: absolute;
+    background-color: rgb(211, 211, 211);
+    height: 10vh;
+    width: 30vw;
+    top: 71vh;
+    border: 3px solid black;
+    left: 50vw;
+
+    overflow: auto;
+    white-space: nowrap;
+}

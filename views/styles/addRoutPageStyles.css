@@ -43,6 +43,9 @@ body {
     left: 15vw;
     top: 75vh;
     border: 2px solid black;
+
+    overflow-x:scroll;
+    white-space: nowrap;
 }
 
 .backButt {

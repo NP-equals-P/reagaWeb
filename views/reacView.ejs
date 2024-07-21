@@ -20,6 +20,61 @@
                 <button class="erButton">Edit Reactor</button>
             </a>
 
+            <% if (data.isActive) { %>
+                <% if (data.isPaused) { %>
+                    <form action="/unpauseReactor" method="post">
+                        <button class="pauseButt">Unpause Routine</button>
+                        <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                        <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
+                    </form>
+                <% } else { %>
+                    <form action="/pauseReactor" method="post">
+                        <button class="pauseButt">Pause Routine</button>
+                        <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                        <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
+                    </form>
+                <% } %>
+
+                <form action="/deactivateReactor" method="post">
+                    <button class="activationButt">Deactivate Reactor</button>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
+                    <select name="" id="" class="activeRoutineSelect" disabled>
+                        <% for (let i=0; i<routines.length; i+=1) { %>
+                            <% if (routines[i]._id.toString() === activeRoutine.toString()) { %>
+                                <option value="<%= routines[i]._id %>" selected><%= routines[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                </form>
+                <% if (data.isPaused) { %>
+                    <span class="activeStatus" style="color: yellow;">(is paused)</span>
+                <% } else { %>
+                    <span class="activeStatus" style="color: greenyellow;">(is active)</span>
+                <% } %>
+            <% } else { %>
+                <button class="pauseButt" disabled>Pause Routine</button>
+
+                <form action="/activateReactor" method="post">
+                    <button class="activationButt">Activate Reactor</button>
+                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
+                    <select name="activeRoutine" id="activeRoutine" class="activeRoutineSelect">
+                        <% for (let i=0; i<routines.length; i+=1) { %>
+                            <% if (routines[i]._id.toString() === activeRoutine.toString()) { %>
+                                <option value="<%= routines[i]._id %>" selected><%= routines[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                </form>
+                <span class="activeStatus" style="color: red;">(is not active)</span>
+            <% } %>
+
+
             <form action="/deleteReactor" method="post">
                 <button class="deleteButt">Delete Reactor</button>
                 <input type="hidden" id="_id" name="_id" value=<%= _id %>>
@@ -31,9 +86,16 @@
             </div>
             <div class="div3">
             </div>
+
             <button class="ldButton">All Log Data</button>
             <div class="div4">
             </div>
+            <div class="div5">
+                <% for (let i=0; i<espEvents.length; i+=1) { %>
+                    <%- include("./partials/viewEvntButton.ejs", {name: espEvents[i].name, _id: _id, evntId: espEvents[i]._id, reacId: data._id}) %>
+                <% } %>
+            </div>
+        
         </div>
     </body>
 </html>

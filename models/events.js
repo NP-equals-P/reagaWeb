@@ -7,6 +7,7 @@ const eventSchema = new Schema({
     isCreation: Boolean,
     start: Number,
     duration: Number,
+    inQueue: Boolean,
     actions: [
         {
             type: mongoose.Schema.Types.ObjectId,

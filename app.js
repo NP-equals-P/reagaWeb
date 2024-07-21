@@ -194,7 +194,7 @@ app.post("/createSaveReac", (req, res) => {
 
     switch (type) {
         case "create":
-            Reac.findByIdAndUpdate(reacId, {$set: {isCreation: false, name: newName}}).then(async (reactor) => {
+            Reac.findByIdAndUpdate(reacId, {$set: {isCreation: false, name: newName, isActive: false, isPaused: false}}).then(async (reactor) => {
                 Alrm.create({isCreation: true}).then((alarm) => {
                     Acti.create({isCreation: true}).then((action) => {
                         Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
@@ -283,6 +283,44 @@ app.post("/deleteReactor", (req, res) => {
         });
     });
 });
+
+app.post("/activateReactor", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+    var routId = req.body.activeRoutine;
+
+    Reac.findByIdAndUpdate(reacId, {$set: {isActive: true, activeRoutine: routId, isPaused: false}}).then((reactor) => {
+        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
+    })
+});
+
+app.post("/deactivateReactor", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+
+    Reac.findByIdAndUpdate(reacId, {$set: {isActive: false}}).then((reactor) => {
+        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
+    })
+});
+
+app.post("/pauseReactor", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+
+    Reac.findByIdAndUpdate(reacId, {$set: {isPaused: true}}).then((reactor) => {
+        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
+    })
+});
+
+app.post("/unpauseReactor", (req, res) => {
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+
+    Reac.findByIdAndUpdate(reacId, {$set: {isPaused: false}}).then((reactor) => {
+        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
+    })
+});
+
 
 app.post("/createSaveSensor", (req, res) => {
     const type = req.body.type;
@@ -541,7 +579,7 @@ app.post("/createSaveEvent", (req, res) => {
 
     switch (type) {
         case "create":
-            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, isCreation: false, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, isCreation: false, type: newGroup, start: newStart, duration: newDuration, inQueue: false}}).then((event) => {
                 Acti.create({isCreation: true}).then((creationActi) => {
                     Evnt.create({isCreation: true, creationAction: creationActi._id}).then((creationEvnt) => {
                         Rout.findByIdAndUpdate(routId, {
@@ -701,6 +739,16 @@ app.post("/deleteAction", (req, res) => {
         });
     });
 });
+
+app.post("/callEsporadicEvent", (req, res) => {
+    var userId = req.body._id;
+    var evntId = req.body.evntId;
+    var reacId = req.body.reacId;
+
+    Evnt.findByIdAndUpdate(evntId, {$set: {inQueue: true}}).then((event) => {
+        res.redirect("/reacView?_id=" + userId + "&reacId=" + reacId)
+    });
+});
 // ---------- Post Requests ----------
 
 
@@ -830,11 +878,39 @@ app.get("/reacView", (req, res) => {
     var reacId = req.query.reacId;
 
     User.findById(userId).then((resultU) => {
-        Reac.findById(reacId).then((resultR) => {
+        Reac.findById(reacId).then(async (resultR) => {
+            var newRoutList = [];
+            var newEspEventList = []
+            var aux;
+
+            for (let i=0; i<resultR.routines.length; i+=1) {
+                aux = await Rout.findById(resultR.routines[i]._id);
+                newRoutList.push({
+                    name: aux.name,
+                    _id: aux._id
+                });
+            }
+
+            if (resultR.isActive) {
+                var activeRout = await Rout.findById(resultR.activeRoutine);
+                for (let i=0; i<activeRout.events.length; i+=1) {
+                    aux = await Evnt.findById(activeRout.events[i]);
+                    if (aux.type === "esporadic") {
+                        newEspEventList.push({
+                            name: aux.name,
+                            _id: aux._id
+                        })
+                    }
+                }
+            }
+
             res.render("reacView", {
                 username: resultU.username,
                 _id: userId,
-                data: resultR
+                data: resultR,
+                routines: newRoutList,
+                activeRoutine: resultR.activeRoutine,
+                espEvents: newEspEventList
             })
         });
     });
@@ -924,6 +1000,7 @@ app.get("/addRoutine", (req, res) => {
                     newEvntList.push({
                         name: aux.name,
                         _id: aux._id,
+                        type: aux.type,
                         relativeStart: aux.start,
                         relativeDuration: aux.duration
                     });
@@ -932,7 +1009,7 @@ app.get("/addRoutine", (req, res) => {
                 var max = 0;
 
                 for (let i=0; i<newEvntList.length; i+=1) {
-                    if (newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
+                    if (newEvntList[i].type === "normal" && newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
                         max = newEvntList[i].relativeStart + newEvntList[i].relativeDuration;
                     }
                 }
@@ -964,6 +1041,7 @@ app.get("/editRoutine", (req, res) => {
                 newEvntList.push({
                     name: aux.name,
                     _id: aux._id,
+                    type: aux.type,
                     relativeStart: aux.start,
                     relativeDuration: aux.duration
                 });
@@ -972,7 +1050,7 @@ app.get("/editRoutine", (req, res) => {
             var max = 0;
 
             for (let i=0; i<newEvntList.length; i+=1) {
-                if (newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
+                if (newEvntList[i].type === "normal" && newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
                     max = newEvntList[i].relativeStart + newEvntList[i].relativeDuration;
                 }
             }

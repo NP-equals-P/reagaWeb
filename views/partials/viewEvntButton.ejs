@@ -1,0 +1,23 @@
+<style>
+    .evntButton {
+        width: 6vw;
+        height: 8vh;
+        background-color: white;
+    }
+
+    .formViewEvnt {
+        display: inline-block;
+        height: 8vh;
+        left: 0vh;
+        margin-top: 1vh;
+        margin-bottom: 1vh;
+        margin-left: 1vh;
+    }
+
+</style>
+<form action="/callEsporadicEvent" method="post" class="formViewEvnt">
+    <button class="evntButton"><%= name %></button>
+    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+    <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
+    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+</form>

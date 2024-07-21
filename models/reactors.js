@@ -4,6 +4,12 @@ const Schema = mongoose.Schema;
 const reactorSchema = new Schema({
     name: String,
     isCreation: Boolean,
+    isActive: Boolean,
+    isPaused: Boolean,
+    activeRoutine: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "routines"
+    },
     sensors: [
         {
             type: mongoose.Schema.Types.ObjectId,
