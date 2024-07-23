@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const routineSchema = new Schema({
     name: String,
     isCreation: Boolean,
+    duration: Number,
     events: [
         {
             type: mongoose.Schema.Types.ObjectId,

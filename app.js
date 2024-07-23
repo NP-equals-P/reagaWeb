@@ -321,7 +321,6 @@ app.post("/unpauseReactor", (req, res) => {
     })
 });
 
-
 app.post("/createSaveSensor", (req, res) => {
     const type = req.body.type;
     const userId = req.body._id;
@@ -1236,6 +1235,10 @@ app.get("/editAction", (req, res) => {
             });
         });
     });
+});
+
+app.get("/test", (req, res) => {
+    console.log("TESTE")
 });
 // ---------- Get Requests ----------
 
