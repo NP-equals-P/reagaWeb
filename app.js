@@ -140,8 +140,9 @@ const Rout = require('./models/routines');
 const Evnt = require('./models/events');
 const Acti = require('./models/actions');
 const Alrm = require('./models/alarms');
+const CoMo = require('./models/componentsModels');
+const Func = require('./models/functions');
 // ---------- Mongoose Models ----------
-
 
 // ---------- Configs ----------
 const app = express();
@@ -163,6 +164,7 @@ mongoose.connect(urI)
     .then((result) => app.listen(3000))
     .catch((err) => console.log(err));
 // ---------- Connect to DB ----------
+
 
 
 // ---------- Post Requests ----------
@@ -385,10 +387,11 @@ app.post("/createSaveSensor", (req, res) => {
 
     const newName = req.body.newSensName;
     const newExit = req.body.newExit;
+    const modelId = req.body.modelId;
 
     switch (type) {
         case "create":
-            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit, isCreation: false}}).then((sensor) => {
+            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit, isCreation: false, model: modelId}}).then((sensor) => {
                 Sens.create({isCreation: true}).then((creationSensor) => {
                     Reac.findByIdAndUpdate(reacId, {
                         $set: {
@@ -408,7 +411,7 @@ app.post("/createSaveSensor", (req, res) => {
             });
             break;
         default:
-            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit}}).then((sensor) => {
+            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit, model: modelId}}).then((sensor) => {
                 Reac.findById(reacId).then((reactor) => {
                     if (reactor.isCreation) {
                         res.redirect("/addReac?_id=" + userId);
@@ -1162,12 +1165,17 @@ app.get("/addSensor", (req, res) => {
 
     User.findById(userId).then((user) => {
         Reac.findById(reacId).then((reac) => {
-            Sens.findById(reac.creationSensor).then((sensor) => {
+            Sens.findById(reac.creationSensor).then(async (sensor) => {
+                var newModelList;
+
+                newModelList = await CoMo.find();
+
                 res.render("sensSettingsPage", {
                     username: user.username,
                     _id: userId,
                     reacId: reacId,
-                    data: sensor
+                    data: sensor,
+                    models: newModelList
                 });
             });
         });
@@ -1180,12 +1188,17 @@ app.get("/editSensor", (req, res) => {
     var sensId = req.query.sensId;
 
     User.findById(userId).then((user) => {
-        Sens.findById(sensId).then((sensor) => {
+        Sens.findById(sensId).then(async (sensor) => {
+            var newModelList;
+
+            newModelList = await CoMo.find();
+
             res.render("sensSettingsPage", {
                 username: user.username,
                 _id: userId,
                 reacId: reacId,
-                data: sensor
+                data: sensor,
+                models: newModelList
             });
         });
     });
@@ -1197,12 +1210,17 @@ app.get("/addActuator", (req, res) => {
 
     User.findById(userId).then((user) => {
         Reac.findById(reacId).then((reac) => {
-            Actu.findById(reac.creationActuator).then((actuator) => {
+            Actu.findById(reac.creationActuator).then(async (actuator) => {
+                var newModelList;
+
+                newModelList = await CoMo.find();
+
                 res.render("actuSettingsPage", {
                     username: user.username,
                     _id: userId,
                     reacId: reacId,
-                    data: actuator
+                    data: actuator,
+                    models: newModelList
                 });
             });
         });
@@ -1215,12 +1233,17 @@ app.get("/editActuator", (req, res) => {
     var actuId = req.query.actuId;
 
     User.findById(userId).then((user) => {
-        Actu.findById(actuId).then((actuator) => {
+        Actu.findById(actuId).then(async (actuator) => {
+            var newModelList;
+
+            newModelList = await CoMo.find();
+
             res.render("actuSettingsPage", {
                 username: user.username,
                 _id: userId,
                 reacId: reacId,
-                data: actuator
+                data: actuator,
+                models: newModelList
             });
         });
     });

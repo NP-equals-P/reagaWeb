@@ -24,7 +24,17 @@
 
                     <label for="" class="inputLabel">Model</label>
                     <br><br>
-                    <select name="" id="" class="modelSelect"></select>
+                    <select name="" id="" class="modelSelect">
+                        <% for (let i=0; i<models.length; i+=1) { %>
+                            <% if (models[i].type === "actuator") { %>
+                                <% if (data.model && (models[i]._id.toString() === data.model.toString())) { %>
+                                    <option value="<%= models[i]._id %>" selected><%= models[i].name %></option>
+                                <% } else { %>
+                                    <option value="<%= models[i]._id %>"><%= models[i].name %></option>
+                                <% } %>
+                            <% } %>
+                        <% } %>
+                    </select>
 
                     <input type="hidden" id="_id" name="_id" value=<%= _id %>>
                     <input type="hidden" id="actuId" name="actuId" value=<%= data._id %>>
