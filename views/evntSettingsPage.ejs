@@ -99,6 +99,11 @@
                     <input type="hidden" id="_id" name="_id" value=<%= _id %>>
                 </form>
             <% } %>
+
+            <% if (mode === "intervalError") { %>
+                <br>
+                <span class="errorMsg">Error: Conflicting Interval</span>
+            <% } %>
         </div>
     </body>
 </html>

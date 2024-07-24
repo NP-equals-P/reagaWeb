@@ -156,3 +156,8 @@ body {
     left: 6px;
     top: 93vh;
 }
+
+.errorMsg {
+    color: red;
+    font-weight: bold;
+}

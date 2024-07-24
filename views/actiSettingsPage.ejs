@@ -27,6 +27,10 @@
     <body>
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
+            <% if (mode === "intervalError") { %>
+                <br>
+                <span class="errorMsg">Error: Conflicting Interval</span>
+            <% } %>
             <form action="/createSaveAction" method="post">
                 <button class="backButt" name="type" value="saveBack">Back</button>
 

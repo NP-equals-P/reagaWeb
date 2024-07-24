@@ -27,24 +27,6 @@ body {
     left: 5vw;
 }
 
-.rotLabel {
-    position: absolute;
-    top: 32vh;
-    font-weight: bold;
-    color: rgb(206, 206, 206);
-    font-size: 1.5em;
-    left: 5vw;
-}
-
-.actLabel {
-    position: absolute;
-    top: 38vh;
-    font-weight: bold;
-    color: rgb(206, 206, 206);
-    font-size: 1.5em;
-    left: 5vw;
-}
-
 .varRadio {
     position: absolute;
     left: 3vw;
@@ -55,18 +37,6 @@ body {
     position: absolute;
     left: 3vw;
     top: 26vh;
-}
-
-.rotRadio {
-    position: absolute;
-    left: 3vw;
-    top: 32vh;
-}
-
-.actRadio {
-    position: absolute;
-    left: 3vw;
-    top: 38vh;
 }
 
 .limitInput {
@@ -83,4 +53,128 @@ body {
     color: rgb(206, 206, 206);
     font-size: 1.5em;
     left: 30vw;
+}
+
+.backButt {
+    position: absolute;
+    height: 5vh;
+    width: 6vw;
+    border-radius: 10px;
+    top: 9vh;
+    left: 1vh;
+    font-weight: bold;
+}
+
+.inputName {
+    position: absolute;
+    height: 3vh;
+    width: 15vw;
+    border-radius: 10px;
+    top: 20vh;
+}
+
+.titleLabel {
+    position: absolute;
+    top: 15vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.msgArea {
+    top: 20vh;
+    left: 70vw;
+    width: 25vw;
+    position: absolute;
+    resize:vertical;
+    border-radius: 10px;
+}
+
+.msgLabel {
+    position: absolute;
+    top: 15vh;
+    left: 70vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.sensLabel {
+    position: absolute;
+    top: 35vh;
+    left: 3vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.sensSelect {
+    width: 10vw;
+    height: 3vh;
+    position: absolute;
+    left: 3vw;
+    top: 40vh;
+}
+
+.triggerCB {
+    position: absolute;
+    top: 67vh;
+    left: 4vw;
+}
+
+.triggerCBLabel {
+    position: absolute;
+    top: 62vh;
+    left: 2vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.eventLabel {
+    position: absolute;
+    top: 74vh;
+    left: 3vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.evntSelect {
+    width: 10vw;
+    height: 3vh;
+    position: absolute;
+    left: 3vw;
+    top: 78vh;
+}
+
+.createButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 91vw;
+    top: 93vh;
+}
+
+.deleteButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    color: red;
+    position: absolute;
+    left: 6px;
+    top: 93vh;
+}
+
+.discardButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    left: 6px;
+    top: 93vh;
 }

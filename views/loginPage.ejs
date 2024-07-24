@@ -24,6 +24,8 @@
 
                 <% if (mode === "loginError") {%>
                     <label class="errorMsg">Wrong or inexistent username</label>
+                <% } else if (mode === "newRegister") { %>
+                    <label class="confirmMsg">User Registered</label>
                 <% } %>
 
                 <br><br>

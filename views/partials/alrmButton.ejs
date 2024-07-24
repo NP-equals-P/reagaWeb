@@ -1,0 +1,18 @@
+<style>
+    .alrmButton {
+        width: 7vw;
+        height: 4vw;
+        background-color: white;
+    }
+
+    .hyperLinkAlrm {
+        display: block;
+        width: 7vw;
+        height: 4vw;
+        margin: 1vh;
+    }
+
+</style>
+<a href=<%= "/editAlarm?_id=" + _id + "&reacId=" + reacId + "&routId=" + routId + "&alrmId=" + alarm._id%> class="hyperLinkAlrm">
+    <button class="alrmButton" type="button"><%= alarm.title %></button>
+</a>

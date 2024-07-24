@@ -63,3 +63,9 @@ svg {
     font-size: 1em;
     font-weight: bold;
 }
+
+.confirmMsg {
+    color: greenyellow;
+    font-size: 1em;
+    font-weight: bold;
+}

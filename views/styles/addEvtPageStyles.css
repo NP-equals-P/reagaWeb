@@ -149,3 +149,11 @@ body {
     left: 6px;
     top: 93vh;
 }
+
+.errorMsg {
+    color: red;
+    font-weight: bold;
+    position: absolute;
+    top: 88vh;
+    left: 85vw;
+}

@@ -16,9 +16,15 @@
             <select class="reactorSelect" name="reactor" id="" disabled>
                 <option value="<%= data.name %>"><%= data.name %></option>
             </select>
-            <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
-                <button class="erButton">Edit Reactor</button>
-            </a>
+            <% if (!data.isActive) { %>
+                <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
+                    <button class="erButton">Edit Reactor</button>
+                </a>
+            <% } else { %>
+                <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
+                    <button class="erButton" disabled>Edit Reactor</button>
+                </a>
+            <% } %>
 
             <% if (data.isActive) { %>
                 <% if (data.isPaused) { %>

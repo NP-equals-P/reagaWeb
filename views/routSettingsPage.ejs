@@ -39,6 +39,13 @@
                 <% if (data.isCreation) { %>
                     <button class="confirmButt" name="type" id="type" value="create">Create Routine</button>
                 <% } %>
+
+                <button class="addAlrmButt" name="type" id="type" value="saveAlarms">Add Alam</button>
+                <div class="div4">
+                    <% for (let i=0; i<alarms.length; i+=1) { %>
+                        <%- include('./partials/alrmButton.ejs', {alarm: alarms[i], _id: _id, routId: data._id, reacId: reacId}) %>
+                    <% } %>
+                </div>
             </form>
             <% if (data.isCreation) { %>
                 <form action="/dicardRoutineEdit" method="post">
