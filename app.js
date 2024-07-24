@@ -106,16 +106,19 @@ async function checkValidEvent(routId, newStart, newDuration, evntId) {
 
     for (let i=0; i<myRout.events.length; i+=1) {
         event = await Evnt.findById(myRout.events[i]);
-        if (event.type === "normal") {
-            eventEnd = event.start + event.duration;
-    
-            if (!(newEnd <= event.start) && !(newStart >= eventEnd)) {
-                for (let j=0; j<newEvent.actions.length; j+=1) {
-                    for (let k=0; k<event.actions.length; k+=1) {
-                        var newEventActi = await Acti.findById(newEvent.actions[j])
-                        var eventActi = await Acti.findById(event.actions[k])
-                        if (newEventActi.component.toString() === eventActi.component.toString()) {
-                            return false
+
+        if (!(event._id.toString() === evntId)) {
+            if (event.type === "normal") {
+                eventEnd = event.start + event.duration;
+        
+                if (!(newEnd <= event.start) && !(newStart >= eventEnd)) {
+                    for (let j=0; j<newEvent.actions.length; j+=1) {
+                        for (let k=0; k<event.actions.length; k+=1) {
+                            var newEventActi = await Acti.findById(newEvent.actions[j])
+                            var eventActi = await Acti.findById(event.actions[k])
+                            if (newEventActi.component.toString() === eventActi.component.toString()) {
+                                return false
+                            }
                         }
                     }
                 }
@@ -773,22 +776,52 @@ app.post("/createSaveEvent", (req, res) => {
             });
             break;
         default:
-            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
-                switch (type) {
-                    case "saveActions":
-                        res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
-                        break;
-                    default:
-                        Rout.findById(routId).then((routine) => {
-                            if (routine.isCreation) {
-                                res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
-                            } else {
-                                res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
-                            }
-                        });
-                        break;
+            Evnt.findById(evntId).then((testAdd) => {
+                if (testAdd.isCreation) {
+                    Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+                        switch (type) {
+                            case "saveActions":
+                                res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
+                                break;
+                            default:
+                                Rout.findById(routId).then((routine) => {
+                                    if (routine.isCreation) {
+                                        res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
+                                    } else {
+                                        res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+                                    }
+                                });
+                                break;
+                        }
+                    });
+                } else {
+                    checkValidEvent(routId, newStart, newDuration, evntId).then((result) => {
+                        if (result) {
+                            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+                                switch (type) {
+                                    case "saveActions":
+                                        res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
+                                        break;
+                                    default:
+                                        Rout.findById(routId).then((routine) => {
+                                            if (routine.isCreation) {
+                                                res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
+                                            } else {
+                                                res.redirect("/editRoutine?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
+                                            }
+                                        });
+                                        break;
+                                }
+                            });
+                        } else {
+                            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup}}).then((event) => {
+                                res.redirect("/editEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId + "&mode=intervalError")
+                            });
+                        }
+                    });
                 }
             });
+
             break;
     }
 });
@@ -1531,8 +1564,6 @@ app.get("/editAction", (req, res) => {
     var actiId = req.query.actiId;
     var mode = req.query.mode;
 
-    console.log(req.query)
-
     User.findById(userId).then((user) => {
         Acti.findById(actiId).then((action) => {
             Reac.findById(reacId).then(async (reactor) => {
@@ -1568,10 +1599,6 @@ app.get("/editAction", (req, res) => {
             });
         });
     });
-});
-
-app.get("/test", (req, res) => {
-    console.log("TESTE")
 });
 // ---------- Get Requests ----------
 
