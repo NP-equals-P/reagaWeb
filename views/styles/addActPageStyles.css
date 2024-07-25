@@ -176,3 +176,8 @@ body {
     top: 60vh;
     width: 10vw;
 }
+
+.singleVarDiv {
+    height: 7vh;
+    border-bottom: 3px solid black;
+}

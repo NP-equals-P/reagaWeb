@@ -69,7 +69,7 @@
                     <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
                     <select name="activeRoutine" id="activeRoutine" class="activeRoutineSelect">
                         <% for (let i=0; i<routines.length; i+=1) { %>
-                            <% if (routines[i]._id.toString() === activeRoutine.toString()) { %>
+                            <% if (activeRoutine && routines[i]._id.toString() === activeRoutine.toString()) { %>
                                 <option value="<%= routines[i]._id %>" selected><%= routines[i].name %></option>
                             <% } else { %>
                                 <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>

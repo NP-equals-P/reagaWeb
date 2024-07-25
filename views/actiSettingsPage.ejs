@@ -1,98 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
     <script>
-        
-        function myFunc() {
-            if (document.getElementById("sensorRadio").checked) {
-                document.getElementById("selectActuator").disabled = true;
-                document.getElementById("selectActuator").style.display = "none";
 
-                document.getElementById("selectSensor").disabled = false;
-                document.getElementById("selectSensor").style.display = "block";
-            } else {
-                document.getElementById("selectActuator").disabled = false;
-                document.getElementById("selectActuator").style.display = "block";
+        var components;
 
-                document.getElementById("selectSensor").disabled = true;
-                document.getElementById("selectSensor").style.display = "none";
+        async function onLoadFunction() {
+            pageStart()
+
+            components = await getComponents();
+        }
+
+        async function getComponents() {
+            const url = "http://localhost:3000/components?reacId=" + document.getElementById("reacId").value;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+
+                const json = await response.json();
+                return json;
+            } catch (error) {
+                console.error(error.message);
             }
         }
-        
+
+        function pageStart() {
+            var actionType = document.getElementById("actionType").value;
+            
+            if (actionType === "sensor") {
+                document.getElementById("sensorRadio").checked = true
+            } else {
+                document.getElementById("actuatorRadio").checked = true
+            }
+        }
+
+        function changeType() {
+            var componentSelect = document.getElementById("componentSelect");
+            var str = "";
+
+            if (document.getElementById("sensorRadio").checked) {
+                for (let i=0; i<components.sensors.length; i+=1) {
+                    str += "<option value=" + components.sensors[i].model + ">" + components.sensors[i].name + "</option>"
+                    componentSelect.innerHTML = str;
+                }
+            } else {
+                for (let i=0; i<components.actuators.length; i+=1) {
+                    str += "<option value=" + components.actuators[i].model + ">" + components.actuators[i].name + "</option>"
+                    componentSelect.innerHTML = str;
+                }
+            }
+        }
+
+        async function getModelFunctions() {
+            console.log(document.getElementById("componentSelect"))
+            const url = "http://localhost:3000/modelFunctions?modlId=" + document.getElementById("componentSelect").value;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+
+                const json = await response.json();
+                return json;
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        async function changeModel() {
+            var functions = await getModelFunctions();
+            var functionSelect = document.getElementById("functionSelect");
+            var str = "";
+
+
+            for (let i=0; i<functions.length; i+=1) {
+                str += "<option value=" + functions[i]._id + ">" + functions[i].name + "</option>"
+                functionSelect.innerHTML = str;
+            }
+        }
+
+        async function getFunctionVars() {
+            var functionId = document.getElementById("functionSelect").value;
+
+            const url = "http://localhost:3000/functionVariables?funcId=" + document.getElementById("functionSelect").value;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+
+                const json = await response.json();
+                return json;
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        async function changeFunction() {
+            var funcVars = await getFunctionVars();
+            var str = "";
+
+            for (let i=0; i<funcVars.numbers; i+=1) {
+                var nameId = "num" + i;
+                str +=  "<div class= singleVarDiv><input type=number name=" + nameId + " id=" + nameId + "></input></div>";
+                console.log(str)
+            }
+
+            for (let i=0; i<funcVars.strings; i+=1) {
+                var nameId = "str" + i;
+                str += "<div class= singleVarDiv><input type=text name=" + nameId + " id=" + nameId + "></input></div>";
+            }
+
+            document.getElementById("varDiv").innerHTML += str;
+        }
+
     </script>
+
     <head>
         <link rel="stylesheet" href="/styles/addActPageStyles.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Action </title>
     </head>
-    <body>
+
+    <body onload="onLoadFunction()">
+        <input type="hidden" id="actionType" name="actionType" value=<%= data.type %>>
         <%- include('./partials/nav.ejs', {name: username}) %>
         <div class="div1">
             <% if (mode === "intervalError") { %>
                 <br>
                 <span class="errorMsg">Error: Conflicting Interval</span>
             <% } %>
-            <form action="/createSaveAction" method="post">
+            <form action="/createSaveAction" method="post" id="mainForm">
                 <button class="backButt" name="type" value="saveBack">Back</button>
 
                 <label for="" class="nameLabel">Name</label>
                 <input type="text" name="newActiName" id="newActiName" class="nameInput" value="<%= data.name %>">
 
-                <% if (data.type === "actuator") { %>
-                    <label for="" class="sensorLabel">Sensor</label>
-                    <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" onclick="myFunc()">
-                    <label for="" class="actuatorLabel">Actuator</label>
-                    <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" checked onclick="myFunc()">
-                <% } else { %>
-                    <label for="" class="sensorLabel">Sensor</label>
-                    <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" checked onclick="myFunc()">
-                    <label for="" class="actuatorLabel">Actuator</label>
-                    <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" onclick="myFunc()">
-                <% } %>
+                <label for="" class="sensorLabel">Sensor</label>
+                <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" onclick="changeType()">
+                <label for="" class="actuatorLabel">Actuator</label>
+                <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" onclick="changeType()">
 
                 <label for="" class="componentLabel">Chosen component:</label>
 
-                <% if (data.type === "actuator") { %>
-                    <select name="newComponent" id="selectActuator" class="componentSelect">
-                        <% for (let i=0; i<actuators.length; i+=1) { %>
-                            <% if (data.component && actuators[i]._id.toString() === data.component.toString()) { %>
-                                <option value="<%= actuators[i]._id %>" selected><%= actuators[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= actuators[i]._id %>"><%= actuators[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                    <select name="newComponent" id="selectSensor" class="componentSelect" disabled style="display: none;">
-                        <% for (let i=0; i<sensors.length; i+=1) { %>
-                            <% if (data.component && sensors[i]._id.toString() === data.component.toString()) { %>
-                                <option value="<%= sensors[i]._id %>" selected><%= sensors[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= sensors[i]._id %>"><%= sensors[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                <% } else { %>
-                    <select name="newComponent" id="selectActuator" class="componentSelect" disabled style="display: none;">
-                        <% for (let i=0; i<actuators.length; i+=1) { %>
-                            <% if (data.component && actuators[i]._id.toString() == data.component.toString()) { %>
-                                <option value="<%= actuators[i]._id %>" selected><%= actuators[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= actuators[i]._id %>"><%= actuators[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                    <select name="newComponent" id="selectSensor" class="componentSelect">
-                        <% for (let i=0; i<sensors.length; i+=1) { %>
-                            <% if (data.component && sensors[i]._id.toString() == data.component.toString()) { %>
-                                <option value="<%= sensors[i]._id %>" selected><%= sensors[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= sensors[i]._id %>"><%= sensors[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                <% } %>
+                <select name="" id="componentSelect" class="componentSelect" onchange="changeModel()"></select>
 
                 <label for="" class="functionLabel">Function</label>
-                <select name="" id="" class="functionSelect"></select>
+                <select name="" id="functionSelect" class="functionSelect" onchange="changeFunction()"></select>
 
                 <label for="" class="startLabel">Start</label>
                 <input type="number" name="newStart" id="" class="startInput" value="<%=data.start%>">
@@ -109,10 +164,13 @@
                 <% if (data.isCreation) { %>
                     <button class="confirmButt" name="type" id="type" value="create">Create Action</button>
                 <% } %>
+
+                <div class="div2" id="varDiv">
+                </div>
             </form>
             
-            <div class="div2">
-            </div>
+
+            <div><input type="hidden" id="reacId" name="AAA" value="AAAAAAA"></div>
 
             <% if (data.isCreation) { %>
                 <form action="/dicardActionEdit" method="post">

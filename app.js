@@ -460,13 +460,14 @@ app.post("/createSaveActuator", (req, res) => {
     const userId = req.body._id;
     const reacId = req.body.reacId;
     const actuId = req.body.actuId;
+    const modlId = req.body.modlId;
 
     const newName = req.body.newActuName;
     const newExit = req.body.newExit;
 
     switch (type) {
         case "create":
-            Actu.findByIdAndUpdate(actuId, {$set: {name: newName, exit: newExit, isCreation: false}}).then((actuator) => {
+            Actu.findByIdAndUpdate(actuId, {$set: {name: newName, exit: newExit, isCreation: false, model: modlId}}).then((actuator) => {
                 Actu.create({isCreation: true}).then((creationActuator) => {
                     Reac.findByIdAndUpdate(reacId, {
                         $set: {
@@ -876,6 +877,8 @@ app.post("/createSaveAction", (req, res) => {
     const newStart = req.body.newStart;
     const newDuration = req.body.newDuration;
     const newComponent = req.body.newComponent;
+
+    console.log(req.body)
 
     switch (type) {
         case "create":
@@ -1622,6 +1625,82 @@ app.get("/editAction", (req, res) => {
             });
         });
     });
+});
+
+app.get("/components", async (req, res) => {
+    var reacId = req.query.reacId;
+    var aux;
+
+    var sensorList = [];
+    var actuatorList = [];
+
+    Reac.findById(reacId).then(async (reactor) => {
+        for (let i=0; i<reactor.sensors.length; i+=1) {
+            aux = await Sens.findById(reactor.sensors[i]);
+            sensorList.push({
+                name: aux.name,
+                _id: aux._id,
+                model: aux.model
+            })
+        }
+
+        for (let i=0; i<reactor.actuators.length; i+=1) {
+            aux = await Actu.findById(reactor.actuators[i]);
+            actuatorList.push({
+                name: aux.name,
+                _id: aux._id,
+                model: aux.model
+            })
+        }
+
+        var data = {
+            sensors: sensorList,
+            actuators: actuatorList
+        }
+
+        res.end(JSON.stringify(data));
+    });
+});
+
+app.get("/modelFunctions", (req, res) => {
+    var modlId = req.query.modlId;
+    var aux;
+    var funcList = [];
+
+    CoMo.findById(modlId).then(async (model) => {
+        for (let i=0; i<model.functions.length; i+=1) {
+            aux = await Func.findById(model.functions[i]);
+            funcList.push({
+                name: aux.name,
+                _id: aux._id
+            })
+        }
+
+        res.end(JSON.stringify(funcList));
+    });
+
+});
+
+app.get("/functionVariables", (req, res) => {
+    var funcId = req.query.funcId;
+    var aux;
+
+    Func.findById(funcId).then(async (func) => {
+
+        aux = {
+            numbers: func.numberVars,
+            strings: func.stringVars
+        }
+
+        res.end(JSON.stringify(aux));
+    });
+});
+
+app.get("/teste", (req, res) => {
+
+    console.log(req.query)
+
+    return;
 });
 // ---------- Get Requests ----------
 
