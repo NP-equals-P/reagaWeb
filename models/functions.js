@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 const functionSchema = new Schema({
     name: String,
     numberVars: Number,
-    stringVars: Number
+    stringVars: Number,
+    html: String
 });
 
 const Function = mongoose.model('function', functionSchema);

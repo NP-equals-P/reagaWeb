@@ -10,7 +10,12 @@ const actionSchema = new Schema({
     component: {
         type: mongoose.Schema.Types.ObjectId,
         value: ""
-    }
+    },
+    function: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "functions"
+    },
+    varList: Array
 });
 
 const Action = mongoose.model('action', actionSchema);

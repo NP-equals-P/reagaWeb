@@ -5,9 +5,9 @@
         var components;
 
         async function onLoadFunction() {
-            pageStart()
-
             components = await getComponents();
+
+            pageStart()
         }
 
         async function getComponents() {
@@ -25,7 +25,7 @@
             }
         }
 
-        function pageStart() {
+        async function pageStart() {
             var actionType = document.getElementById("actionType").value;
             
             if (actionType === "sensor") {
@@ -33,28 +33,58 @@
             } else {
                 document.getElementById("actuatorRadio").checked = true
             }
+
+            await changeType();
+            await changeModel();
+            await changeFunction();
         }
 
-        function changeType() {
+        async function changeType() {
             var componentSelect = document.getElementById("componentSelect");
+            var dataComponent = document.getElementById("currentComponent").value;
             var str = "";
+            var aux;
 
             if (document.getElementById("sensorRadio").checked) {
                 for (let i=0; i<components.sensors.length; i+=1) {
-                    str += "<option value=" + components.sensors[i].model + ">" + components.sensors[i].name + "</option>"
+
+                    if (dataComponent === components.sensors[i]._id.toString()) {
+                        aux = "selected";
+                    } else {
+                        aux = "";
+                    }
+
+                    str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
                     componentSelect.innerHTML = str;
                 }
             } else {
                 for (let i=0; i<components.actuators.length; i+=1) {
-                    str += "<option value=" + components.actuators[i].model + ">" + components.actuators[i].name + "</option>"
+
+                    if (dataComponent === components.actuators[i]._id.toString()) {
+                        aux = "selected";
+                    } else {
+                        aux = "";
+                    }
+
+                    str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
                     componentSelect.innerHTML = str;
                 }
             }
+
+            await changeModel();
+            await changeFunction();
         }
 
         async function getModelFunctions() {
-            console.log(document.getElementById("componentSelect"))
-            const url = "http://localhost:3000/modelFunctions?modlId=" + document.getElementById("componentSelect").value;
+            var type;
+
+            if (document.getElementById("sensorRadio").checked) {
+                type = "sensor";
+            } else {
+                type = "actuator";
+            }
+
+            const url = "http://localhost:3000/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -71,19 +101,28 @@
         async function changeModel() {
             var functions = await getModelFunctions();
             var functionSelect = document.getElementById("functionSelect");
+            var dataFunction = document.getElementById("currentFunction").value;
             var str = "";
-
+            var aux;
 
             for (let i=0; i<functions.length; i+=1) {
-                str += "<option value=" + functions[i]._id + ">" + functions[i].name + "</option>"
+                if (dataFunction.toString() && (dataFunction.toString() === functions[i]._id.toString())) {
+                    aux = "selected";
+                } else {
+                    aux = "";
+                }
+
+                str += "<option value=" + functions[i]._id + " " + aux + ">" + functions[i].name + "</option>"
                 functionSelect.innerHTML = str;
             }
+
+            await changeFunction();
         }
 
-        async function getFunctionVars() {
+        async function getFunctionHTML() {
             var functionId = document.getElementById("functionSelect").value;
 
-            const url = "http://localhost:3000/functionVariables?funcId=" + document.getElementById("functionSelect").value;
+            const url = "http://localhost:3000/functionHTML?funcId=" + document.getElementById("functionSelect").value;
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -98,21 +137,9 @@
         }
 
         async function changeFunction() {
-            var funcVars = await getFunctionVars();
-            var str = "";
+            var funcHTMLStr = await getFunctionHTML();
 
-            for (let i=0; i<funcVars.numbers; i+=1) {
-                var nameId = "num" + i;
-                str +=  "<div class= singleVarDiv><input type=number name=" + nameId + " id=" + nameId + "></input></div>";
-                console.log(str)
-            }
-
-            for (let i=0; i<funcVars.strings; i+=1) {
-                var nameId = "str" + i;
-                str += "<div class= singleVarDiv><input type=text name=" + nameId + " id=" + nameId + "></input></div>";
-            }
-
-            document.getElementById("varDiv").innerHTML += str;
+            document.getElementById("varDiv").innerHTML = funcHTMLStr.html;
         }
 
     </script>
@@ -144,16 +171,19 @@
 
                 <label for="" class="componentLabel">Chosen component:</label>
 
-                <select name="" id="componentSelect" class="componentSelect" onchange="changeModel()"></select>
+                <select name="newComponent" id="componentSelect" class="componentSelect" onchange="changeModel()"></select>
 
                 <label for="" class="functionLabel">Function</label>
-                <select name="" id="functionSelect" class="functionSelect" onchange="changeFunction()"></select>
+                <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunction()"></select>
 
                 <label for="" class="startLabel">Start</label>
                 <input type="number" name="newStart" id="" class="startInput" value="<%=data.start%>">
 
                 <label for="" class="durationLabel">Duration</label>
                 <input type="number" name="newDuration" id="" class="durationInput" value="<%=data.duration%>">
+
+                <input type="hidden" id="currentComponent" value=<%= data.component %>>
+                <input type="hidden" id="currentFunction" value=<%= data.function %>>
 
                 <input type="hidden" id="actiId" name="actiId" value=<%= data._id %>>
                 <input type="hidden" id="routId" name="routId" value=<%= routId %>>

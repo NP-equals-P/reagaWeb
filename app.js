@@ -877,14 +877,25 @@ app.post("/createSaveAction", (req, res) => {
     const newStart = req.body.newStart;
     const newDuration = req.body.newDuration;
     const newComponent = req.body.newComponent;
+    const newFunction = req.body.newFunction;
 
-    console.log(req.body)
+    var metaBodySize = 12;
+    var count = 1;
+    var varList = [];
+
+    for (key in req.body) {
+        if (count > metaBodySize) {
+            varList.push(req.body[key])
+        }
+
+        count += 1;
+    }
 
     switch (type) {
         case "create":
             checkValidAction(evntId, newStart, newDuration, newComponent).then((result) => {
                 if (result) {
-                    Acti.findByIdAndUpdate(actiId, {$set: {isCreation: false, name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent}}).then((action) => {
+                    Acti.findByIdAndUpdate(actiId, {$set: {isCreation: false, name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
                         Acti.create({isCreation: true}).then((creationActi) => {
                             Evnt.findByIdAndUpdate(evntId, {
                                 $set: {
@@ -903,7 +914,7 @@ app.post("/createSaveAction", (req, res) => {
                         });
                     });
                 } else {
-                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent}}).then((action) => {
+                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, varList: varList}}).then((action) => {
                         if (action.isCreation) {
                             res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId + "&mode=intervalError");
                         } else {
@@ -916,7 +927,7 @@ app.post("/createSaveAction", (req, res) => {
         default:
             Acti.findById(actiId).then((testAdd) => {
                 if (testAdd.isCreation) {
-                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent}}).then((action) => {
+                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
                         Evnt.findById(evntId).then((event) => {
                             if (event.isCreation) {
                                 res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
@@ -928,7 +939,7 @@ app.post("/createSaveAction", (req, res) => {
                 } else {
                     checkValidAction(evntId, newStart, newDuration, newComponent, actiId).then((result) => {
                         if (result) {
-                            Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent}}).then((action) => {
+                            Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
                                 Evnt.findById(evntId).then((event) => {
                                     if (event.isCreation) {
                                         res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
@@ -938,7 +949,7 @@ app.post("/createSaveAction", (req, res) => {
                                 });
                             });
                         } else {
-                            Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, component: newComponent}}).then((action) => {
+                            Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
                                 res.redirect("/editAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId + "&actiId=" + actiId + "&mode=intervalError")
                             });
                         }
@@ -1663,33 +1674,44 @@ app.get("/components", async (req, res) => {
 });
 
 app.get("/modelFunctions", (req, res) => {
-    var modlId = req.query.modlId;
+    var compId = req.query.compId;
+    var type = req.query.type;
     var aux;
     var funcList = [];
 
-    CoMo.findById(modlId).then(async (model) => {
-        for (let i=0; i<model.functions.length; i+=1) {
-            aux = await Func.findById(model.functions[i]);
-            funcList.push({
-                name: aux.name,
-                _id: aux._id
-            })
-        }
+    var mode;
 
-        res.end(JSON.stringify(funcList));
+    if (type === "sensor") {
+        mode = Sens;
+    } else {
+        mode = Actu;
+    }
+
+    mode.findById(compId).then((component) => {
+        CoMo.findById(component.model).then(async (model) => {
+            for (let i=0; i<model.functions.length; i+=1) {
+                aux = await Func.findById(model.functions[i]);
+                funcList.push({
+                    name: aux.name,
+                    _id: aux._id
+                })
+            }
+    
+            res.end(JSON.stringify(funcList));
+        });
     });
+
 
 });
 
-app.get("/functionVariables", (req, res) => {
+app.get("/functionHTML", (req, res) => {
     var funcId = req.query.funcId;
     var aux;
 
     Func.findById(funcId).then(async (func) => {
 
         aux = {
-            numbers: func.numberVars,
-            strings: func.stringVars
+            html: func.html
         }
 
         res.end(JSON.stringify(aux));
