@@ -1,151 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
-    <script>
-
-        var components;
-
-        async function onLoadFunction() {
-            components = await getComponents();
-
-            pageStart()
-        }
-
-        async function getComponents() {
-            const url = "http://localhost:3000/components?reacId=" + document.getElementById("reacId").value;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const json = await response.json();
-                return json;
-            } catch (error) {
-                console.error(error.message);
-            }
-        }
-
-        async function pageStart() {
-            var actionType = document.getElementById("actionType").value;
-            
-            if (actionType === "sensor") {
-                document.getElementById("sensorRadio").checked = true
-            } else {
-                document.getElementById("actuatorRadio").checked = true
-            }
-
-            await changeType();
-            await changeModel();
-            await changeFunction();
-        }
-
-        async function changeType() {
-            var componentSelect = document.getElementById("componentSelect");
-            var dataComponent = document.getElementById("currentComponent").value;
-            var str = "";
-            var aux;
-
-            if (document.getElementById("sensorRadio").checked) {
-                for (let i=0; i<components.sensors.length; i+=1) {
-
-                    if (dataComponent === components.sensors[i]._id.toString()) {
-                        aux = "selected";
-                    } else {
-                        aux = "";
-                    }
-
-                    str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
-                    componentSelect.innerHTML = str;
-                }
-            } else {
-                for (let i=0; i<components.actuators.length; i+=1) {
-
-                    if (dataComponent === components.actuators[i]._id.toString()) {
-                        aux = "selected";
-                    } else {
-                        aux = "";
-                    }
-
-                    str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
-                    componentSelect.innerHTML = str;
-                }
-            }
-
-            await changeModel();
-            await changeFunction();
-        }
-
-        async function getModelFunctions() {
-            var type;
-
-            if (document.getElementById("sensorRadio").checked) {
-                type = "sensor";
-            } else {
-                type = "actuator";
-            }
-
-            const url = "http://localhost:3000/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const json = await response.json();
-                return json;
-            } catch (error) {
-                console.error(error.message);
-            }
-        }
-
-        async function changeModel() {
-            var functions = await getModelFunctions();
-            var functionSelect = document.getElementById("functionSelect");
-            var dataFunction = document.getElementById("currentFunction").value;
-            var str = "";
-            var aux;
-
-            for (let i=0; i<functions.length; i+=1) {
-                if (dataFunction.toString() && (dataFunction.toString() === functions[i]._id.toString())) {
-                    aux = "selected";
-                } else {
-                    aux = "";
-                }
-
-                str += "<option value=" + functions[i]._id + " " + aux + ">" + functions[i].name + "</option>"
-                functionSelect.innerHTML = str;
-            }
-
-            await changeFunction();
-        }
-
-        async function getFunctionHTML() {
-            var functionId = document.getElementById("functionSelect").value;
-
-            const url = "http://localhost:3000/functionHTML?funcId=" + document.getElementById("functionSelect").value;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const json = await response.json();
-                return json;
-            } catch (error) {
-                console.error(error.message);
-            }
-        }
-
-        async function changeFunction() {
-            var funcHTMLStr = await getFunctionHTML();
-
-            document.getElementById("varDiv").innerHTML = funcHTMLStr.html;
-        }
-
-    </script>
-
     <head>
-        <link rel="stylesheet" href="/styles/addActPageStyles.css">
+
+        <script>
+
+            var components;
+    
+            async function onLoadFunction() {
+                components = await getComponents();
+    
+                pageStart()
+            }
+    
+            async function getComponents() {
+                const url = "http://localhost:3000/components?reacId=" + document.getElementById("reacId").value;
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+    
+                    const json = await response.json();
+                    return json;
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+    
+            async function pageStart() {
+                var actionType = document.getElementById("actionType").value;
+                
+                if (actionType === "sensor") {
+                    document.getElementById("sensorRadio").checked = true
+                } else {
+                    document.getElementById("actuatorRadio").checked = true
+                }
+    
+                await changeType();
+                await changeModel();
+                await changeFunction();
+            }
+    
+            async function changeType() {
+                var componentSelect = document.getElementById("componentSelect");
+                var dataComponent = document.getElementById("currentComponent").value;
+                var str = "";
+                var aux;
+    
+                if (document.getElementById("sensorRadio").checked) {
+                    for (let i=0; i<components.sensors.length; i+=1) {
+    
+                        if (dataComponent === components.sensors[i]._id.toString()) {
+                            aux = "selected";
+                        } else {
+                            aux = "";
+                        }
+    
+                        str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
+                        componentSelect.innerHTML = str;
+                    }
+                } else {
+                    for (let i=0; i<components.actuators.length; i+=1) {
+    
+                        if (dataComponent === components.actuators[i]._id.toString()) {
+                            aux = "selected";
+                        } else {
+                            aux = "";
+                        }
+    
+                        str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
+                        componentSelect.innerHTML = str;
+                    }
+                }
+    
+                await changeModel();
+                await changeFunction();
+            }
+    
+            async function getModelFunctions() {
+                var type;
+    
+                if (document.getElementById("sensorRadio").checked) {
+                    type = "sensor";
+                } else {
+                    type = "actuator";
+                }
+    
+                const url = "http://localhost:3000/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+    
+                    const json = await response.json();
+                    return json;
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+    
+            async function changeModel() {
+                var functions = await getModelFunctions();
+                var functionSelect = document.getElementById("functionSelect");
+                var dataFunction = document.getElementById("currentFunction").value;
+                var str = "";
+                var aux;
+    
+                for (let i=0; i<functions.length; i+=1) {
+                    if (dataFunction.toString() && (dataFunction.toString() === functions[i]._id.toString())) {
+                        aux = "selected";
+                    } else {
+                        aux = "";
+                    }
+    
+                    str += "<option value=" + functions[i]._id + " " + aux + ">" + functions[i].name + "</option>"
+                    functionSelect.innerHTML = str;
+                }
+    
+                await changeFunction();
+            }
+    
+            async function getFunctionHTML() {
+                var functionId = document.getElementById("functionSelect").value;
+    
+                const url = "http://localhost:3000/functionHTML?funcId=" + document.getElementById("functionSelect").value;
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+    
+                    const json = await response.json();
+                    return json;
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+    
+            async function changeFunction() {
+                var funcHTMLStr = await getFunctionHTML();
+    
+                document.getElementById("varDiv").innerHTML = funcHTMLStr.html;
+            }
+    
+        </script>
+
+        <link rel="stylesheet" href="/styles/actiSettingsStyle.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Action </title>
     </head>
@@ -176,11 +177,11 @@
                 <label for="" class="functionLabel">Function</label>
                 <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunction()"></select>
 
-                <label for="" class="startLabel">Start</label>
+                <label for="" class="startLabel">Starts</label>
                 <input type="number" name="newStart" id="" class="startInput" value="<%=data.start%>">
 
-                <label for="" class="durationLabel">Duration</label>
-                <input type="number" name="newDuration" id="" class="durationInput" value="<%=data.duration%>">
+                <label for="" class="durationLabel">Ends</label>
+                <input type="number" name="newEnd" id="" class="durationInput" value="<%=data.end%>">
 
                 <input type="hidden" id="currentComponent" value=<%= data.component %>>
                 <input type="hidden" id="currentFunction" value=<%= data.function %>>

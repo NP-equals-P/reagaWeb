@@ -6,6 +6,62 @@ const url = require('node:url');
 
 // ---------- My Functions ----------
 
+async function createNewUser(username) {
+
+    const reactor = await createNewReactor();
+
+    User.create({
+        username: username,
+        creationReactor: reactor._id
+    });
+
+}
+
+async function createNewReactor() {
+
+    const sensor = await Sens.create({isCreation: true});
+
+    const actuator = await Actu.create({isCreation: true});
+
+    const routine = await createNewRoutine();
+
+    const reactor = await Reac.create({
+        isCreation: true,
+        creationSensor: sensor._id,
+        creationActuator: actuator._id,
+        creationRoutine: routine._id
+    });
+
+    return reactor;
+}
+
+async function createNewRoutine() {
+
+    const alarm = await Alrm.create({isCreation: true});
+
+    const event = await createNewEvent();
+
+    const routine = await Rout.create({
+        isCreation: true,
+        creationAlarm: alarm._id,
+        creationEvent: event._id
+    });
+
+    return routine;
+}
+
+async function createNewEvent() {
+
+    const action = await Acti.create({isCreation: true});
+
+    const event = await Evnt.create({
+        isCreation: true,
+        creationAction: action._id
+    });
+
+    return event;
+}
+
 async function deleteFullEvent(evntId) {
     Evnt.findByIdAndDelete(evntId).then(async (event) => {
         for (let i=0; i<event.actions.length; i+=1) {
@@ -47,29 +103,6 @@ async function deleteFullReactor(reacId) {
         await Sens.findByIdAndDelete(resultD.creationSensor);
         await Actu.findByIdAndDelete(resultD.creationActuator);
         await deleteFullRoutine(resultD.creationRoutine);
-    });
-}
-
-async function createCleanReactor() {
-    Acti.create({isCreation: true}).then((action) => {
-        Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
-            Alrm.create({isCreation: true}).then((alarm) => {
-                Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((rotuine) => {
-                    Actu.create({isCreation: true}).then((actuator) => {
-                        Sens.create({isCreation: true}).then((sensor) => {
-                            Reac.create({isCreation: true, 
-                                creationSensor: sensor._id,
-                                creationActuator: actuator._id,
-                                creationRoutine: rotuine._id}).then((resultR) => {
-                                    User.create({username: username, creationReactor: resultR._id}).then((resultU) => {
-                                        res.redirect('/login');
-                                    });
-                                });
-                        });
-                    });
-                });
-            });
-        });
     });
 }
 
@@ -129,6 +162,34 @@ async function checkValidEvent(routId, newStart, newDuration, evntId) {
     return true;
 }
 
+async function findActionsByEvent(myEvent) {
+    var actionList = [];
+
+    for (let i=0; i<myEvent.actions.length; i+=1) {
+
+        aux = await Acti.findById(myEvent.actions[i]._id);
+
+        actionList.push(aux);
+    }
+
+    return actionList
+}
+
+function findEventMinDuration(actionList) {
+
+    var max = 0;
+
+    for (let i=0; i<actionList.length; i+=1) {
+
+        if (actionList[i].end > max) {
+
+            max = actionList[i].end;
+        }
+    }
+
+    return max
+}
+
 // ---------- My Functions ----------
 
 // ---------- Mongoose Models ----------
@@ -169,42 +230,32 @@ mongoose.connect(urI)
 
 // ---------- Post Requests ----------
 app.post('/tryRegister', (req, res) => {
+
     var username = req.body.username;
     var repeatUsername = req.body.repeatUsername;
 
     if (username === repeatUsername) {
+
         const que = User.find({});
 
         que.select('username');
 
-        que.exec().then((ans) => {
+        que.exec().then(async (ans) => {
+
             for (let i = 0; i<ans.length; i++) {
+
                 if (username === ans[i].username) {
+
                     res.redirect("/register?mode=" + 'takenError');
+
                     return;
                 }
             }
 
-            Acti.create({isCreation: true}).then((action) => {
-                Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
-                    Alrm.create({isCreation: true}).then((alarm) => {
-                        Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((rotuine) => {
-                            Actu.create({isCreation: true}).then((actuator) => {
-                                Sens.create({isCreation: true}).then((sensor) => {
-                                    Reac.create({isCreation: true, 
-                                        creationSensor: sensor._id,
-                                        creationActuator: actuator._id,
-                                        creationRoutine: rotuine._id}).then((resultR) => {
-                                            User.create({username: username, creationReactor: resultR._id}).then((resultU) => {
-                                                res.redirect('/login?mode=' + "newRegister");
-                                            });
-                                        });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
+            await createNewUser(username);
+
+            res.redirect('/login?mode=' + "newRegister");
+
         });
     } else {
         res.redirect("/register?mode=" + 'matchError');
@@ -1458,79 +1509,37 @@ app.get("/editAlarm", (req, res) => {
 });
 
 app.get("/addEvent", (req, res) => {
+
     var userId = req.query._id;
-    var routId = req.query.routId;
     var reacId = req.query.reacId;
+    var routId = req.query.routId;
 
     var mode  = req.query.mode;
 
-    User.findById(userId).then((user) => {
-        Rout.findById(routId).then((routine) => {
-            Evnt.findById(routine.creationEvent).then(async (event) => {
-                var newActiList = [];
+    Rout.findById(routId).then((routine) => {
 
-                for (let i=0; i<event.actions.length; i+=1) {
-                    aux = await Acti.findById(event.actions[i]._id);
-                    newActiList.push({
-                        name: aux.name,
-                        _id: aux._id,
-                        relativeStart: aux.start,
-                        relativeDuration: aux.duration
-                    });
-                }
+        const requestUrl = "/editEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + routine.creationEvent + "&mode=" + mode;
 
-                var max = 0;
-
-                for (let i=0; i<newActiList.length; i+=1) {
-                    if (newActiList.relativeStart + newActiList.relativeDuration > max) {
-                        max = newActiList.relativeStart + newActiList.relativeDuration;
-                    }
-                }
-
-                res.render("evntSettingsPage", {
-                    username: user.username,
-                    _id: userId,
-                    reacId: reacId,
-                    routId: routId,
-                    data: event,
-                    actions: newActiList,
-                    minDuration: max,
-                    mode: mode
-                });
-            });
-        });
+        res.redirect(requestUrl);
     });
 });
 
 app.get("/editEvent", (req, res) => {
-    var userId = req.query._id;
-    var routId = req.query.routId;
-    var reacId = req.query.reacId;
-    var evntId = req.query.evntId;
 
-    var mode  = req.query.mode;
+    const userId = req.query._id;
+    const routId = req.query.routId;
+    const reacId = req.query.reacId;
+    const evntId = req.query.evntId;
+
+    const mode  = req.query.mode;
 
     User.findById(userId).then((user) => {
+
         Evnt.findById(evntId).then(async (event) => {
-            var newActiList = [];
 
-            for (let i=0; i<event.actions.length; i+=1) {
-                aux = await Acti.findById(event.actions[i]._id);
-                newActiList.push({
-                    name: aux.name,
-                    _id: aux._id,
-                    relativeStart: aux.start,
-                    relativeDuration: aux.duration
-                });
-            }
+            const actionList = await findActionsByEvent(event);
 
-            var max = 0;
-
-            for (let i=0; i<newActiList.length; i+=1) {
-                if (newActiList[i].relativeStart + newActiList[i].relativeDuration > max) {
-                    max = newActiList[i].relativeStart + newActiList[i].relativeDuration;
-                }
-            }
+            const min = findEventMinDuration(actionList);
 
             res.render("evntSettingsPage", {
                 username: user.username,
@@ -1538,8 +1547,8 @@ app.get("/editEvent", (req, res) => {
                 reacId: reacId,
                 routId: routId,
                 data: event,
-                actions: newActiList,
-                minDuration: max,
+                actions: actionList,
+                minDuration: min,
                 mode: mode
             });
         });

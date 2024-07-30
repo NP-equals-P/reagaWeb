@@ -5,8 +5,9 @@ const actionSchema = new Schema({
     name: String,
     isCreation: Boolean,
     type: String,
+    callType: String,
     start: Number,
-    duration: Number,
+    end: Number,
     component: {
         type: mongoose.Schema.Types.ObjectId,
         value: ""
