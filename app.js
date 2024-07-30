@@ -56,7 +56,9 @@ async function createNewEvent() {
 
     const event = await Evnt.create({
         isCreation: true,
-        creationAction: action._id
+        creationAction: action._id,
+        start: 0,
+        end: 1
     });
 
     return event;
@@ -106,17 +108,15 @@ async function deleteFullReactor(reacId) {
     });
 }
 
-async function checkValidAction(evntId, newStart, newDuration, newComponent, actiId) {
+async function checkValidAction(evntId, newStart, newEnd, newComponent, actiId) {
     const myEvent = await Evnt.findById(evntId);
     var action;
     var actionEnd;
 
-    const newEnd = newStart + newDuration;
-
     for (let i=0; i<myEvent.actions.length; i+=1) {
         if (!(actiId === myEvent.actions[i].toString())) {
             action = await Acti.findById(myEvent.actions[i]);
-            actionEnd = action.start + action.duration;
+            actionEnd = action.start + action.end;
             if (newComponent.toString() === action.component.toString()) {
                 if (!(newEnd <= action.start) && !(newStart >= actionEnd)) {
                     return false;
@@ -128,21 +128,19 @@ async function checkValidAction(evntId, newStart, newDuration, newComponent, act
     return true;
 }
 
-async function checkValidEvent(routId, newStart, newDuration, evntId) {
+async function checkValidEvent(routId, newStart, newEnd, evntId) {
     const myRout = await Rout.findById(routId);
     const newEvent = await Evnt.findById(evntId);
 
     var eventEnd;
     var event;
 
-    const newEnd = newStart + newDuration;
-
     for (let i=0; i<myRout.events.length; i+=1) {
         event = await Evnt.findById(myRout.events[i]);
 
         if (!(event._id.toString() === evntId)) {
             if (event.type === "normal") {
-                eventEnd = event.start + event.duration;
+                eventEnd = event.end;
         
                 if (!(newEnd <= event.start) && !(newStart >= eventEnd)) {
                     for (let j=0; j<newEvent.actions.length; j+=1) {
@@ -229,37 +227,13 @@ mongoose.connect(urI)
 
 
 // ---------- Post Requests ----------
-app.post('/tryRegister', (req, res) => {
+app.post("/registerUser", async (req, res) => {
 
-    var username = req.body.username;
-    var repeatUsername = req.body.repeatUsername;
+    const username = req.body.username;
 
-    if (username === repeatUsername) {
+    await createNewUser(username)
 
-        const que = User.find({});
-
-        que.select('username');
-
-        que.exec().then(async (ans) => {
-
-            for (let i = 0; i<ans.length; i++) {
-
-                if (username === ans[i].username) {
-
-                    res.redirect("/register?mode=" + 'takenError');
-
-                    return;
-                }
-            }
-
-            await createNewUser(username);
-
-            res.redirect('/login?mode=' + "newRegister");
-
-        });
-    } else {
-        res.redirect("/register?mode=" + 'matchError');
-    }
+    res.redirect("/login?mode=newRegister")
 });
 
 app.post("/tryLogin", (req, res) => { 
@@ -282,10 +256,13 @@ app.post("/tryLogin", (req, res) => {
 });
 
 app.get("/deleteUser", (req, res) => {
-    var logedId = req.query._id;
+
+    const logedId = req.query._id;
 
     User.findByIdAndDelete(logedId).then(async (user) => {
+
         for (let i=0; i<user.reactors.length; i+=1) {
+
             await deleteFullReactor(user.reactors);
         }
 
@@ -793,13 +770,13 @@ app.post("/createSaveEvent", (req, res) => {
     const newName = req.body.newEvntName;
     const newGroup = req.body.group;
     const newStart = req.body.newStart;
-    const newDuration = req.body.newDuration;
+    const newEnd = req.body.newEnd;
 
     switch (type) {
         case "create":
-            checkValidEvent(routId, newStart, newDuration, evntId).then((result) => {
+            checkValidEvent(routId, newStart, newEnd, evntId).then((result) => {
                 if (result) {
-                    Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, isCreation: false, type: newGroup, start: newStart, duration: newDuration, inQueue: false}}).then((event) => {
+                    Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, isCreation: false, type: newGroup, start: newStart, end: newEnd, inQueue: false}}).then((event) => {
                         Acti.create({isCreation: true}).then((creationActi) => {
                             Evnt.create({isCreation: true, creationAction: creationActi._id}).then((creationEvnt) => {
                                 Rout.findByIdAndUpdate(routId, {
@@ -820,7 +797,7 @@ app.post("/createSaveEvent", (req, res) => {
                         });
                     });
                 } else {
-                    Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+                    Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, end: newEnd}}).then((event) => {
                         if (event.isCreation) {
                             res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId + "&mode=intervalError");
                         } else {
@@ -833,7 +810,7 @@ app.post("/createSaveEvent", (req, res) => {
         default:
             Evnt.findById(evntId).then((testAdd) => {
                 if (testAdd.isCreation) {
-                    Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+                    Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, end: newEnd}}).then((event) => {
                         switch (type) {
                             case "saveActions":
                                 res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
@@ -850,9 +827,9 @@ app.post("/createSaveEvent", (req, res) => {
                         }
                     });
                 } else {
-                    checkValidEvent(routId, newStart, newDuration, evntId).then((result) => {
+                    checkValidEvent(routId, newStart, newEnd, evntId).then((result) => {
                         if (result) {
-                            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration}}).then((event) => {
+                            Evnt.findByIdAndUpdate(evntId, {$set: {name: newName, type: newGroup, start: newStart, end: newEnd}}).then((event) => {
                                 switch (type) {
                                     case "saveActions":
                                         res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId);
@@ -926,7 +903,7 @@ app.post("/createSaveAction", (req, res) => {
     const newName = req.body.newActiName;
     const newGroup = req.body.group;
     const newStart = req.body.newStart;
-    const newDuration = req.body.newDuration;
+    const newEnd = req.body.newEnd;
     const newComponent = req.body.newComponent;
     const newFunction = req.body.newFunction;
 
@@ -944,9 +921,9 @@ app.post("/createSaveAction", (req, res) => {
 
     switch (type) {
         case "create":
-            checkValidAction(evntId, newStart, newDuration, newComponent).then((result) => {
+            checkValidAction(evntId, newStart, newEnd, newComponent).then((result) => {
                 if (result) {
-                    Acti.findByIdAndUpdate(actiId, {$set: {isCreation: false, name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
+                    Acti.findByIdAndUpdate(actiId, {$set: {isCreation: false, name: newName, type: newGroup, start: newStart, end: newEnd, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
                         Acti.create({isCreation: true}).then((creationActi) => {
                             Evnt.findByIdAndUpdate(evntId, {
                                 $set: {
@@ -965,7 +942,7 @@ app.post("/createSaveAction", (req, res) => {
                         });
                     });
                 } else {
-                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, varList: varList}}).then((action) => {
+                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, end: newEnd, component: newComponent, varList: varList}}).then((action) => {
                         if (action.isCreation) {
                             res.redirect("/addAction?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId + "&mode=intervalError");
                         } else {
@@ -978,7 +955,7 @@ app.post("/createSaveAction", (req, res) => {
         default:
             Acti.findById(actiId).then((testAdd) => {
                 if (testAdd.isCreation) {
-                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
+                    Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, end: newEnd, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
                         Evnt.findById(evntId).then((event) => {
                             if (event.isCreation) {
                                 res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
@@ -988,9 +965,9 @@ app.post("/createSaveAction", (req, res) => {
                         });
                     });
                 } else {
-                    checkValidAction(evntId, newStart, newDuration, newComponent, actiId).then((result) => {
+                    checkValidAction(evntId, newStart, newEnd, newComponent, actiId).then((result) => {
                         if (result) {
-                            Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, duration: newDuration, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
+                            Acti.findByIdAndUpdate(actiId, {$set: {name: newName, type: newGroup, start: newStart, end: newEnd, component: newComponent, function: newFunction, varList: varList}}).then((action) => {
                                 Evnt.findById(evntId).then((event) => {
                                     if (event.isCreation) {
                                         res.redirect("/addEvent?_id=" + userId + "&reacId=" + reacId + "&routId=" + routId);
@@ -1061,6 +1038,34 @@ app.post("/callEsporadicEvent", (req, res) => {
 
 
 // ---------- Get Requests ----------
+app.get('/takenCheck', async (req, res) => {
+
+    const username = req.query.username;
+
+    const que = User.find({});
+    var taken = false;
+
+    que.select('username');
+
+    const allUsers = await que.exec();
+
+    for (let i = 0; i<allUsers.length; i++) {
+
+        if (username === allUsers[i].username) {
+
+            taken = true;
+
+            break;
+        }
+    }
+
+    var data = {
+        taken: taken
+    }
+
+    res.end(JSON.stringify(data));
+});
+
 app.get('/register', (req, res) => {
     res.render('registerPage', {mode: req.query.mode});
 });
@@ -1330,8 +1335,8 @@ app.get("/addRoutine", (req, res) => {
                         name: aux.name,
                         _id: aux._id,
                         type: aux.type,
-                        relativeStart: aux.start,
-                        relativeDuration: aux.duration
+                        start: aux.start,
+                        end: aux.end
                     });
                 }
 
@@ -1346,8 +1351,8 @@ app.get("/addRoutine", (req, res) => {
                 var max = 0;
 
                 for (let i=0; i<newEvntList.length; i+=1) {
-                    if (newEvntList[i].type === "normal" && newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
-                        max = newEvntList[i].relativeStart + newEvntList[i].relativeDuration;
+                    if (newEvntList[i].type === "normal" && newEvntList[i].end > max) {
+                        max = newEvntList[i].end;
                     }
                 }
 
@@ -1381,8 +1386,8 @@ app.get("/editRoutine", (req, res) => {
                     name: aux.name,
                     _id: aux._id,
                     type: aux.type,
-                    relativeStart: aux.start,
-                    relativeDuration: aux.duration
+                    start: aux.start,
+                    end: aux.end
                 });
             }
 
@@ -1397,8 +1402,8 @@ app.get("/editRoutine", (req, res) => {
             var max = 0;
 
             for (let i=0; i<newEvntList.length; i+=1) {
-                if (newEvntList[i].type === "normal" && newEvntList[i].relativeStart + newEvntList[i].relativeDuration > max) {
-                    max = newEvntList[i].relativeStart + newEvntList[i].relativeDuration;
+                if (newEvntList[i].type === "normal" && newEvntList[i].end > max) {
+                    max = newEvntList[i].end;
                 }
             }
 

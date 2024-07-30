@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="/styles/addEvtPageStyles.css">
+        <link rel="stylesheet" href="/styles/evntSettingsStyle.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Event </title>
         <script>
@@ -11,7 +11,7 @@
                 var i = 0;
                 var currButt = true;
                 var currHypr = true;
-                var size = document.getElementById("newDuration").value;
+                var size = document.getElementById("newEnd").value;
                 var fullSize = 50;
 
                 while (currButt) {
@@ -20,9 +20,9 @@
 
                     if (currButt) {
                         var start = Number(currButt.name);
-                        var duration = Number(currButt.value);
+                        var end = Number(currButt.value);
 
-                        var newSize = fullSize * (duration/size);
+                        var newSize = fullSize * (end/size);
                         var newLeft = fullSize * (start/size);
 
                         currButt.style.width = newSize + "vw";
@@ -72,8 +72,8 @@
                 <input type="number" name="newStart" id="newStart" class="startInput" value="<%= data.start %>">
                 <label for="" class="startLabel">Start</label>
     
-                <input type="number" name="newDuration" id="newDuration" class="durationInput" value="<%= Math.max(data.duration, minDuration) %>" min="<%= minDuration %>" onchange="changeSizes()">
-                <label for="" class="durationLabel">Duration</label>
+                <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%= Math.max(data.end, minDuration) %>" min="<%= minDuration %>" onchange="changeSizes()">
+                <label for="" class="endLabel">End</label>
 
                 <button class="addActionButt" name="type" value="saveActions">Add Action</button>
 

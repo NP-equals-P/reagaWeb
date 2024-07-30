@@ -1,9 +1,97 @@
 <html lang="en">
+
     <head>
+
         <link rel="stylesheet" href="/styles/registerPageStyles.css">
+
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+
         <title> Resgister </title>
+
+        <script>
+
+            async function checkUsername() {
+
+                if (emptyCheck()) {
+
+                    if (matchCheck()) {
+
+                        if (!(await takenCheck())) {
+
+                            document.getElementById("createButton").disabled = false;
+
+                            document.getElementById("errorLabel").innerText = "";
+
+                        } else {
+
+                            document.getElementById("errorLabel").innerText = "Username already taken.";
+
+                            document.getElementById("createButton").disabled = true;
+                        }
+
+                    } else {
+
+                        document.getElementById("errorLabel").innerText = "Names don't match.";
+
+                        document.getElementById("createButton").disabled = true;
+                    }
+
+                } else {
+
+                    document.getElementById("createButton").disabled = true;
+                }
+            }
+            
+            function emptyCheck() {
+
+                const username = document.getElementById("username").value;
+
+                if (!(username === "")) {
+
+                    return true;
+
+                } else {
+
+                    return false;
+
+                    }
+                
+            }
+
+            function matchCheck() {
+                
+                const username = document.getElementById("username").value;
+                const repeatUsername = document.getElementById("repeatUsername").value;
+
+                if ((username === repeatUsername)) {
+
+                    return true;
+
+                } else {
+
+                    return false;
+
+                }
+
+            }
+
+            async function takenCheck() {
+
+                const username = document.getElementById("username").value;
+                const takenUrl = "http://localhost:3000/takenCheck?username=" + username;
+                
+                const responseCheck = await fetch(takenUrl);
+
+                const data = await responseCheck.json();
+
+                return data.taken;
+
+            }
+
+        </script>
+
     </head>
+
     <body>
         <div class="div1">
             <a href="/">
@@ -12,30 +100,30 @@
         </div>
         <div class="div2">
             <br><br><br><br><br><br><br>
-            <form action="/tryRegister" method="post">
+
+            <form action="/registerUser" method="post">
+
                 <label for="username" class="registerLabel">Username</label>
                 <br>
-                <input type="text" name="username" id="username" class="registerInput">
+                <input type="text" name="username" id="username" class="registerInput" onchange="checkUsername()">
                 <br><br>
     
                 <label for="repeatUsername" class="registerLabel">Repeat Username</label>
                 <br>
-                <input type="text" name="repeatUsername" id="repeatUsername" class="registerInput">
+                <input type="text" name="repeatUsername" id="repeatUsername" class="registerInput" onchange="checkUsername()">
                 <br><br>
                 
                 <label for="email" class="registerLabel">E-mail</label>
                 <br>
-                <input type="email" name="email" id="email" class="registerInput">
+                <input type="email" name="email" id="email" class="registerInput" disabled>
                 <br><br>
+    
+                <label class="errorMsg" id="errorLabel"></label>
+    
+                <button class="createButt" disabled id="createButton">Create Account</button>
 
-                <% if (mode === "matchError") {%>
-                    <label class="errorMsg">Usernames dont't match</label>
-                <% } else if (mode === "takenError") { %>
-                    <label class="errorMsg">Username already taken</label>
-                <% } %>
-
-                <button class="createButt">Create Account</button>
             </form>
+
         </div>
     </body>
 </html>

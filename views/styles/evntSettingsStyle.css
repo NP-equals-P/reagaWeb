@@ -83,7 +83,7 @@ body {
     left: 40vw;
 }
 
-.durationInput {
+.endInput {
     position: absolute;
     top: 65vh;
     width: 10vw;
@@ -91,7 +91,7 @@ body {
     border-radius: 10px;
 }
 
-.durationLabel {
+.endLabel {
     position: absolute;
     font-weight: bold;
     color: rgb(206, 206, 206);
