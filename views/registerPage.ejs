@@ -78,7 +78,7 @@
             async function takenCheck() {
 
                 const username = document.getElementById("username").value;
-                const takenUrl = "http://localhost:3000/takenCheck?username=" + username;
+                const takenUrl = "http://localhost:3000/api/user/takenCheck?username=" + username;
                 
                 const responseCheck = await fetch(takenUrl);
 
@@ -101,7 +101,7 @@
         <div class="div2">
             <br><br><br><br><br><br><br>
 
-            <form action="/registerUser" method="post">
+            <form action="/api/user/registerUser" method="post">
 
                 <label for="username" class="registerLabel">Username</label>
                 <br>

@@ -3,38 +3,10 @@ const mongoose = require('mongoose');
 const { forEach } = require("lodash");
 const { ObjectId } = require("mongodb");
 const url = require('node:url');
+const mainRouter = require("./controllers");
 
 // ---------- My Functions ----------
-
-async function createNewUser(username) {
-
-    const reactor = await createNewReactor();
-
-    User.create({
-        username: username,
-        creationReactor: reactor._id
-    });
-
-}
-
-async function createNewReactor() {
-
-    const sensor = await Sens.create({isCreation: true});
-
-    const actuator = await Actu.create({isCreation: true});
-
-    const routine = await createNewRoutine();
-
-    const reactor = await Reac.create({
-        isCreation: true,
-        creationSensor: sensor._id,
-        creationActuator: actuator._id,
-        creationRoutine: routine._id
-    });
-
-    return reactor;
-}
-
+ 
 async function createNewRoutine() {
 
     const alarm = await Alrm.create({isCreation: true});
@@ -206,11 +178,12 @@ const Func = require('./models/functions');
 // ---------- Configs ----------
 const app = express();
 
-app.use(express.urlencoded({ extended: true }));
-
+app.use(express.urlencoded({ extended: true })); //TODO: Danger zone! I don't know what these lines do.
 app.set('view engine', 'ejs');
-
 app.use(express.static('views'));
+app.use(express.json());
+
+app.use("/", mainRouter); //Routing
 // ---------- Configs ----------
 
 
@@ -227,50 +200,8 @@ mongoose.connect(urI)
 
 
 // ---------- Post Requests ----------
-app.post("/registerUser", async (req, res) => {
 
-    const username = req.body.username;
 
-    await createNewUser(username)
-
-    res.redirect("/login?mode=newRegister")
-});
-
-app.post("/tryLogin", (req, res) => { 
-    var tryUsername = req.body.loginUsername;
-
-    const que = User.find({});
-
-    que.select('username');
-
-    que.exec().then((ans) => {
-        for (let i = 0; i<ans.length; i++) {
-            if (tryUsername === ans[i].username) {
-                res.redirect("/start?_id=" + ans[i]._id);
-                return;
-            }
-        }
-
-        res.redirect("/login?mode=" + 'loginError');
-    });
-});
-
-app.get("/deleteUser", (req, res) => {
-
-    const logedId = req.query._id;
-
-    User.findByIdAndDelete(logedId).then(async (user) => {
-
-        for (let i=0; i<user.reactors.length; i+=1) {
-
-            await deleteFullReactor(user.reactors);
-        }
-
-        await deleteFullReactor(user.creationReactor);
-
-        res.redirect("/login");
-    });
-});
 
 app.post("/createSaveReac", (req, res) => {
     const type = req.body.type;
@@ -1029,7 +960,7 @@ app.post("/callEsporadicEvent", (req, res) => {
     var userId = req.body._id;
     var evntId = req.body.evntId;
     var reacId = req.body.reacId;
-
+    
     Evnt.findByIdAndUpdate(evntId, {$set: {inQueue: true}}).then((event) => {
         res.redirect("/reacView?_id=" + userId + "&reacId=" + reacId)
     });
@@ -1038,196 +969,10 @@ app.post("/callEsporadicEvent", (req, res) => {
 
 
 // ---------- Get Requests ----------
-app.get('/takenCheck', async (req, res) => {
 
-    const username = req.query.username;
 
-    const que = User.find({});
-    var taken = false;
 
-    que.select('username');
 
-    const allUsers = await que.exec();
-
-    for (let i = 0; i<allUsers.length; i++) {
-
-        if (username === allUsers[i].username) {
-
-            taken = true;
-
-            break;
-        }
-    }
-
-    var data = {
-        taken: taken
-    }
-
-    res.end(JSON.stringify(data));
-});
-
-app.get('/register', (req, res) => {
-    res.render('registerPage', {mode: req.query.mode});
-});
-
-app.get('/login', (req, res) => {
-    res.render('loginPage', {mode: req.query.mode});
-});
-
-app.get("/start", (req, res) => {
-    var logedId = req.query._id;
-
-    User.findById(logedId).then(async (ans) => {
-
-        var newList = [];
-        var aux;
-    
-        for (let i=0; i<ans.reactors.length; i+=1) {
-            aux = await Reac.findById(ans.reactors[i]._id);
-            newList.push({
-                name: aux.name,
-                _id: aux._id
-            });
-        }
-
-        res.render('startPage', {
-            username: ans.username,
-            reactors: newList,
-            _id: logedId});
-    })
-});
-
-app.get("/addReac", (req, res) => {
-    var logedId = req.query._id;
-
-    User.findById(logedId).then((user) => {
-        Reac.findById(user.creationReactor).then(async (reactor) => {
-
-            var newSensList = [];
-            var newActuList = [];
-            var newRoutList = [];
-            var aux;
-
-            for (let i=0; i<reactor.sensors.length; i+=1) {
-                aux = await Sens.findById(reactor.sensors[i]._id);
-                newSensList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            for (let i=0; i<reactor.actuators.length; i+=1) {
-                aux = await Actu.findById(reactor.actuators[i]._id);
-                newActuList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            for (let i=0; i<reactor.routines.length; i+=1) {
-                aux = await Rout.findById(reactor.routines[i]._id);
-                newRoutList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            res.render('reacSettingsPage', {
-                username: user.username,
-                _id: logedId,
-                data: {reactor: reactor, sensors: newSensList, actuators: newActuList, routines: newRoutList}
-            });
-        });
-    });
-});
-
-app.get("/editReac", (req, res) => {
-    var logedId = req.query._id;
-    var reacId = req.query.reacId;
-
-    User.findById(logedId).then((user) => {
-        Reac.findById(reacId).then(async (reac) => {
-
-            var newSensList = [];
-            var newActuList = [];
-            var newRoutList = [];
-            var aux;
-
-            for (let i=0; i<reac.sensors.length; i+=1) {
-                aux = await Sens.findById(reac.sensors[i]._id);
-                newSensList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            for (let i=0; i<reac.actuators.length; i+=1) {
-                aux = await Actu.findById(reac.actuators[i]._id);
-                newActuList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            for (let i=0; i<reac.routines.length; i+=1) {
-                aux = await Rout.findById(reac.routines[i]._id);
-                newRoutList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            res.render('reacSettingsPage', {
-                username: user.username,
-                _id: logedId,
-                data: {reactor: reac, sensors: newSensList, actuators: newActuList, routines: newRoutList}
-            });
-        });
-    });
-});
-
-app.get("/reacView", (req, res) => {
-    var userId = req.query._id;
-    var reacId = req.query.reacId;
-
-    User.findById(userId).then((resultU) => {
-        Reac.findById(reacId).then(async (resultR) => {
-            var newRoutList = [];
-            var newEspEventList = []
-            var aux;
-
-            for (let i=0; i<resultR.routines.length; i+=1) {
-                aux = await Rout.findById(resultR.routines[i]._id);
-                newRoutList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            if (resultR.isActive) {
-                var activeRout = await Rout.findById(resultR.activeRoutine);
-                for (let i=0; i<activeRout.events.length; i+=1) {
-                    aux = await Evnt.findById(activeRout.events[i]);
-                    if (aux.type === "esporadic") {
-                        newEspEventList.push({
-                            name: aux.name,
-                            _id: aux._id
-                        })
-                    }
-                }
-            }
-
-            res.render("reacView", {
-                username: resultU.username,
-                _id: userId,
-                data: resultR,
-                routines: newRoutList,
-                activeRoutine: resultR.activeRoutine,
-                espEvents: newEspEventList
-            })
-        });
-    });
-});
 
 app.get("/addSensor", (req, res) => {
     var userId = req.query._id;
@@ -1740,6 +1485,14 @@ app.get("/teste", (req, res) => {
 });
 // ---------- Get Requests ----------
 
+//App requests
+app.get('/login', (req, res) => {
+    res.render('loginPage', {mode: req.query.mode});
+});
+
+app.get('/register', (req, res) => {
+    res.render('registerPage', {mode: req.query.mode});
+});
 
 app.use((req, res) => {
     res.render('loginPage', {mode: 'normal'})
