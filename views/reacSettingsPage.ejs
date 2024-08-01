@@ -5,60 +5,86 @@
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Reactor </title>
 
+    <script>
+        async function saveReactor() {
+
+            
+            const newName = document.getElementById("newReacName").value;
+            const reacId = document.getElementById("reacId").value;
+
+            
+            const takenUrl = "http://localhost:3000/api/reactor/saveReactor";
+
+            const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId,
+                newReacName: newName
+            })});
+        }
+    </script>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
 
         <div class="div1">
             <button class="reacIconButton"></button>
 
-            <form action="/createSaveReac" method="post">
                 <label for="newReacName" class="nameLabel">Name:</label>
-                <input type="text" class="nameInput" id="newReacName" name="newReacName" value="<%= data.reactor.name %>">
+                <input type="text" class="nameInput" id="newReacName" name="newReacName" value="<%= reactor.name %>" onchange="saveReactor()">
 
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= data.reactor._id %>>
+                <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= reactor._id %>>
                 
-                <button class="backButt" name="type" value="saveBack">Back</button>
-
-                <% if (data.reactor.isCreation) { %>
-                    <button class="confirmButt" name="type" value="create">Create Reactor</button>
-                <% } %>
+                <a href="/api/user/start?_id=<%= user._id %>">
+                    <button class="backButt" name="type" value="saveBack">Back</button>
+                </a>
 
                 <div class="compModule">
                     <span for="" class="sensorsLabel">Sensors</span>
-                    <button class="addSensButt" name="type" value="saveSensors">+</button>
+                    <a href="/api/sensor/editSensor?_id=<%= user._id + "&reacId=" + reactor.id + "&sensId=" + reactor.creationSensor %>">
+                        <button class="addSensButt" name="type" value="saveSensors">+</button>
+                    </a>
+
                     <div class="sensList">
-                        <% for (let i=0; i<data.sensors.length; i+=1) { %>
-                            <%- include("./partials/sensButton.ejs", {sensor: data.sensors[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% for (let i=0; i<sensors.length; i+=1) { %>
+                            <%- include("./partials/sensButton.ejs", {sensor: sensors[i], _id: user._id, reacId: reactor._id}) %>
                         <% } %>
                     </div>
 
                     <span for="" class="actuatorsLabel">Actuators</span>
                     <button class="addActuButt" name="type" value="saveActuators">+</button>
                     <div class="actuList">
-                        <% for (let i=0; i<data.actuators.length; i+=1) { %>
-                            <%- include("./partials/actuButton.ejs", {actuator: data.actuators[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% for (let i=0; i<actuators.length; i+=1) { %>
+                            <%- include("./partials/actuButton.ejs", {actuator: actuators[i], _id: user._id, reacId: reactor._id}) %>
                         <% } %>
                     </div>
                 </div>
                 <div class="routineModule">
                     <button class="addRoutButt" name="type" value="saveRoutines">+</button>
                     <div class="routList">
-                        <% for (let i=0; i<data.routines.length; i+=1) { %>
-                            <%- include("./partials/routButton.ejs", {routine: data.routines[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% for (let i=0; i<routines.length; i+=1) { %>
+                            <%- include("./partials/routButton.ejs", {routine: routines[i], _id: user._id, reacId: reactor._id}) %>
                         <% } %>
                     </div>
                 </div>
-            </form>
 
-            <% if (data.reactor.isCreation) { %>
-                <form action="/dicardReactorEdit" method="post">
-                    <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= data.reactor._id %>>
-                </form>
-            <% } %>
+                <% if (reactor.isCreation) { %>
+                    <form action="/api/reactor/createReactor" method="post">
+                        <button class="confirmButt">Create Reactor</button>
+                        <input type="hidden" name="_id" value=<%= user._id %>>
+                        <input type="hidden" name="reacId" value=<%= reactor._id %>>
+                    </form>
+                    <form action="/api/reactor/dicardReactorEdit" method="post">
+                        <button class="discardButt">Discard Edit</button>
+                        <input type="hidden" name="_id" value=<%= user._id %>>
+                        <input type="hidden" name="reacId" value=<%= reactor._id %>>
+                    </form>
+                <% } else { %>
+                    <form action="/api/reactor/deleteReactor" method="post">
+                        <button class="deleteButt">Delete Reactor</button>
+                        <input type="hidden" name="_id" value=<%= user._id %>>
+                        <input type="hidden" name="reacId" value=<%= reactor._id %>>
+                    </form>
+                <% } %>
         </div>
     </body>
 </html>

@@ -7,78 +7,6 @@ const mainRouter = require("./controllers");
 
 // ---------- My Functions ----------
  
-async function createNewRoutine() {
-
-    const alarm = await Alrm.create({isCreation: true});
-
-    const event = await createNewEvent();
-
-    const routine = await Rout.create({
-        isCreation: true,
-        creationAlarm: alarm._id,
-        creationEvent: event._id
-    });
-
-    return routine;
-}
-
-async function createNewEvent() {
-
-    const action = await Acti.create({isCreation: true});
-
-    const event = await Evnt.create({
-        isCreation: true,
-        creationAction: action._id,
-        start: 0,
-        end: 1
-    });
-
-    return event;
-}
-
-async function deleteFullEvent(evntId) {
-    Evnt.findByIdAndDelete(evntId).then(async (event) => {
-        for (let i=0; i<event.actions.length; i+=1) {
-            await Acti.findByIdAndDelete(event.actions[i]);
-        }
-
-        await Acti.findByIdAndDelete(event.creationAction);
-    });
-}
-
-async function deleteFullRoutine(routId) {
-    Rout.findByIdAndDelete(routId).then(async (routine) => {
-        for (let i=0; i<routine.events.length; i+=1) {
-            await deleteFullEvent(routine.events[i]);
-        }
-
-        await deleteFullEvent(routine.creationEvent);
-
-        for (let i=0; i<routine.alarms.length; i+=1) {
-            await Alrm.findByIdAndDelete(routine.alarms[i]);
-        }
-
-        await Alrm.findByIdAndDelete(routine.creationAlarm);
-    });
-}
-
-async function deleteFullReactor(reacId) {
-    Reac.findByIdAndDelete(reacId).then(async (resultD) => {
-        for (let i=0; i<resultD.sensors.length; i+=1) {
-            await Sens.findByIdAndDelete(resultD.sensors[i]);
-        }
-        for (let i=0; i<resultD.actuators.length; i+=1) {
-            await Actu.findByIdAndDelete(resultD.actuators[i]);
-        }
-        for (let i=0; i<resultD.routines.length; i+=1) {
-            await deleteFullRoutine(resultD.routines[i]);
-        }
-    
-        await Sens.findByIdAndDelete(resultD.creationSensor);
-        await Actu.findByIdAndDelete(resultD.creationActuator);
-        await deleteFullRoutine(resultD.creationRoutine);
-    });
-}
 
 async function checkValidAction(evntId, newStart, newEnd, newComponent, actiId) {
     const myEvent = await Evnt.findById(evntId);
@@ -203,113 +131,6 @@ mongoose.connect(urI)
 
 
 
-app.post("/createSaveReac", (req, res) => {
-    const type = req.body.type;
-    const userId = req.body._id;
-    const reacId = req.body.reacId;
-    const newName = req.body.newReacName;
-
-    switch (type) {
-        case "create":
-            Reac.findByIdAndUpdate(reacId, {$set: {isCreation: false, name: newName, isActive: false, isPaused: false}}).then(async (reactor) => {
-                Alrm.create({isCreation: true}).then((alarm) => {
-                    Acti.create({isCreation: true}).then((action) => {
-                        Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
-                            Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((routine) => {
-                                Sens.create({isCreation: true}).then((sensor) => {
-                                    Actu.create({isCreation: true}).then((actuator) => {
-                                        Reac.create({isCreation: true, creationSensor: sensor._id, creationActuator: actuator._id, creationRoutine: routine._id}).then((creationReactor) => {
-                                            User.findByIdAndUpdate(userId, {
-                                                $set: {creationReactor: creationReactor._id},
-                                                $push: {reactors: reactor._id}
-                                            }).then((user) => {
-                                                res.redirect("/start?_id=" + userId);
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-
-                // newCreationReactor = await createCleanReactor();
-
-                // User.findByIdAndUpdate(userId, {
-                //     $set: {creationReactor: newCreationReactor._id},
-                //     $push: {reactors: reactor._id}
-                // }).then((user) => {
-                //     res.redirect("/start?_id=" + userId);
-                // });
-            });
-            break;
-        default:
-            Reac.findByIdAndUpdate(reacId, {$set: {name: newName}}).then((reactor) => {
-                switch (type) {
-                    case "saveSensors":
-                        res.redirect("/addSensor?_id=" + userId + "&reacId=" + reacId);
-                        break;
-                    case "saveActuators":
-                        res.redirect("/addActuator?_id=" + userId + "&reacId=" + reacId);
-                        break;
-                    case "saveRoutines":
-                        res.redirect("/addRoutine?_id=" + userId + "&reacId=" + reacId);
-                        break;
-                    default:
-                        if (reactor.isCreation) {
-                            res.redirect("/start?_id=" + userId);
-                        } else {
-                            res.redirect("/reacView?_id=" + userId + "&reacId=" + reacId);
-                        }
-                }
-            });
-    }
-});
-
-app.post("/dicardReactorEdit", (req, res) => {
-    var logedId = req.body._id;
-    var reacId = req.body.reacId;
-
-    Alrm.create({isCreation: true}).then((alarm) => {
-        Acti.create({isCreation: true}).then((action) => {
-            Evnt.create({isCreation: true, creationAction: action._id}).then((event) => {
-                Rout.create({isCreation: true, creationEvent: event._id, creationAlarm: alarm._id}).then((routine) => {
-                    Sens.create({isCreation: true}).then((sensor) => {
-                        Actu.create({isCreation: true}).then((actuator) => {
-                            Reac.create({isCreation: true, creationSensor: sensor._id, creationActuator: actuator._id, creationRoutine: routine._id}).then((creationReac) => {
-                                User.findByIdAndUpdate(logedId, {$set: {creationReactor: creationReac._id}}).then(async (user) => {
-                                    await deleteFullReactor(reacId);
-                                    res.redirect("/addReac?_id=" + logedId);
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
-});
-
-app.post("/deleteReactor", (req, res) => {
-    var reacId = req.body.reacId;
-    var logedId = req.body._id;
-
-    User.findByIdAndUpdate(logedId, { $pull: {reactors: reacId}}).then(async (resultU) => {
-        await deleteFullReactor(reacId).then((resultD) => {
-            res.redirect("/start?_id=" + logedId);
-        });
-    });
-});
-
-app.post("/activateReactor", (req, res) => {
-    var reacId = req.body.reacId;
-    var userId = req.body._id;
-    var routId = req.body.activeRoutine;
-
-    Reac.findByIdAndUpdate(reacId, {$set: {isActive: true, activeRoutine: routId, isPaused: false}}).then((reactor) => {
-        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
-    })
-});
 
 app.post("/deactivateReactor", (req, res) => {
     var reacId = req.body.reacId;
@@ -337,6 +158,8 @@ app.post("/unpauseReactor", (req, res) => {
         res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
     })
 });
+
+
 
 app.post("/createSaveSensor", (req, res) => {
     const type = req.body.type;
@@ -972,52 +795,6 @@ app.post("/callEsporadicEvent", (req, res) => {
 
 
 
-
-
-app.get("/addSensor", (req, res) => {
-    var userId = req.query._id;
-    var reacId = req.query.reacId;
-
-    User.findById(userId).then((user) => {
-        Reac.findById(reacId).then((reac) => {
-            Sens.findById(reac.creationSensor).then(async (sensor) => {
-                var newModelList;
-
-                newModelList = await CoMo.find();
-
-                res.render("sensSettingsPage", {
-                    username: user.username,
-                    _id: userId,
-                    reacId: reacId,
-                    data: sensor,
-                    models: newModelList
-                });
-            });
-        });
-    });
-});
-
-app.get("/editSensor", (req, res) => {
-    var userId = req.query._id;
-    var reacId = req.query.reacId;
-    var sensId = req.query.sensId;
-
-    User.findById(userId).then((user) => {
-        Sens.findById(sensId).then(async (sensor) => {
-            var newModelList;
-
-            newModelList = await CoMo.find();
-
-            res.render("sensSettingsPage", {
-                username: user.username,
-                _id: userId,
-                reacId: reacId,
-                data: sensor,
-                models: newModelList
-            });
-        });
-    });
-});
 
 app.get("/addActuator", (req, res) => {
     var userId = req.query._id;

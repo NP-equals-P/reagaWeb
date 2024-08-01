@@ -6,14 +6,14 @@
         <title> Start </title>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: data.username, _id: data._id}) %>
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
             <div class="div2">
                 <% for (let i = 0; i < reactors.length; i++) { %>
-                    <%- include('./partials/reacButton.ejs', {name: reactors[i].name, reacId: reactors[i]._id}) %>
+                    <%- include('./partials/reacButton.ejs', {reactor: reactors[i], user: user}) %>
                 <% } %>
             </div>
-            <a href="/api/reactor/editReactor?_id=<%= data._id + "&reactorId=" + data.creationReactor%>">
+            <a href="/api/reactor/editReactor?_id=<%= user._id + "&reactorId=" + user.creationReactor%>">
                 <button class="addReacButton">Add Reactor</button>
             </a>
         </div>

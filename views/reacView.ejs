@@ -4,88 +4,72 @@
         <link rel="stylesheet" href="/styles/reacViewStyles.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Reac View </title>
+        <script>
+            function onLoadFunction() {
+                
+                const editButton = document.getElementById("editReactorButton");
+                const activateButton = document.getElementById("activateButton");
+                const pauseButton = document.getElementById("pauseButton");
+                const routineSelect = document.getElementById("routineSelect");
+
+                if (document.getElementById("isReactorActive").value === "true") {
+
+                    editButton.disabled = true;
+                    activateButton.innerText = "Disactivate Reactor"
+                    pauseButton.disabled = false;
+                    routineSelect.disabled = true;
+
+                } else {
+
+                    editButton.disabled = false;
+                    activateButton.innerText = "Activate Reactor"
+                    pauseButton.disabled = true;
+                    routineSelect.disabled = false;
+                }
+
+            }
+
+            async function activateReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/activateReactor";
+                const reacId = document.getElementById("reacId").value;
+                const userId = document.getElementById("_id").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId,
+                _id: userId,
+                activeRoutine: ""
+                })});
+            }
+        </script>
     </head>
-    <body>
-        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
+    <body onload="onLoadFunction()">
+
+        <input type="hidden" id="_id" value="<%= user.id %>">
+        <input type="hidden" id="reacId" value="<%= reactor._id %>">
+        <input type="hidden" id="isReactorActive" value="<%= reactor.isActive %>">
+        <input type="hidden" id="isReactorPaused" value="<%= reactor.isPaused %>">
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
-            <a href="/start?_id=<%= _id %>">
+
+            <a href="/api/user/start?_id=<%= user._id %>">
                 <button class="backButt">Back</button>
             </a>
 
             <label class="reactorLabel" for="reactor">Reactor:</label>
             <select class="reactorSelect" name="reactor" id="" disabled>
-                <option value="<%= data.name %>"><%= data.name %></option>
+                <option value="<%= reactor.name %>"><%= reactor.name %></option>
             </select>
-            <% if (!data.isActive) { %>
-                <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
-                    <button class="erButton">Edit Reactor</button>
-                </a>
-            <% } else { %>
-                <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
-                    <button class="erButton" disabled>Edit Reactor</button>
-                </a>
-            <% } %>
-
-            <% if (data.isActive) { %>
-                <% if (data.isPaused) { %>
-                    <form action="/unpauseReactor" method="post">
-                        <button class="pauseButt">Unpause Routine</button>
-                        <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                        <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    </form>
-                <% } else { %>
-                    <form action="/pauseReactor" method="post">
-                        <button class="pauseButt">Pause Routine</button>
-                        <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                        <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    </form>
-                <% } %>
-
-                <form action="/deactivateReactor" method="post">
-                    <button class="activationButt">Deactivate Reactor</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    <select name="" id="" class="activeRoutineSelect" disabled>
-                        <% for (let i=0; i<routines.length; i+=1) { %>
-                            <% if (routines[i]._id.toString() === activeRoutine.toString()) { %>
-                                <option value="<%= routines[i]._id %>" selected><%= routines[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                </form>
-                <% if (data.isPaused) { %>
-                    <span class="activeStatus" style="color: yellow;">(is paused)</span>
-                <% } else { %>
-                    <span class="activeStatus" style="color: greenyellow;">(is active)</span>
-                <% } %>
-            <% } else { %>
-                <button class="pauseButt" disabled>Pause Routine</button>
-
-                <form action="/activateReactor" method="post">
-                    <button class="activationButt">Activate Reactor</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    <select name="activeRoutine" id="activeRoutine" class="activeRoutineSelect">
-                        <% for (let i=0; i<routines.length; i+=1) { %>
-                            <% if (activeRoutine && routines[i]._id.toString() === activeRoutine.toString()) { %>
-                                <option value="<%= routines[i]._id %>" selected><%= routines[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                </form>
-                <span class="activeStatus" style="color: red;">(is not active)</span>
-            <% } %>
 
 
-            <form action="/deleteReactor" method="post">
-                <button class="deleteButt">Delete Reactor</button>
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-            </form>
+            <span class="activeStatus" style="color: red;">(is not active)</span>
+            <select name="activeRoutine" id="routineSelect" class="activeRoutineSelect"></select>
+            <button class="pauseButt" id="pauseButton">Pause Routine</button>
+            <button class="activationButt" id="activateButton" onclick="activateReactor()">Activate Reactor</button>
+            <a href="/api/reactor/editReactor?_id=<%= user._id %>&reactorId=<%= reactor._id %>">
+                <button class="erButton" id="editReactorButton">Edit Reactor</button>
+            </a>
 
             <button class="hdButton">All Historic Data</button>
             <div class="div2">
@@ -97,8 +81,8 @@
             <div class="div4">
             </div>
             <div class="div5">
-                <% for (let i=0; i<espEvents.length; i+=1) { %>
-                    <%- include("./partials/viewEvntButton.ejs", {name: espEvents[i].name, _id: _id, evntId: espEvents[i]._id, reacId: data._id}) %>
+                <% for (let i=0; i<esporadicEvents.length; i+=1) { %>
+                    <%- include("./partials/viewEvntButton.ejs", {name: esporadicEvents[i].name, _id: user._id, evntId: esporadicEvents[i]._id, reacId: reactor._id}) %>
                 <% } %>
             </div>
         

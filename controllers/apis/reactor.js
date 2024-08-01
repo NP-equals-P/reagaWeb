@@ -3,121 +3,144 @@ const User = require('../../models/users');
 const Reac = require('../../models/reactors');
 const Sens = require('../../models/sensors');
 const Actu = require('../../models/actuators');
+const Rout = require('../../models/routines');
+
+const { findByIdArray, createNewReactor } = require("./commonFunctions");
 
 const reactorRouter = new Router();
 
 // ---------- My Functions ----------
-async function createNewReactor() {
-
-    const sensor = await Sens.create({isCreation: true});
-
-    const actuator = await Actu.create({isCreation: true});
-
-    const routine = await createNewRoutine();
-
-    const reactor = await Reac.create({
-        isCreation: true,
-        creationSensor: sensor._id,
-        creationActuator: actuator._id,
-        creationRoutine: routine._id
-    });
-
-    return reactor;
-
-    return "Sucess"
-}
 // ---------- My Functions ----------
 
 // ---------- Get Requests ----------
 reactorRouter.get("/editReactor", (req, res) => {
+
     var logedId = req.query._id;
     var reacId = req.query.reactorId;
 
-    console.log(req.query);
-
     User.findById(logedId).then((user) => {
-        Reac.findById(reacId).then(async (reac) => {
+        Reac.findById(reacId).then(async (reactor) => {
 
-            var newSensList = [];
-            var newActuList = [];
-            var newRoutList = [];
-            var aux;
-
-            for (let i=0; i<reac.sensors.length; i+=1) {
-                aux = await Sens.findById(reac.sensors[i]._id);
-                newSensList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            for (let i=0; i<reac.actuators.length; i+=1) {
-                aux = await Actu.findById(reac.actuators[i]._id);
-                newActuList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
-
-            for (let i=0; i<reac.routines.length; i+=1) {
-                aux = await Rout.findById(reac.routines[i]._id);
-                newRoutList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
+            const sensorList = await findByIdArray(reactor.sensors, Sens);
+            const actuatorList = await findByIdArray(reactor.actuators, Actu);
+            const routineList = await findByIdArray(reactor.routines, Rout);
 
             res.render('reacSettingsPage', {
-                username: user.username,
-                _id: logedId,
-                data: {reactor: reac, sensors: newSensList, actuators: newActuList, routines: newRoutList}
+                user: user,
+                sensors: sensorList,
+                actuators: actuatorList,
+                routines: routineList,
+                reactor: reactor
             });
         });
     });
 });
 
 reactorRouter.get("/reacView", (req, res) => {
+
     var userId = req.query._id;
     var reacId = req.query.reacId;
 
-    User.findById(userId).then((resultU) => {
-        Reac.findById(reacId).then(async (resultR) => {
-            var newRoutList = [];
-            var newEspEventList = []
-            var aux;
+    User.findById(userId).then((user) => {
 
-            for (let i=0; i<resultR.routines.length; i+=1) {
-                aux = await Rout.findById(resultR.routines[i]._id);
-                newRoutList.push({
-                    name: aux.name,
-                    _id: aux._id
-                });
-            }
+        Reac.findById(reacId).then(async (reactor) => {
 
-            if (resultR.isActive) {
-                var activeRout = await Rout.findById(resultR.activeRoutine);
-                for (let i=0; i<activeRout.events.length; i+=1) {
-                    aux = await Evnt.findById(activeRout.events[i]);
+            const routineList = await findByIdArray(reactor);
+            var activeRoutine;
+            const esporadicEventsList = [];
+
+            if (reactor.activeRoutine) {
+                
+                activeRoutine = await Rout.findById(reactor.activeRoutine);
+                var aux;
+
+                for (let i=0; i<activeRoutine.events.length; i+=1) {
+
+                    aux = await Evnt.findById(activeRoutine.events[i]);
+
                     if (aux.type === "esporadic") {
-                        newEspEventList.push({
-                            name: aux.name,
-                            _id: aux._id
-                        })
+                        esporadicEventsList.push(aux);
                     }
                 }
+            } else {
+                activeRoutine = {};
             }
 
             res.render("reacView", {
-                username: resultU.username,
-                _id: userId,
-                data: resultR,
-                routines: newRoutList,
-                activeRoutine: resultR.activeRoutine,
-                espEvents: newEspEventList
+                user: user,
+                reactor: reactor,
+                routines: routineList,
+                activeRoutine: activeRoutine,
+                esporadicEvents: esporadicEventsList
             })
         });
     });
 });
 // ---------- Get Requests ----------
 
-module.exports = {reactorRouter, createNewReactor};
+// ---------- Post Requests ----------
+reactorRouter.post("/saveReactor", async (req, res) => {
+
+    const reacId = req.body.reacId;
+
+    const newName = req.body.newReacName;
+
+    await Reac.findByIdAndUpdate(reacId, {name: newName})
+})
+
+reactorRouter.post("/createReactor", async (req, res) => {
+
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+
+    await Reac.findByIdAndUpdate(reacId, {isCreation: false});
+
+    const newCreationReactor = await createNewReactor()
+
+    await User.findByIdAndUpdate(userId, { $set:{creationReactor: newCreationReactor._id}, $push:{reactors: reacId}});
+
+    res.redirect("/api/user/start?_id=" + userId);
+
+});
+
+reactorRouter.post("/deleteReactor", async (req, res) => {
+
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+
+    await User.findByIdAndUpdate(logedId, { $pull: {reactors: reacId}})
+
+    await deleteFullReactor(reacId);
+
+    res.redirect("api/user/start?_id=" + userId);
+
+});
+
+reactorRouter.post("/dicardReactorEdit", async (req, res) => {
+
+    var userId = req.body._id;
+    var reacId = req.body.reacId;
+
+    const newCreationReactor = await createNewReactor();
+
+    await Reac.findByIdAndDelete(reacId);
+
+    await User.findByIdAndUpdate(userId, {creationReactor: newCreationReactor._id});
+
+    res.redirect("/api/reactor/editReactor?_id=" + userId + "&reacId=" + reacId);
+
+});
+
+reactorRouter.post("/activateReactor", (req, res) => {
+
+    var reacId = req.body.reacId;
+    var userId = req.body._id;
+    var routId = req.body.activeRoutine;
+
+    console.log(req.body)
+
+    // Reac.findByIdAndUpdate(reacId, {$set: {isActive: true, activeRoutine: routId, isPaused: false}})
+});
+// ---------- Post Requests ----------
+
+module.exports = reactorRouter;

@@ -2,7 +2,8 @@ const { Router } = require("express");
 const User = require('../../models/users');
 const Reac = require('../../models/reactors');
 
-const { createNewReactor } = require("./reactor");
+const { findByIdArray } = require("./commonFunctions");
+const { createNewReactor } = require("./commonFunctions");
 
 const userRouter = new Router();
 
@@ -96,24 +97,16 @@ userRouter.get('/takenCheck', async (req, res) => {
 });
 
 userRouter.get("/start", (req, res) => {
-    var logedId = req.query._id;
 
-    User.findById(logedId).then(async (user) => {
+    const userId = req.query._id;
 
-        var newList = [];
-        var aux;
-    
-        for (let i=0; i<user.reactors.length; i+=1) {
-            aux = await Reac.findById(user.reactors[i]._id);
-            newList.push({
-                name: aux.name,
-                _id: aux._id
-            });
-        }
+    User.findById(userId).then(async (user) => {
+
+        const reactorList = await findByIdArray(user.reactors, Reac);
 
         res.render('startPage', {
-            data: user,
-            reactors: newList});
+            user: user,
+            reactors: reactorList});
     })
 });
 // ---------- Get Requests ----------
