@@ -1,8 +1,5 @@
 const express = require("express");
 const mongoose = require('mongoose');
-const { forEach } = require("lodash");
-const { ObjectId } = require("mongodb");
-const url = require('node:url');
 const mainRouter = require("./controllers");
 
 // ---------- My Functions ----------
@@ -114,7 +111,6 @@ app.use(express.json());
 app.use("/", mainRouter); //Routing
 // ---------- Configs ----------
 
-
 // ---------- Connect to DB ----------
 //const urI = 'mongodb://usrbioma:B%21omA2024@db-bioma.feagri.unicamp.br:27017/bioma?retryWrites=true&loadBalanced=false&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=bioma&authMechanism=SCRAM-SHA-256';
 
@@ -125,117 +121,8 @@ mongoose.connect(urI)
     .catch((err) => console.log(err));
 // ---------- Connect to DB ----------
 
-
-
 // ---------- Post Requests ----------
 
-
-
-
-app.post("/deactivateReactor", (req, res) => {
-    var reacId = req.body.reacId;
-    var userId = req.body._id;
-
-    Reac.findByIdAndUpdate(reacId, {$set: {isActive: false}}).then((reactor) => {
-        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
-    })
-});
-
-app.post("/pauseReactor", (req, res) => {
-    var reacId = req.body.reacId;
-    var userId = req.body._id;
-
-    Reac.findByIdAndUpdate(reacId, {$set: {isPaused: true}}).then((reactor) => {
-        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
-    })
-});
-
-app.post("/unpauseReactor", (req, res) => {
-    var reacId = req.body.reacId;
-    var userId = req.body._id;
-
-    Reac.findByIdAndUpdate(reacId, {$set: {isPaused: false}}).then((reactor) => {
-        res.redirect("/reacView?&_id=" + userId + "&reacId=" + reacId)
-    })
-});
-
-
-
-app.post("/createSaveSensor", (req, res) => {
-    const type = req.body.type;
-    const userId = req.body._id;
-    const reacId = req.body.reacId;
-    const sensId = req.body.sensId;
-
-    const newName = req.body.newSensName;
-    const newExit = req.body.newExit;
-    const modelId = req.body.modelId;
-
-    switch (type) {
-        case "create":
-            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit, isCreation: false, model: modelId}}).then((sensor) => {
-                Sens.create({isCreation: true}).then((creationSensor) => {
-                    Reac.findByIdAndUpdate(reacId, {
-                        $set: {
-                            creationSensor: creationSensor._id
-                        }, 
-                        $push: {
-                            sensors: sensor._id
-                        }
-                    }).then((reactor) => {
-                        if (reactor.isCreation) {
-                            res.redirect("/addReac?_id=" + userId);
-                        } else {
-                            res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId)
-                        }
-                    });
-                });
-            });
-            break;
-        default:
-            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit, model: modelId}}).then((sensor) => {
-                Reac.findById(reacId).then((reactor) => {
-                    if (reactor.isCreation) {
-                        res.redirect("/addReac?_id=" + userId);
-                    } else {
-                        res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
-                    }
-                });
-            });
-            break;
-    }
-});
-
-app.post("/dicardSensorEdit", (req, res) => {
-    var userId = req.body._id;
-    var reacId = req.body.reacId;
-    var sensId = req.body.sensId;
-
-    Sens.create({isCreation: true}).then((creationSens) => {
-        Reac.findByIdAndUpdate(reacId, {$set: {creationSensor: creationSens._id}}).then((reac) => {
-            Sens.findByIdAndDelete(sensId).then((deletedSens) => {
-                res.redirect("/addSensor?_id=" + userId + "&reacId=" + reacId);
-            });
-        });
-    });
-});
-
-app.post("/deleteSensor", (req, res) => {
-    var reacId = req.body.reacId;
-    var userId = req.body._id;
-    var sensId = req.body.sensId;
-
-    Reac.findByIdAndUpdate(reacId, { $pull: {sensors: sensId}}).then((reactor) => {
-        Sens.findByIdAndDelete(sensId).then((sensor) => {
-            if (reactor.isCreation) {
-                res.redirect("/addReac?_id=" + userId);
-            }
-            else {
-                res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
-            }
-        });
-    });
-});
 
 app.post("/createSaveActuator", (req, res) => {
     const type = req.body.type;
@@ -792,10 +679,6 @@ app.post("/callEsporadicEvent", (req, res) => {
 
 
 // ---------- Get Requests ----------
-
-
-
-
 app.get("/addActuator", (req, res) => {
     var userId = req.query._id;
     var reacId = req.query.reacId;

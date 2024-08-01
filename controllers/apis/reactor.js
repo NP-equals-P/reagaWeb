@@ -86,7 +86,7 @@ reactorRouter.post("/saveReactor", async (req, res) => {
     const newName = req.body.newReacName;
 
     await Reac.findByIdAndUpdate(reacId, {name: newName})
-})
+});
 
 reactorRouter.post("/createReactor", async (req, res) => {
 
@@ -127,19 +127,37 @@ reactorRouter.post("/dicardReactorEdit", async (req, res) => {
 
     await User.findByIdAndUpdate(userId, {creationReactor: newCreationReactor._id});
 
-    res.redirect("/api/reactor/editReactor?_id=" + userId + "&reacId=" + reacId);
+    res.redirect("/api/reactor/editReactor?_id=" + userId + "&reactorId=" + newCreationReactor._id);
 
 });
 
-reactorRouter.post("/activateReactor", (req, res) => {
+reactorRouter.post("/activateReactor", async (req, res) => {
 
     var reacId = req.body.reacId;
-    var userId = req.body._id;
     var routId = req.body.activeRoutine;
 
-    console.log(req.body)
+    await Reac.findByIdAndUpdate(reacId, {$set: {isActive: true, isPaused: false}});
+});
 
-    // Reac.findByIdAndUpdate(reacId, {$set: {isActive: true, activeRoutine: routId, isPaused: false}})
+reactorRouter.post("/deactivateReactor", async (req, res) => {
+
+    var reacId = req.body.reacId;
+
+    await Reac.findByIdAndUpdate(reacId, {$set: {isActive: false}});
+});
+
+reactorRouter.post("/pauseReactor", async (req, res) => {
+
+    var reacId = req.body.reacId;
+
+    await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: true}});
+});
+
+reactorRouter.post("/unpauseReactor", async (req, res) => {
+
+    var reacId = req.body.reacId;
+
+    await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: false}});
 });
 // ---------- Post Requests ----------
 

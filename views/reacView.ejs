@@ -5,26 +5,129 @@
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Reac View </title>
         <script>
-            function onLoadFunction() {
-                
+            function pageChangesDeactive() {
+
+                const editButton = document.getElementById("editReactorButton");
+                const activateButton = document.getElementById("activateButton");
+                const pauseButton = document.getElementById("pauseButton");
+                const routineSelect = document.getElementById("routineSelect");
+                const statusLabel = document.getElementById("statusLabel");
+
+                editButton.disabled = false;
+                activateButton.innerText = "Activate Reactor"
+                pauseButton.disabled = true;
+                routineSelect.disabled = false;
+                statusLabel.innerText = "(not active)";
+                statusLabel.style = "color: red"
+            }
+
+            function pageChangesActive() {
+
                 const editButton = document.getElementById("editReactorButton");
                 const activateButton = document.getElementById("activateButton");
                 const pauseButton = document.getElementById("pauseButton");
                 const routineSelect = document.getElementById("routineSelect");
 
-                if (document.getElementById("isReactorActive").value === "true") {
+                editButton.disabled = true;
+                activateButton.innerText = "Disactivate Reactor"
+                pauseButton.disabled = false;
+                routineSelect.disabled = true;
+            }
 
-                    editButton.disabled = true;
-                    activateButton.innerText = "Disactivate Reactor"
-                    pauseButton.disabled = false;
-                    routineSelect.disabled = true;
+            function pageChangesPaused() {
+                
+                const pauseButton = document.getElementById("pauseButton");
+                const statusLabel = document.getElementById("statusLabel");
+
+                pauseButton.innerText = "Unpause Reactor";
+                statusLabel.innerText = "(paused)";
+                statusLabel.style = "color: yellow";
+            }
+
+            function pageChangesUnpaused() {
+
+                const pauseButton = document.getElementById("pauseButton");
+                const statusLabel = document.getElementById("statusLabel");
+
+                pauseButton.innerText = "Pause Reactor";
+                statusLabel.innerText = "(active)";
+                statusLabel.style = "color: yellowgreen";
+            }
+
+            async function changeActiveStatus() {
+
+                const activeStatusData = document.getElementById("isReactorActive");
+                const pausedStatusData = document.getElementById("isReactorPaused");
+
+                if (activeStatusData.value === "true") {
+
+                    pageChangesDeactive();
+
+                    activeStatusData.value = "false"
+
+                    await deactivateReactor();
 
                 } else {
 
-                    editButton.disabled = false;
-                    activateButton.innerText = "Activate Reactor"
-                    pauseButton.disabled = true;
-                    routineSelect.disabled = false;
+                    pageChangesActive();
+
+                    activeStatusData.value = "true"
+
+                    if (pausedStatusData.value === "true") {
+                        pageChangesPaused();
+                    } else {
+                        pageChangesUnpaused();
+                    }
+
+                    await activateReactor();
+                }
+            }
+
+            async function changePausedStatus() {
+
+                const pausedStatusData = document.getElementById("isReactorPaused");
+
+                if (pausedStatusData.value === "true") {
+
+                    pausedStatusData.value = "false";
+
+                    pageChangesUnpaused();
+
+                    unpauseReactor();
+
+                } else {
+
+                    pausedStatusData.value = "true";
+
+                    pageChangesPaused();
+
+                    pauseReactor();
+                }
+            }
+
+            function onLoadFunction() {
+
+                if (document.getElementById("isReactorActive").value === "true") {
+
+                    pageChangesActive();
+
+                    if (document.getElementById("isReactorPaused").value === "true") {
+
+                        pageChangesPaused();
+                    } else {
+
+                        pageChangesUnpaused()
+                    }
+
+                } else {
+
+                    pageChangesDeactive();
+                }
+
+                if (document.getElementById("numRoutines").value === "0") {
+
+                    document.getElementById("activateButton").disabled = true;
+                    document.getElementById("routineSelect").disabled = true;
                 }
 
             }
@@ -33,13 +136,39 @@
 
                 const takenUrl = "http://localhost:3000/api/reactor/activateReactor";
                 const reacId = document.getElementById("reacId").value;
-                const userId = document.getElementById("_id").value;
 
                 const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
                 reacId: reacId,
-                _id: userId,
-                activeRoutine: ""
-                })});
+                activeRoutine: ""})});
+            }
+
+            async function deactivateReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/deactivateReactor";
+                const reacId = document.getElementById("reacId").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId,})});
+
+                return;
+            }
+
+            async function pauseReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/pauseReactor";
+                const reacId = document.getElementById("reacId").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId})});
+            }
+
+            async function unpauseReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/unpauseReactor";
+                const reacId = document.getElementById("reacId").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId})});
             }
         </script>
     </head>
@@ -49,6 +178,7 @@
         <input type="hidden" id="reacId" value="<%= reactor._id %>">
         <input type="hidden" id="isReactorActive" value="<%= reactor.isActive %>">
         <input type="hidden" id="isReactorPaused" value="<%= reactor.isPaused %>">
+        <input type="hidden" id="numRoutines" value="<%= routines.length %>">
 
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
@@ -63,10 +193,10 @@
             </select>
 
 
-            <span class="activeStatus" style="color: red;">(is not active)</span>
+            <span class="activeStatus" style="color: yellowgreen;" id="statusLabel"></span>
             <select name="activeRoutine" id="routineSelect" class="activeRoutineSelect"></select>
-            <button class="pauseButt" id="pauseButton">Pause Routine</button>
-            <button class="activationButt" id="activateButton" onclick="activateReactor()">Activate Reactor</button>
+            <button class="pauseButt" id="pauseButton" onclick="changePausedStatus()">Pause Routine</button>
+            <button class="activationButt" id="activateButton" onclick="changeActiveStatus()">Activate Reactor</button>
             <a href="/api/reactor/editReactor?_id=<%= user._id %>&reactorId=<%= reactor._id %>">
                 <button class="erButton" id="editReactorButton">Edit Reactor</button>
             </a>

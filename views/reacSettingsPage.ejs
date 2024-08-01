@@ -23,6 +23,13 @@
     </script>
     </head>
     <body>
+        <% var backType; %>
+        <% if (reactor.isCreation) { %>
+            <% backType = "/api/user/start?_id=" + user._id %>
+        <% } else { %>
+            <% backType = "/api/reactor/reacView?_id=" + user._id + "&reacId=" + reactor._id %>
+        <% } %>
+
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
 
         <div class="div1">
@@ -34,7 +41,7 @@
                 <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
                 <input type="hidden" id="reacId" name="reacId" value=<%= reactor._id %>>
                 
-                <a href="/api/user/start?_id=<%= user._id %>">
+                <a href="<%= backType %>">
                     <button class="backButt" name="type" value="saveBack">Back</button>
                 </a>
 
