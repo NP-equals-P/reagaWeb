@@ -42,80 +42,49 @@ sensorRouter.post("/saveSensor", async (req, res) => {
     await Sens.findByIdAndUpdate(sensId, {name: newName, exit: newExit, model: newModel});
 });
 
-sensorRouter.post("/createSaveSensor", (req, res) => {
-    const type = req.body.type;
+sensorRouter.post("/createSensor", async (req, res) => {
+
     const userId = req.body._id;
     const reacId = req.body.reacId;
     const sensId = req.body.sensId;
 
-    const newName = req.body.newSensName;
-    const newExit = req.body.newExit;
-    const modelId = req.body.modelId;
+    await Sens.findByIdAndUpdate(sensId, {isCreation: false});
 
-    switch (type) {
-        case "create":
-            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit, isCreation: false, model: modelId}}).then((sensor) => {
-                Sens.create({isCreation: true}).then((creationSensor) => {
-                    Reac.findByIdAndUpdate(reacId, {
-                        $set: {
-                            creationSensor: creationSensor._id
-                        }, 
-                        $push: {
-                            sensors: sensor._id
-                        }
-                    }).then((reactor) => {
-                        if (reactor.isCreation) {
-                            res.redirect("/addReac?_id=" + userId);
-                        } else {
-                            res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId)
-                        }
-                    });
-                });
-            });
-            break;
-        default:
-            Sens.findByIdAndUpdate(sensId, {$set: {name: newName, exit: newExit, model: modelId}}).then((sensor) => {
-                Reac.findById(reacId).then((reactor) => {
-                    if (reactor.isCreation) {
-                        res.redirect("/addReac?_id=" + userId);
-                    } else {
-                        res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
-                    }
-                });
-            });
-            break;
-    }
+    const newCreationSensor = await Sens.create({isCreation: true});
+
+    await Reac.findByIdAndUpdate(reacId, { $set:{creationSensor: newCreationSensor._id}, $push:{sensors: sensId}});
+
+    res.redirect("/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId);
+
 });
 
-sensorRouter.post("/dicardSensorEdit", (req, res) => {
+sensorRouter.post("/dicardSensorEdit", async (req, res) => {
+
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+    const sensId = req.body.sensId;
+
+    const newCreationSensor = await Sens.create({isCreation: true});
+
+    await Sens.findByIdAndDelete(sensId);
+
+    await Reac.findByIdAndUpdate(reacId, {$set: {creationSensor: newCreationSensor._id}});
+
+    res.redirect("/api/sensor/editSensor?_id=" + userId + "&sensId=" + newCreationSensor._id + "&reacId=" + reacId);
+});
+
+sensorRouter.post("/deleteSensor", async (req, res) => {
+
     var userId = req.body._id;
     var reacId = req.body.reacId;
     var sensId = req.body.sensId;
 
-    Sens.create({isCreation: true}).then((creationSens) => {
-        Reac.findByIdAndUpdate(reacId, {$set: {creationSensor: creationSens._id}}).then((reac) => {
-            Sens.findByIdAndDelete(sensId).then((deletedSens) => {
-                res.redirect("/addSensor?_id=" + userId + "&reacId=" + reacId);
-            });
-        });
-    });
-});
+    await Reac.findByIdAndUpdate(reacId, { $pull: {sensors: sensId}})
 
-sensorRouter.post("/deleteSensor", (req, res) => {
-    var reacId = req.body.reacId;
-    var userId = req.body._id;
-    var sensId = req.body.sensId;
+    await Sens.findByIdAndDelete(sensId)
 
-    Reac.findByIdAndUpdate(reacId, { $pull: {sensors: sensId}}).then((reactor) => {
-        Sens.findByIdAndDelete(sensId).then((sensor) => {
-            if (reactor.isCreation) {
-                res.redirect("/addReac?_id=" + userId);
-            }
-            else {
-                res.redirect("/editReac?_id=" + userId + "&reacId=" + reacId);
-            }
-        });
-    });
+    res.redirect("/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId);
 });
 // ---------- Post Requests ----------
+
 module.exports = sensorRouter;

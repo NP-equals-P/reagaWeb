@@ -11,6 +11,12 @@ const routineSchema = new Schema({
             ref: "events"
         }
     ],
+    esporadicEvents: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "events"
+        }
+    ],
     creationEvent: {
         
         type: mongoose.Schema.Types.ObjectId,

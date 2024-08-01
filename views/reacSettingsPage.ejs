@@ -58,7 +58,9 @@
                     </div>
 
                     <span for="" class="actuatorsLabel">Actuators</span>
-                    <button class="addActuButt" name="type" value="saveActuators">+</button>
+                    <a href="/api/actuator/editActuator?_id=<%= user._id + "&reacId=" + reactor.id + "&actuId=" + reactor.creationActuator %>">
+                        <button class="addActuButt">+</button>
+                    </a>
                     <div class="actuList">
                         <% for (let i=0; i<actuators.length; i+=1) { %>
                             <%- include("./partials/actuButton.ejs", {actuator: actuators[i], _id: user._id, reacId: reactor._id}) %>
