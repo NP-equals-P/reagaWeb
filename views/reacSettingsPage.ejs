@@ -68,7 +68,9 @@
                     </div>
                 </div>
                 <div class="routineModule">
-                    <button class="addRoutButt" name="type" value="saveRoutines">+</button>
+                    <a href="/api/routine/editRoutine?_id=<%= user._id + "&reacId=" + reactor._id + "&routId=" + reactor.creationRoutine %>">
+                        <button class="addRoutButt">+</button>
+                    </a>
                     <div class="routList">
                         <% for (let i=0; i<routines.length; i+=1) { %>
                             <%- include("./partials/routButton.ejs", {routine: routines[i], _id: user._id, reacId: reactor._id}) %>

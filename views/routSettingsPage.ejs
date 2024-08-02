@@ -4,62 +4,82 @@
         <link rel="stylesheet" href="/styles/addRoutPageStyles.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Routine </title>
+
+        <script>
+            async function saveReactor() {
+
+            
+                const newName = document.getElementById("newReacName").value;
+                const reacId = document.getElementById("reacId").value;
+
+
+                const takenUrl = "http://localhost:3000/api/reactor/saveReactor";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    reacId: reacId,
+                newReacName: newName})});
+            }
+        </script>
+
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
-            <form action="/createSaveRoutine", method="post">
-                <button class="backButt" name="type" value="saveBack">Back</button>
-                <br>
-                <label for="" class="nameLabel">Name</label>
-                <br>
-                <input type="text" name="newRoutName" id="newRoutName" class="inputName" value="<%= data.name %>">
 
-                <div class="div2">
-                    <% for (let i=0; i<events.length; i+=1) { %>
-                        <% if (events[i].type === "normal") { %>
-                            <%- include("./partials/normalEvntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id, index: i, totalDuration: minDuration}) %>
-                        <% } %>
+            <a href="/api/reactor/editReactor?_id=<%= user._id + "&reactorId=" + reacId%>">
+                <button class="backButt">Back</button>
+            </a>
+
+            <br>
+            <label for="" class="nameLabel">Name</label>
+            <br>
+            <input type="text" name="newRoutName" id="newRoutName" class="inputName" value="<%= routine.name %>">
+
+            <div class="div2">
+                <% for (let i=0; i<events.length; i+=1) { %>
+                    <% if (events[i].type === "normal") { %>
+                        <%- include("./partials/normalEvntButton.ejs", {event: events[i], _id: user._id, reacId: reacId, routId: routine_id, index: i, totalDuration: minDuration}) %>
                     <% } %>
-                </div>
-
-                <button class="addEvtButt" name="type" value="saveEvents">Add Event</button>
-                <div class="div3">
-                    <% for (let i=0; i<events.length; i+=1) { %>
-                        <% if (events[i].type === "esporadic") { %>
-                            <%- include("./partials/esporadicEvntButton.ejs", {event: events[i], _id: _id, reacId: reacId, routId: data._id, index: i, totalDuration: minDuration}) %>
-                        <% } %>
-                    <% } %>
-                </div>
-
-                <input type="hidden" id="routId" name="routId" value=<%= data._id %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-
-                <% if (data.isCreation) { %>
-                    <button class="confirmButt" name="type" id="type" value="create">Create Routine</button>
                 <% } %>
+            </div>
 
-                <button class="addAlrmButt" name="type" id="type" value="saveAlarms">Add Alam</button>
-                <div class="div4">
-                    <% for (let i=0; i<alarms.length; i+=1) { %>
-                        <%- include('./partials/alrmButton.ejs', {alarm: alarms[i], _id: _id, routId: data._id, reacId: reacId}) %>
+            <button class="addEvtButt" name="type" value="saveEvents">Add Event</button>
+            <div class="div3">
+                <% for (let i=0; i<events.length; i+=1) { %>
+                    <% if (events[i].type === "esporadic") { %>
+                        <%- include("./partials/esporadicEvntButton.ejs", {event: events[i], _id: user._id, reacId: reacId, routId: routine._id, index: i, totalDuration: minDuration}) %>
                     <% } %>
-                </div>
-            </form>
-            <% if (data.isCreation) { %>
+                <% } %>
+            </div>
+
+            <input type="hidden" id="routId" name="routId" value=<%= routine._id %>>
+            <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+            <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
+
+            <% if (routine.isCreation) { %>
+                <button class="confirmButt" name="type" id="type" value="create">Create Routine</button>
+            <% } %>
+
+            <button class="addAlrmButt" name="type" id="type" value="saveAlarms">Add Alam</button>
+            <div class="div4">
+                <% for (let i=0; i<alarms.length; i+=1) { %>
+                    <%- include('./partials/alrmButton.ejs', {alarm: alarms[i], _id: user._id, routId: routine._id, reacId: reacId}) %>
+                <% } %>
+            </div>
+
+            <% if (routine.isCreation) { %>
                 <form action="/dicardRoutineEdit" method="post">
                     <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="routId" name="routId" value=<%= data._id %>>
+                    <input type="hidden" id="routId" name="routId" value=<%= routine._id %>>
                     <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
                 </form>
             <% } else { %>
                 <form action="/deleteRoutine" method="post">
                     <button class="deleteButt">Delete Routine</button>
-                    <input type="hidden" id="routId" name="routId" value=<%= data._id %>>
+                    <input type="hidden" id="routId" name="routId" value=<%= routine._id %>>
                     <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
                 </form>
             <% } %>
         </div>
