@@ -114,6 +114,23 @@ actionRouter.get("/functionHTML", (req, res) => {
 // ---------- Get Requests ----------
 
 // ---------- Post Requests ----------
+actionRouter.post("/saveAction", async (req, res) => {
+
+    const actiId = req.body.actiId;
+
+    const newName = req.body.newActiName;
+    const newType = req.body.newType;
+    const newStart = req.body.newStart;
+    const newEnd = req.body.newEnd;
+
+    await Acti.findByIdAndUpdate(actiId, {
+        name: newName,
+        type: newType,
+        start: newStart,
+        end: newEnd,
+    });
+});
+
 actionRouter.post("/createSaveAction", (req, res) => {
     const type = req.body.type;
     const userId = req.body._id;

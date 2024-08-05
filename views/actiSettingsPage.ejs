@@ -144,6 +144,37 @@
                 document.getElementById("varDiv").innerHTML = funcHTMLStr.html;
             }
     
+            async function saveAction() {
+
+                const newName = document.getElementById("newActiName").value;
+                const newStart = document.getElementById("newStart").value;
+                const newEnd = document.getElementById("newEnd").value;
+                const newComponent = document.getElementById("currentComponent").value;
+                const newFunction = document.getElementById("currentFunction").value;
+                var newType;
+
+                if (document.getElementById("sensorRadio").checked) {
+                    newType = "sensor";
+                } else {
+                    newType = "actuator";
+                }
+
+                const actiId = document.getElementById("actiId").value;
+
+                const takenUrl = "http://localhost:3000/api/action/saveAction";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                actiId: actiId,
+                newActiName: newName,
+                newType: newType,
+                newStart: newStart,
+                newEnd: newEnd,
+                newComponent: newComponent,
+                newFunction: newFunction})});
+
+                return;
+            }
+
         </script>
 
         <link rel="stylesheet" href="/styles/actiSettingsStyle.css">
@@ -156,70 +187,70 @@
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
 
-                <a href="/api/event/editEvent?_id=<%= user._id + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId %>">
-                    <button class="backButt" name="type" value="saveBack">Back</button>
-                </a>
+            <a href="/api/event/editEvent?_id=<%= user._id + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId %>">
+                <button class="backButt" name="type" value="saveBack">Back</button>
+            </a>
 
-                <label for="" class="nameLabel">Name</label>
-                <input type="text" name="newActiName" id="newActiName" class="nameInput" value="<%= action.name %>">
+            <label for="" class="nameLabel">Name</label>
+            <input type="text" name="newActiName" id="newActiName" class="nameInput" value="<%= action.name %>" onchange="saveAction()">
 
-                <label for="" class="sensorLabel">Sensor</label>
-                <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" onclick="changeType()">
-                <label for="" class="actuatorLabel">Actuator</label>
-                <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" onclick="changeType()">
+            <label for="" class="sensorLabel">Sensor</label>
+            <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio">
+            <label for="" class="actuatorLabel">Actuator</label>
+            <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio">
 
-                <label for="" class="componentLabel">Chosen component:</label>
+            <label for="" class="componentLabel">Chosen component:</label>
 
-                <select name="newComponent" id="componentSelect" class="componentSelect" onchange="changeModel()"></select>
+            <select name="newComponent" id="componentSelect" class="componentSelect"></select>
 
-                <label for="" class="functionLabel">Function</label>
-                <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunction()"></select>
+            <label for="" class="functionLabel">Function</label>
+            <select name="newFunction" id="functionSelect" class="functionSelect"></select>
 
-                <label for="" class="startLabel">Starts</label>
-                <input type="number" name="newStart" id="" class="startInput" value="<%=action.start%>">
+            <label for="" class="startLabel">Starts</label>
+            <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>">
 
-                <label for="" class="endLabel">Ends</label>
-                <input type="number" name="newEnd" id="" class="endInput" value="<%=action.end%>">
+            <label for="" class="endLabel">Ends</label>
+            <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%=action.end%>">
 
-                <input type="hidden" id="currentComponent" value=<%= action.component %>>
-                <input type="hidden" id="currentFunction" value=<%= action.function %>>
+            <input type="hidden" id="currentComponent" value=<%= action.component %>>
+            <input type="hidden" id="currentFunction" value=<%= action.function %>>
 
-                <input type="hidden" id="actiId" name="actiId" value=<%= action._id %>>
-                <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
+            <input type="hidden" id="actiId" name="actiId" value=<%= action._id %>>
+            <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+            <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
+            <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+            <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
 
-                <div class="div2" id="varDiv">
-                </div>
-        
-                <% if (action.isCreation) { %>
-                    <form action="/api/action/createAction" method="post">
-                        <button class="confirmButt">Create Event</button>
-                        <input type="hidden" name="_id" value=<%= user._id %>>
-                        <input type="hidden" name="reacId" value=<%= reacId %>>
-                        <input type="hidden" name="routId" value=<%= routId %>>
-                        <input type="hidden" name="evntId" value=<%= evntId %>>
-                        <input type="hidden" name="actiId" value=<%= action._id %>>
-                    </form>
-                    <form action="/api/action/dicardActionEdit" method="post">
-                        <button class="discardButt">Discard Edit</button>
-                        <input type="hidden" name="_id" value=<%= user._id %>>
-                        <input type="hidden" name="reacId" value=<%= reacId %>>
-                        <input type="hidden" name="routId" value=<%= routId %>>
-                        <input type="hidden" name="evntId" value=<%= evntId %>>
-                        <input type="hidden" name="actiId" value=<%= action._id %>>
-                    </form>
-                <% } else { %>
-                    <form action="/api/action/deleteAction" method="post">
-                        <button class="deleteButt">Delete Event</button>
-                        <input type="hidden" name="_id" value=<%= user._id %>>
-                        <input type="hidden" name="reacId" value=<%= reacId %>>
-                        <input type="hidden" name="routId" value=<%= routId %>>
-                        <input type="hidden" name="evntId" value=<%= evntId %>>
-                        <input type="hidden" name="actiId" value=<%= action._id %>>
-                    </form>
-                <% } %>
+            <div class="div2" id="varDiv">
+            </div>
+    
+            <% if (action.isCreation) { %>
+                <form action="/api/action/createAction" method="post">
+                    <button class="confirmButt">Create Event</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" name="actiId" value=<%= action._id %>>
+                </form>
+                <form action="/api/action/dicardActionEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" name="actiId" value=<%= action._id %>>
+                </form>
+            <% } else { %>
+                <form action="/api/action/deleteAction" method="post">
+                    <button class="deleteButt">Delete Event</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" name="actiId" value=<%= action._id %>>
+                </form>
+            <% } %>
 
         </div>
     </body>
