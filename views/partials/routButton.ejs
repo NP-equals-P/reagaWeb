@@ -13,6 +13,6 @@
         margin: 0.5vw;
     }
 </style>
-<a href=<%= "/editRoutine?_id=" + _id + "&reacId=" + reacId + "&routId=" + routine._id %> class="hyperLinkRoutine">
+<a href=<%= "/api/routine/editRoutine?_id=" + _id + "&reacId=" + reacId + "&routId=" + routine._id %> class="hyperLinkRoutine">
     <button class="routButton" type="button"><%= routine.name %></button>
 </a>

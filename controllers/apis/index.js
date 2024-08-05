@@ -5,6 +5,9 @@ const reactorRouter = require("./reactor");
 const sensorRouter = require("./sensor");
 const actuatorRouter = require("./actuator");
 const routineRouter = require("./routine");
+const alarmRouter = require("./alarm");
+const eventRouter = require("./event");
+
 
 const apiRouter = new Router();
 
@@ -13,5 +16,7 @@ apiRouter.use("/reactor", reactorRouter);
 apiRouter.use("/sensor", sensorRouter);
 apiRouter.use("/actuator", actuatorRouter);
 apiRouter.use("/routine", routineRouter);
+apiRouter.use("/alarm", alarmRouter);
+apiRouter.use("/event", eventRouter);
 
 module.exports = apiRouter; 

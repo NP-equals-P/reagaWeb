@@ -17,105 +17,82 @@
 
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
-            <form action="/createSaveAlarm" method="post">
-                <button class="backButt" name="type" value="saveBack">Back</button>
+
+            <button class="backButt" name="type" value="saveBack">Back</button>
+
+            <label for="" class="titleLabel">Title</label>
+            <input type="text" name="newTitle" id="newTitle" class="inputName" value="<%= alarm.title %>">
+
+            <label for="" class="msgLabel">Message</label>
+            <textarea name="newMsg" id="newMsg" cols="30" rows="10" class="msgArea"><%= alarm.message %></textarea>
+
+            <% if (alarm.type === "Under") { %>
+                <label for="" class="varLabel">Over</label>
+                <input type="radio" name="alarmType" id="alarmType" value="Over" class="varRadio">
     
-                <label for="" class="titleLabel">Title</label>
-                <input type="text" name="newTitle" id="newTitle" class="inputName" value="<%= data.title %>">
-
-                <label for="" class="msgLabel">Message</label>
-                <textarea name="newMsg" id="newMsg" cols="30" rows="10" class="msgArea"><%= data.message %></textarea>
-
-                <% if (data.type === "Under") { %>
-                    <label for="" class="varLabel">Over</label>
-                    <input type="radio" name="alarmType" id="alarmType" value="Over" class="varRadio">
-        
-                    <label for="" class="evtLabel">Under</label>
-                    <input type="radio" name="alarmType" id="alarmType" value="Under" class="evtRadio" checked>
-                <% } else { %>
-                    <label for="" class="varLabel">Over</label>
-                    <input type="radio" name="alarmType" id="alarmType" value="Over" class="varRadio" checked>
-        
-                    <label for="" class="evtLabel">Under</label>
-                    <input type="radio" name="alarmType" id="alarmType" value="Under" class="evtRadio">
-                <% } %>
-                
-
-    
-                <label for="" class="limitLabel">Limit</label>
-                <input type="number" name="newLimit" id="newLimit" class="limitInput" value="<%= data.limit %>">
-
-                <label for="" class="sensLabel">Sensor</label>
-                <select name="newSensor" id="newSensor" class="sensSelect">
-                    <% for (let i=0; i<sensors.length; i+=1) { %>
-                        <% if (data.sensor && data.sensor.toString() === sensors[i]._id.toString()) { %>
-                            <option value="<%= sensors[i]._id %>" selected><%= sensors[i].name %></option>
-                        <% } else { %>
-                            <option value="<%= sensors[i]._id %>"><%= sensors[i].name %></option>
-                        <% } %>
-                    <% } %>
-                </select>
-
-                <label for="" class="triggerCBLabel">Trigger?</label>
-                <% if (events.length > 0) { %>
-                    <% if (data.triggers) { %>
-                        <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="changeEventSelect()" checked>
-                        <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect">
-                            <% for (let i=0; i<events.length; i+=1) { %>
-                                <% if (data.triggerEvent && data.triggerEvent.toString() === events[i]._id.toString()) { %>
-                                    <option value="<%= events[i]._id %>" selected><%= events[i].name %></option>
-                                <% } else { %>
-                                    <option value="<%= events[i]._id %>"><%= events[i].name %></option>
-                                <% } %>
-                            <% } %>
-                        </select>
-                    <% } else { %>
-                        <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="changeEventSelect()">
-                        <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect" disabled>
-                            <% for (let i=0; i<events.length; i+=1) { %>
-                                <% if (data.triggerEvent && data.triggerEvent.toString() === events[i]._id.toString()) { %>
-                                    <option value="<%= events[i]._id %>" selected><%= events[i].name %></option>
-                                <% } else { %>
-                                    <option value="<%= events[i]._id %>"><%= events[i].name %></option>
-                                <% } %>
-                            <% } %>
-                        </select>
-                    <% } %>
-                <% } else { %>
-                    <input type="checkbox" name="" id="" class="triggerCB" disabled>
-                    <select name="" id="eventTriggerSelect" class="evntSelect" disabled></select>
-                <% } %>
-
-                <label for="" class="eventLabel">Event</label>
-
-                <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                <input type="hidden" id="alrmId" name="alrmId" value=<%= data._id %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-
-                <% if (data.isCreation) { %>
-                    <button class="createButt" name="type" value="create">Create Alarm</button>
-                <% } %>
-            </form>
-            <% if (data.isCreation) { %>
-                <form action="/discardAlarmEdit" method="post">
-                    <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                    <input type="hidden" id="alrmId" name="alrmId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                </form>
+                <label for="" class="evtLabel">Under</label>
+                <input type="radio" name="alarmType" id="alarmType" value="Under" class="evtRadio" checked>
             <% } else { %>
-                <form action="/deleteAlarm" method="post">
-                    <button class="deleteButt">Delete Alarm</button>
-                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                    <input type="hidden" id="alrmId" name="alrmId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                </form>
+                <label for="" class="varLabel">Over</label>
+                <input type="radio" name="alarmType" id="alarmType" value="Over" class="varRadio" checked>
+    
+                <label for="" class="evtLabel">Under</label>
+                <input type="radio" name="alarmType" id="alarmType" value="Under" class="evtRadio">
             <% } %>
+            
+            <label for="" class="limitLabel">Limit</label>
+            <input type="number" name="newLimit" id="newLimit" class="limitInput" value="<%= alarm.limit %>">
+
+            <label for="" class="sensLabel">Sensor</label>
+            <select name="newSensor" id="newSensor" class="sensSelect">
+                <% for (let i=0; i<sensors.length; i+=1) { %>
+                    <% if (alarm.sensor && alarm.sensor.toString() === sensors[i]._id.toString()) { %>
+                        <option value="<%= sensors[i]._id %>" selected><%= sensors[i].name %></option>
+                    <% } else { %>
+                        <option value="<%= sensors[i]._id %>"><%= sensors[i].name %></option>
+                    <% } %>
+                <% } %>
+            </select>
+
+            <label for="" class="triggerCBLabel">Trigger?</label>
+            <% if (events.length > 0) { %>
+                <% if (alarm.triggers) { %>
+                    <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="changeEventSelect()" checked>
+                    <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect">
+                        <% for (let i=0; i<events.length; i+=1) { %>
+                            <% if (alarm.triggerEvent && alarm.triggerEvent.toString() === events[i]._id.toString()) { %>
+                                <option value="<%= events[i]._id %>" selected><%= events[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= events[i]._id %>"><%= events[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                <% } else { %>
+                    <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="changeEventSelect()">
+                    <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect" disabled>
+                        <% for (let i=0; i<events.length; i+=1) { %>
+                            <% if (alarm.triggerEvent && alarm.triggerEvent.toString() === events[i]._id.toString()) { %>
+                                <option value="<%= events[i]._id %>" selected><%= events[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= events[i]._id %>"><%= events[i].name %></option>
+                            <% } %>
+                        <% } %>
+                    </select>
+                <% } %>
+            <% } else { %>
+                <input type="checkbox" name="" id="" class="triggerCB" disabled>
+                <select name="" id="eventTriggerSelect" class="evntSelect" disabled></select>
+            <% } %>
+
+            <label for="" class="eventLabel">Event</label>
+
+            <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+            <input type="hidden" id="alrmId" name="alrmId" value=<%= alarm._id %>>
+            <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+            <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+
         </div>
     </body>
 </html>

@@ -25,7 +25,7 @@
 </style>
 <div class="dynEvntDiv">
     <% var fullSize = 68.9; %>
-    <a id=<%="evntHypr" + index%> style=<%= "left:" + fullSize*(event.start/totalDuration) + "vw; width:" + event.end + "vh;" %> href="<%= "/editEvent?_id=" + _id + "&reacId=" + reacId + "&evntId=" + event._id + "&routId=" + routId%>" class="hyperLinkEvnt">
+    <a id=<%="evntHypr" + index%> style=<%= "left:" + fullSize*(event.start/totalDuration) + "vw; width:" + event.end + "vh;" %> href="<%= "/api/event/editEvent?_id=" + _id + "&reacId=" + reacId + "&evntId=" + event._id + "&routId=" + routId%>" class="hyperLinkEvnt">
         <button name="<%=event.start%>" value="<%=event.end%>" id=<%="evntButt" + index%> class="evntButton" type="button" style=<%= "width:" + fullSize*(event.end/totalDuration) + "vw;" %>><%= event.name %></button>
     </a>
 </div>

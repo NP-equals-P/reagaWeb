@@ -33,77 +33,119 @@
                 }
                 
             }
+
+            async function timeChange() {
+
+                document.getElementById("newStart").disabled = true;
+                document.getElementById("newEnd").disabled = true;
+
+                await saveEvent();
+                
+                //call changeSizes
+                document.getElementById("newStart").disabled = false;
+                document.getElementById("newEnd").disabled = false;
+
+            }
+
+            async function saveEvent() {
+
+                const newName = document.getElementById("newEvntName").value;
+                const newStart = document.getElementById("newStart").value;
+                const newEnd = document.getElementById("newEnd").value;
+                const evntId = document.getElementById("evntId").value;
+                const routId = document.getElementById("routId").value;
+                var newGroup;
+
+                if (document.getElementById("newNormalType").checked) {
+                    newGroup = "normal";
+                } else {
+                    newGroup = "esporadic";
+                }
+
+                const takenUrl = "http://localhost:3000/api/event/saveEvent";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                evntId: evntId,
+                routId: routId,
+                newEvntName: newName,
+                newGroup: newGroup,
+                newStart: newStart,
+                newEnd: newEnd})});
+
+                return;
+            }
+
         </script>
     </head>
     <body onload="changeSizes()">
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
-            <form action="/createSaveEvent" method="post">
-                <input type="hidden" id="evntId" name="evntId" value=<%= data._id %>>
-                <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
 
-                <button class="backButt" name="type" value="saveBack">Back</button>
+            <a href="/api/routine/editRoutine?_id=<%= user._id + "&reacId=" + reacId + "&routId=" + routId%>">
+                <button class="backButt">Back</button>
+            </a>
 
-                <label for="" class="nameLabel">Name</label>
-                <input type="text" name="newEvntName" id="newEvntName" class="nameInput" value="<%= data.name %>">
-                <br><br>
+            <label for="" class="nameLabel">Name</label>
+            <input type="text" name="newEvntName" id="newEvntName" class="nameInput" value="<%= event.name %>" onchange="saveEvent()">
+            <br><br>
 
-                <% if (data.type === "esporadic") { %>
-                    <label for="" class="normalLabel">Normal</label>
-                    <input type="radio" name="group" id="newNormalType" class="normalRadio" value="normal">
-                    <label for="" class="esporadicLabel">Esporadic</label>
-                    <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" value="esporadic" checked>
-                <% } else { %>
-                    <label for="" class="normalLabel">Normal</label>
-                    <input type="radio" name="group" id="newNormalType" class="normalRadio" value="normal" checked>
-                    <label for="" class="esporadicLabel">Esporadic</label>
-                    <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" value="esporadic">
+            <% if (event.type === "esporadic") { %>
+                <label for="" class="normalLabel">Normal</label>
+                <input type="radio" name="group" id="newNormalType" class="normalRadio" onchange="saveEvent()">
+                <label for="" class="esporadicLabel">Esporadic</label>
+                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" checked onchange="saveEvent()">
+            <% } else { %>
+                <label for="" class="normalLabel">Normal</label>
+                <input type="radio" name="group" id="newNormalType" class="normalRadio" checked onchange="saveEvent()">
+                <label for="" class="esporadicLabel">Esporadic</label>
+                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" onchange="saveEvent()">
+            <% } %>
+
+
+            <div class="div2">
+                <% for (let i=0; i<actions.length; i+=1) { %>
+                    <%- include('./partials/actiButton.ejs', {action: actions[i], _id: _id, reacId: reacId, routId: routId, evntId: event._id, index: i}) %>
                 <% } %>
+            </div>
 
-    
-                <div class="div2">
-                    <% for (let i=0; i<actions.length; i+=1) { %>
-                        <%- include('./partials/actiButton.ejs', {action: actions[i], _id: _id, reacId: reacId, routId: routId, evntId: data._id, index: i}) %>
-                    <% } %>
-                </div>
+            <input type="number" name="newStart" id="newStart" class="startInput" value="<%= event.start %>" onchange="timeChange()">
+            <label for="" class="startLabel">Start</label>
 
-                <input type="number" name="newStart" id="newStart" class="startInput" value="<%= data.start %>">
-                <label for="" class="startLabel">Start</label>
-    
-                <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%= Math.max(data.end, minDuration) %>" min="<%= minDuration %>" onchange="changeSizes()">
-                <label for="" class="endLabel">End</label>
+            <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%= Math.max(event.end, minDuration) %>" min="<%= minDuration %>" onchange="timeChange()">
+            <label for="" class="endLabel">End</label>
 
-                <button class="addActionButt" name="type" value="saveActions">Add Action</button>
+            <button class="addActionButt" name="type" value="saveActions">Add Action</button>
 
-                <% if (data.isCreation) { %>
-                    <button class="confirmButt" name="type" id="type" value="create">Create Event</button>
-                <% } %>
-            </form>
+            <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
+            <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+            <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+            <input type="hidden" id="evntId" name="evntId" value=<%= event._id %>>
 
-            <% if (data.isCreation) { %>
-                <form action="/dicardEventEdit" method="post">
+            <% if (event.isCreation) { %>
+                <form action="/api/event/createEvent" method="post">
+                    <button class="confirmButt">Create Event</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= event._id %>>
+                </form>
+                <form action="/api/event/dicardEventEdit" method="post">
                     <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="evntId" name="evntId" value=<%= data._id %>>
-                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= event._id %>>
                 </form>
             <% } else { %>
-                <form action="/deleteEvent" method="post">
+                <form action="/api/event/deleteEvent" method="post">
                     <button class="deleteButt">Delete Event</button>
-                    <input type="hidden" id="evntId" name="evntId" value=<%= data._id %>>
-                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= event._id %>>
                 </form>
             <% } %>
 
-            <% if (mode === "intervalError") { %>
-                <br>
-                <span class="errorMsg">Error: Conflicting Interval</span>
-            <% } %>
         </div>
     </body>
 </html>

@@ -15,6 +15,6 @@
     }
 
 </style>
-<a style="height: 13vh;" id=<%="evntHypr" + index%> href="<%= "/editEvent?_id=" + _id + "&reacId=" + reacId + "&evntId=" + event._id + "&routId=" + routId%>" class="hyperLinkEspEvnt">
+<a style="height: 13vh;" id=<%="evntHypr" + index%> href="<%= "/api/event/editEvent?_id=" + _id + "&reacId=" + reacId + "&evntId=" + event._id + "&routId=" + routId%>" class="hyperLinkEspEvnt">
     <button style="height: 13vh;" name="<%=event.relativeStart%>" value="<%=event.relativeDuration%>" id=<%="evntButt" + index%> class="evntButton" type="button"><%= event.name %></button>
 </a>
