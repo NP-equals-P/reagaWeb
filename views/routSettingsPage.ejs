@@ -54,7 +54,10 @@
             <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
             <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
 
-            <button class="addAlrmButt" name="type" id="type" value="saveAlarms">Add Alam</button>
+            <a href="/api/alarm/editAlarm?_id=<%= user._id + "&reacId=" + reacId + "&routId=" + routine._id + "&alrmId=" + routine.creationAlarm %>">
+                <button class="addAlrmButt" name="type" id="type" value="saveAlarms">Add Alam</button>
+            </a>
+
             <div class="div4">
                 <% for (let i=0; i<alarms.length; i+=1) { %>
                     <%- include('./partials/alrmButton.ejs', {alarm: alarms[i], _id: user._id, routId: routine._id, reacId: reacId}) %>

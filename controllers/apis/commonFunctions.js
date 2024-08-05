@@ -22,7 +22,7 @@ async function createNewEvent() {
 
 async function createNewRoutine() {
 
-    const alarm = await Alrm.create({isCreation: true});
+    const alarm = await Alrm.create({isCreation: true, limit: 0});
 
     const event = await createNewEvent();
 

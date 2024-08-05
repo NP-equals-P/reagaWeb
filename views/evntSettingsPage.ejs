@@ -114,7 +114,9 @@
             <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%= Math.max(event.end, minDuration) %>" min="<%= minDuration %>" onchange="timeChange()">
             <label for="" class="endLabel">End</label>
 
-            <button class="addActionButt" name="type" value="saveActions">Add Action</button>
+            <a href="/api/action/editAction?_id=<%= user._id + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + event._id + "&actiId=" + event.creationAction %>">
+                <button class="addActionButt" name="type" value="saveActions">Add Action</button>
+            </a>
 
             <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
             <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>

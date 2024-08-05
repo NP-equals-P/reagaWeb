@@ -45,7 +45,7 @@ reactorRouter.get("/reacView", (req, res) => {
 
         Reac.findById(reacId).then(async (reactor) => {
 
-            const routineList = await findByIdArray(reactor);
+            const routineList = await findByIdArray(reactor.routines, Rout);
             var activeRoutine;
             const esporadicEventsList = [];
 

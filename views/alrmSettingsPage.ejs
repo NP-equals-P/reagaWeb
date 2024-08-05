@@ -1,17 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="/styles/addAlarPageStyles.css">
+        <link rel="stylesheet" href="/styles/alrmSettingsStyle.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Alarm </title>
 
         <script>
-            function changeEventSelect() {
-                if (!document.getElementById("eventTriggerSelect").disabled) {
-                    document.getElementById("eventTriggerSelect").disabled = true
-                } else {
+            async function saveAlarm() {
+                document.getElementById("newLimit").disabled = true;
+                document.getElementById("triggersStatus").disabled = true;
+
+                if (document.getElementById("triggersStatus").checked) {
                     document.getElementById("eventTriggerSelect").disabled = false
+                } else {
+                    document.getElementById("eventTriggerSelect").disabled = true
                 }
+
+                const newTitle = document.getElementById("newTitle").value;
+                const newMsg = document.getElementById("newMsg").value;
+                const newLimit = document.getElementById("newLimit").value;
+                const newSensor = document.getElementById("newSensor").value;
+                const newTriggerStatus = document.getElementById("triggersStatus").checked;
+                const newTriggerEvent = document.getElementById("eventTriggerSelect").value;
+
+                var newType;
+
+                if (document.getElementById("typeRadioOver").checked) {
+                    newType = "over";
+                } else {
+                    newType = "under";
+                }
+
+                console.log(newTitle, newMsg, newLimit, newSensor, newTriggerStatus, newTriggerEvent, newType);
+
+                const alarmId = document.getElementById("alrmId").value;
+
+                const takenUrl = "http://localhost:3000/api/alarm/saveAlarm";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                alrmId: alarmId,
+                newTitle: newTitle,
+                newMsg: newMsg,
+                newLimit: newLimit,
+                newType: newType,
+                newSensor: newSensor,
+                newTriggerStatus: newTriggerStatus,
+                newTriggerEvent: newTriggerEvent})});
+
+                document.getElementById("newLimit").disabled = false;
+                document.getElementById("triggersStatus").disabled = false;
             }
         </script>
 
@@ -20,33 +57,35 @@
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
 
-            <button class="backButt" name="type" value="saveBack">Back</button>
+            <a href="/api/routine/editRoutine?_id=<%= user._id + "&reacId=" + reacId + "&routId=" + routId%>">
+                <button class="backButt" name="type" value="saveBack">Back</button>
+            </a>
 
             <label for="" class="titleLabel">Title</label>
-            <input type="text" name="newTitle" id="newTitle" class="inputName" value="<%= alarm.title %>">
+            <input type="text" name="newTitle" id="newTitle" class="inputName" value="<%= alarm.title %>" onchange="saveAlarm()">
 
             <label for="" class="msgLabel">Message</label>
-            <textarea name="newMsg" id="newMsg" cols="30" rows="10" class="msgArea"><%= alarm.message %></textarea>
+            <textarea name="newMsg" id="newMsg" cols="30" rows="10" class="msgArea" onchange="saveAlarm()"><%= alarm.message %></textarea>
 
-            <% if (alarm.type === "Under") { %>
+            <% if (alarm.type === "under") { %>
                 <label for="" class="varLabel">Over</label>
-                <input type="radio" name="alarmType" id="alarmType" value="Over" class="varRadio">
+                <input type="radio" name="alarmType" id="typeRadioOver" value="Over" class="varRadio" onchange="saveAlarm()">
     
                 <label for="" class="evtLabel">Under</label>
-                <input type="radio" name="alarmType" id="alarmType" value="Under" class="evtRadio" checked>
+                <input type="radio" name="alarmType" id="typeRadioUnder" value="Under" class="evtRadio" checked onchange="saveAlarm()">
             <% } else { %>
                 <label for="" class="varLabel">Over</label>
-                <input type="radio" name="alarmType" id="alarmType" value="Over" class="varRadio" checked>
+                <input type="radio" name="alarmType" id="typeRadioOver" value="Over" class="varRadio" checked onchange="saveAlarm()">
     
                 <label for="" class="evtLabel">Under</label>
-                <input type="radio" name="alarmType" id="alarmType" value="Under" class="evtRadio">
+                <input type="radio" name="alarmType" id="typeRadioUnder" value="Under" class="evtRadio" onchange="saveAlarm()">
             <% } %>
             
             <label for="" class="limitLabel">Limit</label>
-            <input type="number" name="newLimit" id="newLimit" class="limitInput" value="<%= alarm.limit %>">
+            <input type="number" name="newLimit" id="newLimit" class="limitInput" value="<%= alarm.limit %>" onchange="saveAlarm()">
 
             <label for="" class="sensLabel">Sensor</label>
-            <select name="newSensor" id="newSensor" class="sensSelect">
+            <select name="newSensor" id="newSensor" class="sensSelect" onchange="saveAlarm()">
                 <% for (let i=0; i<sensors.length; i+=1) { %>
                     <% if (alarm.sensor && alarm.sensor.toString() === sensors[i]._id.toString()) { %>
                         <option value="<%= sensors[i]._id %>" selected><%= sensors[i].name %></option>
@@ -59,8 +98,8 @@
             <label for="" class="triggerCBLabel">Trigger?</label>
             <% if (events.length > 0) { %>
                 <% if (alarm.triggers) { %>
-                    <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="changeEventSelect()" checked>
-                    <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect">
+                    <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="saveAlarm()" checked>
+                    <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect" onchange="saveAlarm()">
                         <% for (let i=0; i<events.length; i+=1) { %>
                             <% if (alarm.triggerEvent && alarm.triggerEvent.toString() === events[i]._id.toString()) { %>
                                 <option value="<%= events[i]._id %>" selected><%= events[i].name %></option>
@@ -70,8 +109,8 @@
                         <% } %>
                     </select>
                 <% } else { %>
-                    <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="changeEventSelect()">
-                    <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect" disabled>
+                    <input type="checkbox" name="triggersStatus" id="triggersStatus" class="triggerCB" onchange="saveAlarm()">
+                    <select name="triggerEvent" id="eventTriggerSelect" class="evntSelect" disabled onchange="saveAlarm()">
                         <% for (let i=0; i<events.length; i+=1) { %>
                             <% if (alarm.triggerEvent && alarm.triggerEvent.toString() === events[i]._id.toString()) { %>
                                 <option value="<%= events[i]._id %>" selected><%= events[i].name %></option>
@@ -86,12 +125,37 @@
                 <select name="" id="eventTriggerSelect" class="evntSelect" disabled></select>
             <% } %>
 
+            <% if (alarm.isCreation) { %>
+                <form action="/api/alarm/createAlarm" method="post">
+                    <button class="confirmButt">Create Alarm</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="alrmId" value=<%= alarm._id %>>
+                </form>
+                <form action="/api/alarm/dicardAlarmEdit" method="post">
+                    <button class="discardButt">Discard Edit</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="alrmId" value=<%= alarm._id %>>
+                </form>
+            <% } else { %>
+                <form action="/api/alarm/deleteAlarm" method="post">
+                    <button class="deleteButt">Delete Alarm</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="alrmId" value=<%= alarm._id %>>
+                </form>
+            <% } %>
+
             <label for="" class="eventLabel">Event</label>
 
             <input type="hidden" id="routId" name="routId" value=<%= routId %>>
             <input type="hidden" id="alrmId" name="alrmId" value=<%= alarm._id %>>
             <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-            <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+            <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
 
         </div>
     </body>
