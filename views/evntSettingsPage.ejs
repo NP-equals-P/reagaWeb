@@ -75,6 +75,18 @@
                 return;
             }
 
+            async function typeChange() {
+
+                await saveEvent();
+
+                if (document.getElementById("newEsporadicType").checked) {
+                    document.getElementById("newStart").disabled = true;
+                } else {
+                    document.getElementById("newStart").disabled = false;
+                }
+
+            }
+ 
         </script>
     </head>
     <body onload="changeSizes()">
@@ -91,20 +103,20 @@
 
             <% if (event.type === "esporadic") { %>
                 <label for="" class="normalLabel">Normal</label>
-                <input type="radio" name="group" id="newNormalType" class="normalRadio" onchange="saveEvent()">
+                <input type="radio" name="group" id="newNormalType" class="normalRadio" onchange="typeChange()">
                 <label for="" class="esporadicLabel">Esporadic</label>
-                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" checked onchange="saveEvent()">
+                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" checked onchange="typeChange()">
             <% } else { %>
                 <label for="" class="normalLabel">Normal</label>
-                <input type="radio" name="group" id="newNormalType" class="normalRadio" checked onchange="saveEvent()">
+                <input type="radio" name="group" id="newNormalType" class="normalRadio" checked onchange="typeChange()">
                 <label for="" class="esporadicLabel">Esporadic</label>
-                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" onchange="saveEvent()">
+                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" onchange="typeChange()">
             <% } %>
 
 
             <div class="div2">
                 <% for (let i=0; i<actions.length; i+=1) { %>
-                    <%- include('./partials/actiButton.ejs', {action: actions[i], _id: _id, reacId: reacId, routId: routId, evntId: event._id, index: i}) %>
+                    <%- include('./partials/actiButton.ejs', {action: actions[i], _id: user._id, reacId: reacId, routId: routId, evntId: event._id, index: i}) %>
                 <% } %>
             </div>
 

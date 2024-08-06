@@ -8,7 +8,7 @@ const Alrm = require('../../models/alarms');
 
 async function createNewEvent() {
 
-    const action = await Acti.create({isCreation: true});
+    const action = await Acti.create({isCreation: true, start: 0, end: 1});
 
     const event = await Evnt.create({
         isCreation: true,

@@ -13,7 +13,7 @@
             }
     
             async function getComponents() {
-                const url = "http://localhost:3000/components?reacId=" + document.getElementById("reacId").value;
+                const url = "http://localhost:3000/api/action/components?reacId=" + document.getElementById("reacId").value;
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
@@ -47,19 +47,7 @@
                 var str = "";
                 var aux;
     
-                if (document.getElementById("sensorRadio").checked) {
-                    for (let i=0; i<components.sensors.length; i+=1) {
-    
-                        if (dataComponent === components.sensors[i]._id.toString()) {
-                            aux = "selected";
-                        } else {
-                            aux = "";
-                        }
-    
-                        str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
-                        componentSelect.innerHTML = str;
-                    }
-                } else {
+                if (document.getElementById("actuatorRadio").checked) {
                     for (let i=0; i<components.actuators.length; i+=1) {
     
                         if (dataComponent === components.actuators[i]._id.toString()) {
@@ -69,6 +57,18 @@
                         }
     
                         str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
+                        componentSelect.innerHTML = str;
+                    }
+                } else {
+                    for (let i=0; i<components.sensors.length; i+=1) {
+    
+                        if (dataComponent === components.sensors[i]._id.toString()) {
+                            aux = "selected";
+                        } else {
+                            aux = "";
+                        }
+    
+                        str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
                         componentSelect.innerHTML = str;
                     }
                 }
@@ -86,7 +86,7 @@
                     type = "actuator";
                 }
     
-                const url = "http://localhost:3000/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
+                const url = "http://localhost:3000/api/action/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
@@ -124,7 +124,7 @@
             async function getFunctionHTML() {
                 var functionId = document.getElementById("functionSelect").value;
     
-                const url = "http://localhost:3000/functionHTML?funcId=" + document.getElementById("functionSelect").value;
+                const url = "http://localhost:3000/api/action/functionHTML?funcId=" + document.getElementById("functionSelect").value;
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
@@ -146,11 +146,19 @@
     
             async function saveAction() {
 
+                document.getElementById("newActiName").disabled = true;
+                document.getElementById("newStart").disabled = true;
+                document.getElementById("newEnd").disabled = true;
+                document.getElementById("componentSelect").disabled = true;
+                document.getElementById("functionSelect").disabled = true;
+                document.getElementById("sensorRadio").disabled = true;
+                document.getElementById("actuatorRadio").disabled = true;
+
                 const newName = document.getElementById("newActiName").value;
                 const newStart = document.getElementById("newStart").value;
                 const newEnd = document.getElementById("newEnd").value;
-                const newComponent = document.getElementById("currentComponent").value;
-                const newFunction = document.getElementById("currentFunction").value;
+                const newComponent = document.getElementById("componentSelect").value;
+                const newFunction = document.getElementById("functionSelect").value;
                 var newType;
 
                 if (document.getElementById("sensorRadio").checked) {
@@ -172,7 +180,47 @@
                 newComponent: newComponent,
                 newFunction: newFunction})});
 
+                document.getElementById("newActiName").disabled = false;
+                document.getElementById("newStart").disabled = false;
+                document.getElementById("newEnd").disabled = false;
+                document.getElementById("componentSelect").disabled = false;
+                document.getElementById("functionSelect").disabled = false;
+                document.getElementById("sensorRadio").disabled = false;
+                document.getElementById("actuatorRadio").disabled = false;
+
                 return;
+            }
+
+            async function changeTypeAndSaveAction() {
+                await changeType();
+                await saveAction();
+            }
+
+            async function changeModelAndSaveAction() {
+                await changeModel();
+                await saveAction();
+            }
+
+            async function changeFunctionAndSaveAction() {
+                await changeFunction();
+                await saveAction();
+            }
+
+            async function changeStart() {
+
+                const endSelect = document.getElementById("newEnd");
+                const startSelect = document.getElementById("newStart");
+
+                const newMinimun = Number(startSelect.value) + 1;
+
+                endSelect.min = newMinimun;
+
+                if (endSelect.value < newMinimun) {
+                    endSelect.value = newMinimun;
+                }
+
+                await saveAction();
+
             }
 
         </script>
@@ -182,7 +230,7 @@
         <title> Add Action </title>
     </head>
 
-    <body>
+    <body onload="onLoadFunction()">
         <input type="hidden" id="actionType" name="actionType" value=<%= action.type %>>
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
@@ -195,25 +243,27 @@
             <input type="text" name="newActiName" id="newActiName" class="nameInput" value="<%= action.name %>" onchange="saveAction()">
 
             <label for="" class="sensorLabel">Sensor</label>
-            <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio">
+            <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" onchange="changeTypeAndSaveAction()">
             <label for="" class="actuatorLabel">Actuator</label>
-            <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio">
+            <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" onchange="changeTypeAndSaveAction()">
 
             <label for="" class="componentLabel">Chosen component:</label>
 
-            <select name="newComponent" id="componentSelect" class="componentSelect"></select>
+            <select name="newComponent" id="componentSelect" class="componentSelect" onchange="changeModelAndSaveAction()"></select>
 
             <label for="" class="functionLabel">Function</label>
-            <select name="newFunction" id="functionSelect" class="functionSelect"></select>
+            <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunctionAndSaveAction()"></select>
 
             <label for="" class="startLabel">Starts</label>
-            <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>">
+            <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>" onchange="changeStart()">
 
             <label for="" class="endLabel">Ends</label>
-            <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%=action.end%>">
+            <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%=action.end%>" onchange="saveAction()">
 
             <input type="hidden" id="currentComponent" value=<%= action.component %>>
             <input type="hidden" id="currentFunction" value=<%= action.function %>>
+
+            <input type="hidden" id="actionType" value=<%= action.type %>>
 
             <input type="hidden" id="actiId" name="actiId" value=<%= action._id %>>
             <input type="hidden" id="routId" name="routId" value=<%= routId %>>
@@ -226,7 +276,7 @@
     
             <% if (action.isCreation) { %>
                 <form action="/api/action/createAction" method="post">
-                    <button class="confirmButt">Create Event</button>
+                    <button class="confirmButt">Create Action</button>
                     <input type="hidden" name="_id" value=<%= user._id %>>
                     <input type="hidden" name="reacId" value=<%= reacId %>>
                     <input type="hidden" name="routId" value=<%= routId %>>
@@ -243,7 +293,7 @@
                 </form>
             <% } else { %>
                 <form action="/api/action/deleteAction" method="post">
-                    <button class="deleteButt">Delete Event</button>
+                    <button class="deleteButt">Delete Action</button>
                     <input type="hidden" name="_id" value=<%= user._id %>>
                     <input type="hidden" name="reacId" value=<%= reacId %>>
                     <input type="hidden" name="routId" value=<%= routId %>>

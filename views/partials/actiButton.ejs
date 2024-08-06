@@ -24,7 +24,7 @@
     }
 </style>
 <div class="dynActiDiv">
-    <a id=<%="actiHypr" + index%> style=<%= "left:" + action.relativeStart + "vh; width:" + action.relativeDuration + "vw;" %> href="<%= "/editAction?_id=" + _id + "&reacId=" + reacId + "&evntId=" + evntId + "&routId=" + routId + "&actiId=" + action._id %>" class="hyperLinkActi">
+    <a id=<%="actiHypr" + index%> href="<%= "/api/action/editAction?_id=" + _id + "&reacId=" + reacId + "&evntId=" + evntId + "&routId=" + routId + "&actiId=" + action._id %>" class="hyperLinkActi">
         <button name="<%=action.start%>" value="<%=action.end%>" id=<%="actiButt" + index%> class="actiButton" type="button" style=<%= "width:" + action.relativeDuration + "vw;" %>><%= action.name %></button>
     </a>
 </div>
