@@ -20,18 +20,18 @@ async function checkValidAction(evntId, actiId, component, start, end) {
 
     for (let i=0; i<myEvent.actions.length; i+=1) {
 
+        
         if (!(myEvent.actions[i].toString() === actiId)) {
-
+            
             auxAction = await Acti.findById(myEvent.actions[i])
 
-            if (auxAction.component === component) {
-                ret = {
-                    ret: false
-                }
+            if (auxAction.component.toString() === component.toString()) {
+                return false;
             }
         }
     }
 
+    return true;
 }
 // ---------- My Functions ----------
 
@@ -147,7 +147,7 @@ actionRouter.get("/checkIntervals", async (req, res) => {
 
     var ret;
 
-    if (checkValidAction(evntId, actiId, component, start, end) && checkValidEvent()) {
+    if (await checkValidAction(evntId, actiId, component, start, end)) {
         ret = {
             ret: true
         };
@@ -188,6 +188,10 @@ actionRouter.post("/saveAction", async (req, res) => {
 
     if (myEvent.end < newEnd) {
         await Evnt.findByIdAndUpdate(evntId, {end: newEnd});
+    }
+
+    if (myEvent.start > newStart) {
+        await Evnt.findByIdAndUpdate(evntId, {start: newStart});
     }
 
     res.end()

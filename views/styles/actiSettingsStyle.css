@@ -160,6 +160,7 @@ body {
 .errorMsg {
     color: red;
     font-weight: bold;
+    display: none;
 }
 
 .functionLabel {

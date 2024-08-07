@@ -56,7 +56,7 @@
                         var end = Number(currButt.value);
 
                         var newSize = fullSize * ((end - start)/size);
-                        var newLeft = fullSize * (start/size);
+                        var newLeft = fullSize * ((start - document.getElementById("newStart").value)/size);
 
                         currButt.style.width = newSize + "vw";
                         currHypr.style.left = newLeft + "vw";
@@ -158,7 +158,7 @@
                 <% } %>
             </div>
 
-            <input type="number" name="newStart" id="newStart" class="startInput" value="<%= event.start %>" onchange="timeChange()" min="0">
+            <input type="number" name="newStart" id="newStart" class="startInput" value="<%= event.start %>" onchange="timeChange()" min="0" max="<%= maxStart %>">
             <label for="" class="startLabel">Start</label>
 
             <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%= Math.max(event.end, minDuration) %>" min="<%= minDuration %>" onchange="timeChange()">

@@ -6,10 +6,52 @@
 
             var components;
     
+            async function showValidationMsg() {
+
+            }
+
+            function disableInput() {
+                document.getElementById("newActiName").disabled = true;
+                document.getElementById("newStart").disabled = true;
+                document.getElementById("newEnd").disabled = true;
+                document.getElementById("componentSelect").disabled = true;
+                document.getElementById("functionSelect").disabled = true;
+                document.getElementById("sensorRadio").disabled = true;
+                document.getElementById("actuatorRadio").disabled = true;
+            }
+
+            function enableInput() {
+                document.getElementById("newActiName").disabled = false;
+                document.getElementById("newStart").disabled = false;
+                document.getElementById("newEnd").disabled = false;
+                document.getElementById("componentSelect").disabled = false;
+                document.getElementById("functionSelect").disabled = false;
+                document.getElementById("sensorRadio").disabled = false;
+                document.getElementById("actuatorRadio").disabled = false;
+            }
+
             async function onLoadFunction() {
                 components = await getComponents();
     
-                pageStart()
+                pageStart();
+
+                const validation = await checkValid();
+                const createButt = document.getElementById("createButton");
+
+                if (validation.ret) {
+                    document.getElementById("errorLabel").style.display = "none";
+
+                    if (createButt) {
+                        createButt.disabled = false;
+                    }
+
+                } else {
+                    document.getElementById("errorLabel").style.display = "block";
+
+                    if (createButt) {
+                        createButt.disabled = true;
+                    }
+                }
             }
     
             async function getComponents() {
@@ -162,59 +204,63 @@
 
                 const responseCheck = await fetch(takenUrl);
 
-                console.log(await responseCheck.json());
-
-                return
+                return await responseCheck.json();
 
             }
 
             async function saveAction() {
 
-                // await checkValid()
-   
-                document.getElementById("newActiName").disabled = true;
-                document.getElementById("newStart").disabled = true;
-                document.getElementById("newEnd").disabled = true;
-                document.getElementById("componentSelect").disabled = true;
-                document.getElementById("functionSelect").disabled = true;
-                document.getElementById("sensorRadio").disabled = true;
-                document.getElementById("actuatorRadio").disabled = true;
+                disableInput()
 
-                const newName = document.getElementById("newActiName").value;
-                const newStart = document.getElementById("newStart").value;
-                const newEnd = document.getElementById("newEnd").value;
-                const newComponent = document.getElementById("componentSelect").value;
-                const newFunction = document.getElementById("functionSelect").value;
-                var newType;
+                const validation = await checkValid()
+                const createButt = document.getElementById("createButton");
 
-                if (document.getElementById("sensorRadio").checked) {
-                    newType = "sensor";
+
+                if (validation.ret) {
+                    document.getElementById("errorLabel").style.display = "none";
+                    if (createButt) {
+                        createButt.disabled = false;
+                    }
                 } else {
-                    newType = "actuator";
+                    document.getElementById("errorLabel").style.display = "block";
+                    if (createButt) {
+                        createButt.disabled = true;
+                    }
                 }
 
-                const actiId = document.getElementById("actiId").value;
-                const evntId = document.getElementById("evntId").value;
+                if (validation.ret || (document.getElementById("creationStatus").value === "true")) {
 
-                const takenUrl = "http://localhost:3000/api/action/saveAction";
+                    const newName = document.getElementById("newActiName").value;
+                    const newStart = document.getElementById("newStart").value;
+                    const newEnd = document.getElementById("newEnd").value;
+                    const newComponent = document.getElementById("componentSelect").value;
+                    const newFunction = document.getElementById("functionSelect").value;
+                    var newType;
+    
+                    if (document.getElementById("sensorRadio").checked) {
+                        newType = "sensor";
+                    } else {
+                        newType = "actuator";
+                    }
+    
+                    const actiId = document.getElementById("actiId").value;
+                    const evntId = document.getElementById("evntId").value;
+    
+                    const takenUrl = "http://localhost:3000/api/action/saveAction";
+    
+                    const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    evntId: evntId,
+                    actiId: actiId,
+                    newActiName: newName,
+                    newType: newType,
+                    newStart: newStart,
+                    newEnd: newEnd,
+                    newComponent: newComponent,
+                    newFunction: newFunction})});
 
-                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
-                evntId: evntId,
-                actiId: actiId,
-                newActiName: newName,
-                newType: newType,
-                newStart: newStart,
-                newEnd: newEnd,
-                newComponent: newComponent,
-                newFunction: newFunction})});
-
-                document.getElementById("newActiName").disabled = false;
-                document.getElementById("newStart").disabled = false;
-                document.getElementById("newEnd").disabled = false;
-                document.getElementById("componentSelect").disabled = false;
-                document.getElementById("functionSelect").disabled = false;
-                document.getElementById("sensorRadio").disabled = false;
-                document.getElementById("actuatorRadio").disabled = false;
+                }
+   
+                enableInput()
 
                 return;
             }
@@ -303,6 +349,7 @@
             <input type="hidden" id="currentFunction" value=<%= action.function %>>
 
             <input type="hidden" id="actionType" value=<%= action.type %>>
+            <input type="hidden" id="creationStatus" value=<%= action.isCreation%>>
 
             <input type="hidden" id="actiId" name="actiId" value=<%= action._id %>>
             <input type="hidden" id="routId" name="routId" value=<%= routId %>>
@@ -313,9 +360,11 @@
             <div class="div2" id="varDiv">
             </div>
     
+            <label class="errorMsg" id="errorLabel">Interval Error</label>
+
             <% if (action.isCreation) { %>
                 <form action="/api/action/createAction" method="post">
-                    <button class="confirmButt">Create Action</button>
+                    <button class="confirmButt" id="createButton">Create Action</button>
                     <input type="hidden" name="_id" value=<%= user._id %>>
                     <input type="hidden" name="reacId" value=<%= reacId %>>
                     <input type="hidden" name="routId" value=<%= routId %>>

@@ -38,6 +38,21 @@ function findEventMinDuration(actionList) {
 
     return max
 }
+
+function findEventMaxStart(actionList) {
+
+    var min = Infinity;
+
+    for (let i=0; i<actionList.length; i+=1) {
+
+        if (actionList[i].start < min) {
+
+            min = actionList[i].start;
+        }
+    }
+
+    return min;
+}
 // ---------- My Functions ----------
 
 // ---------- Get Requests ----------
@@ -55,6 +70,7 @@ eventRouter.get("/editEvent", async (req, res) => {
     const actionList = await findActionsByEvent(myEvent);
 
     const min = findEventMinDuration(actionList);
+    const max = findEventMaxStart(actionList);
 
     res.render("evntSettingsPage", {
         user: user,
@@ -62,7 +78,8 @@ eventRouter.get("/editEvent", async (req, res) => {
         routId: routId,
         event: myEvent,
         actions: actionList,
-        minDuration: min
+        minDuration: min,
+        maxStart: max
     });
 });
 // ---------- Get Requests ----------
