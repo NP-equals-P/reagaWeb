@@ -113,6 +113,44 @@ actionRouter.get("/functionHTML", (req, res) => {
         res.end(JSON.stringify(aux));
     });
 });
+
+actionRouter.get("/checkValidAction", async (req, res) => {
+
+    const routId = req.query.routId;
+    const evntId = req.query.evntId;
+    const actiId = req.query.actiId;
+
+    const start = req.query.start;
+    const end = req.query.end;
+    const component = req.query.component;
+
+    const myEvent = await Evnt.findById(evntId);
+
+    var auxAction;
+    var ret;
+
+    for (let i=0; i<myEvent.actions.length; i+=1) {
+
+        if (myEvent.actions[i].toString() === actiId) {
+
+            auxAction = await Acti.findById(myEvent.actions[i])
+
+            if (auxAction.component === component) {
+                ret = {
+                    ret: false
+                }
+            }
+        }
+    }
+
+
+    ret = {
+        ret: false
+    }
+
+    res.end(JSON.stringify(ret));
+
+});
 // ---------- Get Requests ----------
 
 // ---------- Post Requests ----------

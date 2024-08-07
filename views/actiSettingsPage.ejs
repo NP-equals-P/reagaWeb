@@ -29,6 +29,8 @@
     
             async function pageStart() {
                 var actionType = document.getElementById("actionType").value;
+                const startSelect = document.getElementById("newStart");
+                const endSelect = document.getElementById("newEnd");
                 
                 if (actionType === "sensor") {
                     document.getElementById("sensorRadio").checked = true
@@ -36,6 +38,8 @@
                     document.getElementById("actuatorRadio").checked = true
                 }
     
+                endSelect.min = Number(startSelect.value) + 1;
+
                 await changeType();
                 await changeModel();
                 await changeFunction();
@@ -144,7 +148,30 @@
                 document.getElementById("varDiv").innerHTML = funcHTMLStr.html;
             }
     
+            async function checkValid() {
+
+                const newStart = document.getElementById("newStart").value;
+                const newEnd = document.getElementById("newEnd").value;
+                const newComponent = document.getElementById("componentSelect").value;
+
+                const routId = document.getElementById("routId").value;
+                const evntId = document.getElementById("evntId").value;
+                const actiId = document.getElementById("actiId").value;
+
+                const takenUrl = "http://localhost:3000/api/action/checkValidAction?routId=" + routId + "&evntId=" + evntId + "&actiId=" + actiId + "&start=" + newStart + "&end=" + newEnd + "&component=" + newComponent;
+
+                const responseCheck = await fetch(takenUrl);
+
+                console.log(await responseCheck.json());
+
+                return
+
+            }
+
             async function saveAction() {
+
+                await checkValid()
+   
 
                 document.getElementById("newActiName").disabled = true;
                 document.getElementById("newStart").disabled = true;
@@ -223,6 +250,17 @@
 
             }
 
+            async function changeEnd() {
+
+                const endSelect = document.getElementById("newEnd");
+
+                if (Number(endSelect.value) < Number(endSelect.min)) {
+                    endSelect.value = endSelect.min;
+                }
+
+                await saveAction()
+            }
+
         </script>
 
         <link rel="stylesheet" href="/styles/actiSettingsStyle.css">
@@ -255,10 +293,10 @@
             <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunctionAndSaveAction()"></select>
 
             <label for="" class="startLabel">Starts</label>
-            <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>" onchange="changeStart()">
+            <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>" onchange="changeStart()" min="0">
 
             <label for="" class="endLabel">Ends</label>
-            <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%=action.end%>" onchange="saveAction()">
+            <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%=action.end%>" onchange="changeEnd()">
 
             <input type="hidden" id="currentComponent" value=<%= action.component %>>
             <input type="hidden" id="currentFunction" value=<%= action.function %>>
