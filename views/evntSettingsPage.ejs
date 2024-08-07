@@ -5,13 +5,46 @@
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Event </title>
         <script>
-            function changeSizes() {
+
+            function disableInput() {
+
+                document.getElementById("newStart").disabled = true;
+                document.getElementById("newEnd").disabled = true;
+                document.getElementById("newEvntName").disabled = true;
+                document.getElementById("newNormalType").disabled = true;
+                document.getElementById("newEsporadicType").disabled = true;
+
+            }
+
+            function enableInput() {
+
+                if (document.getElementById("newNormalType").checked) {
+                    document.getElementById("newStart").disabled = false;
+                }
+
+                document.getElementById("newEnd").disabled = false;
+                document.getElementById("newEvntName").disabled = false;
+                document.getElementById("newNormalType").disabled = false;
+                document.getElementById("newEsporadicType").disabled = false;
+            }
+
+            async function onLoadFunc() {
+
+                if (document.getElementById("newEsporadicType").checked) {
+                    document.getElementById("newStart").disabled = true;
+                } else {
+                    document.getElementById("newStart").disabled = false;
+                }
+
+            }
+
+            function changedEnd() {
                 const buttName = "actiButt";
                 const hyprName = "actiHypr";
                 var i = 0;
                 var currButt = true;
                 var currHypr = true;
-                var size = document.getElementById("newEnd").value;
+                var size = document.getElementById("newEnd").value - document.getElementById("newStart").value;
                 var fullSize = 50;
 
                 while (currButt) {
@@ -22,7 +55,7 @@
                         var start = Number(currButt.name);
                         var end = Number(currButt.value);
 
-                        var newSize = fullSize * (end/size);
+                        var newSize = fullSize * ((end - start)/size);
                         var newLeft = fullSize * (start/size);
 
                         currButt.style.width = newSize + "vw";
@@ -41,6 +74,8 @@
 
                 await saveEvent();
                 
+                changedEnd();
+
                 //call changeSizes
                 document.getElementById("newStart").disabled = false;
                 document.getElementById("newEnd").disabled = false;
@@ -48,6 +83,8 @@
             }
 
             async function saveEvent() {
+
+                disableInput();
 
                 const newName = document.getElementById("newEvntName").value;
                 const newStart = document.getElementById("newStart").value;
@@ -72,6 +109,8 @@
                 newStart: newStart,
                 newEnd: newEnd})});
 
+                enableInput();
+
                 return;
             }
 
@@ -89,7 +128,7 @@
  
         </script>
     </head>
-    <body onload="changeSizes()">
+    <body onload="onLoadFunc()">
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
 
@@ -97,7 +136,7 @@
                 <button class="backButt">Back</button>
             </a>
 
-            <label for="" class="nameLabel">Name</label>
+            <label for="" class="nameLabel">Nome</label>
             <input type="text" name="newEvntName" id="newEvntName" class="nameInput" value="<%= event.name %>" onchange="saveEvent()">
             <br><br>
 
@@ -113,14 +152,13 @@
                 <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" onchange="typeChange()">
             <% } %>
 
-
             <div class="div2">
                 <% for (let i=0; i<actions.length; i+=1) { %>
-                    <%- include('./partials/actiButton.ejs', {action: actions[i], _id: user._id, reacId: reacId, routId: routId, evntId: event._id, index: i}) %>
+                    <%- include('./partials/actiButton.ejs', {action: actions[i], _id: user._id, reacId: reacId, routId: routId, event: event, index: i}) %>
                 <% } %>
             </div>
 
-            <input type="number" name="newStart" id="newStart" class="startInput" value="<%= event.start %>" onchange="timeChange()">
+            <input type="number" name="newStart" id="newStart" class="startInput" value="<%= event.start %>" onchange="timeChange()" min="0">
             <label for="" class="startLabel">Start</label>
 
             <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%= Math.max(event.end, minDuration) %>" min="<%= minDuration %>" onchange="timeChange()">

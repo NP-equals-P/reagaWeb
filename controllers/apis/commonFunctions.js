@@ -110,6 +110,37 @@ async function deleteFullReactor(reacId) {
     });
 }
 
+async function checkValidEvent(routId, evntId, component, start, end) {
+
+    const routine = await Rout.findById(routId);
+    var auxEvent;
+    var auxAction;
+
+    for (let i=0; i<routine.events.length; i+=1) {
+
+        if (!(routine.events[i].toString() === evntId)) {
+
+            auxEvent = await Evnt.findById(routine.events[i]);
+    
+            if ((start >= auxEvent.start && start < auxEvent.end) || (end > auxEvent.start && end <= auxEvent.end) || (start <= auxEvent.start && end >= auxEvent.end)) {
+    
+                for (let j=0; j<auxEvent.actions.length; j+=1) {
+        
+                    auxAction = await Acti.findById(auxEvent.actions[i]);
+    
+                    if (auxAction.component.toString() === component) {
+    
+                        return false;
+    
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 module.exports = {
     createNewEvent,
     createNewRoutine,
@@ -117,5 +148,6 @@ module.exports = {
     findByIdArray,
     deleteFullEvent,
     deleteFullRoutine,
-    deleteFullReactor
+    deleteFullReactor,
+    checkValidEvent
 }

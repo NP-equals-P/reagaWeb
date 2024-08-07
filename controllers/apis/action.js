@@ -9,9 +9,30 @@ const Acti = require('../../models/actions');
 const CoMo = require('../../models/componentsModels');
 const Func = require('../../models/functions');
 
+const { checkValidEvent } = require("./commonFunctions");
+
 const actionRouter = new Router();
 
 // ---------- My Functions ----------
+async function checkValidAction(evntId, actiId, component, start, end) {
+
+    const myEvent = await Evnt.findById(evntId);
+
+    for (let i=0; i<myEvent.actions.length; i+=1) {
+
+        if (!(myEvent.actions[i].toString() === actiId)) {
+
+            auxAction = await Acti.findById(myEvent.actions[i])
+
+            if (auxAction.component === component) {
+                ret = {
+                    ret: false
+                }
+            }
+        }
+    }
+
+}
 // ---------- My Functions ----------
 
 // ---------- Get Requests ----------
@@ -114,7 +135,7 @@ actionRouter.get("/functionHTML", (req, res) => {
     });
 });
 
-actionRouter.get("/checkValidAction", async (req, res) => {
+actionRouter.get("/checkIntervals", async (req, res) => {
 
     const routId = req.query.routId;
     const evntId = req.query.evntId;
@@ -124,28 +145,16 @@ actionRouter.get("/checkValidAction", async (req, res) => {
     const end = req.query.end;
     const component = req.query.component;
 
-    const myEvent = await Evnt.findById(evntId);
-
-    var auxAction;
     var ret;
 
-    for (let i=0; i<myEvent.actions.length; i+=1) {
-
-        if (myEvent.actions[i].toString() === actiId) {
-
-            auxAction = await Acti.findById(myEvent.actions[i])
-
-            if (auxAction.component === component) {
-                ret = {
-                    ret: false
-                }
-            }
-        }
-    }
-
-
-    ret = {
-        ret: false
+    if (checkValidAction(evntId, actiId, component, start, end) && checkValidEvent()) {
+        ret = {
+            ret: true
+        };
+    } else {
+        ret = {
+            ret: false
+        };
     }
 
     res.end(JSON.stringify(ret));
@@ -157,6 +166,7 @@ actionRouter.get("/checkValidAction", async (req, res) => {
 actionRouter.post("/saveAction", async (req, res) => {
 
     const actiId = req.body.actiId;
+    const evntId = req.body.evntId;
 
     const newName = req.body.newActiName;
     const newType = req.body.newType;
@@ -173,6 +183,12 @@ actionRouter.post("/saveAction", async (req, res) => {
         component: newComponent,
         function: newFunction
     });
+
+    const myEvent = await Evnt.findById(evntId);
+
+    if (myEvent.end < newEnd) {
+        await Evnt.findByIdAndUpdate(evntId, {end: newEnd});
+    }
 
     res.end()
 });

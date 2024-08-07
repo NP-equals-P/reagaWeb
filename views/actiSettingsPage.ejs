@@ -158,7 +158,7 @@
                 const evntId = document.getElementById("evntId").value;
                 const actiId = document.getElementById("actiId").value;
 
-                const takenUrl = "http://localhost:3000/api/action/checkValidAction?routId=" + routId + "&evntId=" + evntId + "&actiId=" + actiId + "&start=" + newStart + "&end=" + newEnd + "&component=" + newComponent;
+                const takenUrl = "http://localhost:3000/api/action/checkIntervals?routId=" + routId + "&evntId=" + evntId + "&actiId=" + actiId + "&start=" + newStart + "&end=" + newEnd + "&component=" + newComponent;
 
                 const responseCheck = await fetch(takenUrl);
 
@@ -170,9 +170,8 @@
 
             async function saveAction() {
 
-                await checkValid()
+                // await checkValid()
    
-
                 document.getElementById("newActiName").disabled = true;
                 document.getElementById("newStart").disabled = true;
                 document.getElementById("newEnd").disabled = true;
@@ -195,10 +194,12 @@
                 }
 
                 const actiId = document.getElementById("actiId").value;
+                const evntId = document.getElementById("evntId").value;
 
                 const takenUrl = "http://localhost:3000/api/action/saveAction";
 
                 const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                evntId: evntId,
                 actiId: actiId,
                 newActiName: newName,
                 newType: newType,
