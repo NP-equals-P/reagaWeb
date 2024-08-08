@@ -126,7 +126,7 @@ async function checkValidEvent(routId, evntId, component, start, end) {
     
                 for (let j=0; j<auxEvent.actions.length; j+=1) {
         
-                    auxAction = await Acti.findById(auxEvent.actions[i]);
+                    auxAction = await Acti.findById(auxEvent.actions[j]);
     
                     if (auxAction.component.toString() === component) {
     

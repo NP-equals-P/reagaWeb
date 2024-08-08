@@ -4,6 +4,7 @@ const Reac = require('../../models/reactors');
 const Sens = require('../../models/sensors');
 const Actu = require('../../models/actuators');
 const Rout = require('../../models/routines');
+const Evnt = require('../../models/events');
 
 const { findByIdArray, createNewReactor } = require("./commonFunctions");
 
@@ -46,35 +47,26 @@ reactorRouter.get("/reacView", (req, res) => {
         Reac.findById(reacId).then(async (reactor) => {
 
             const routineList = await findByIdArray(reactor.routines, Rout);
-            var activeRoutine;
-            const esporadicEventsList = [];
-
-            if (reactor.activeRoutine) {
-                
-                activeRoutine = await Rout.findById(reactor.activeRoutine);
-                var aux;
-
-                for (let i=0; i<activeRoutine.events.length; i+=1) {
-
-                    aux = await Evnt.findById(activeRoutine.events[i]);
-
-                    if (aux.type === "esporadic") {
-                        esporadicEventsList.push(aux);
-                    }
-                }
-            } else {
-                activeRoutine = {};
-            }
 
             res.render("reacView", {
                 user: user,
                 reactor: reactor,
-                routines: routineList,
-                activeRoutine: activeRoutine,
-                esporadicEvents: esporadicEventsList
+                routines: routineList
             })
         });
     });
+});
+
+reactorRouter.get("/getEsporadicEvents", async (req, res) => {
+
+    var routId = req.query.routId;
+
+    const routine = await Rout.findById(routId);
+
+    const espEventsList = await findByIdArray(routine.esporadicEvents, Evnt);
+
+    res.end(JSON.stringify(espEventsList));
+
 });
 // ---------- Get Requests ----------
 
@@ -136,7 +128,7 @@ reactorRouter.post("/activateReactor", async (req, res) => {
     var reacId = req.body.reacId;
     var routId = req.body.activeRoutine;
 
-    await Reac.findByIdAndUpdate(reacId, {$set: {isActive: true, isPaused: false}});
+    await Reac.findByIdAndUpdate(reacId, {$set: {isActive: true, isPaused: false, activeRoutine: routId}});
 });
 
 reactorRouter.post("/deactivateReactor", async (req, res) => {
@@ -158,6 +150,15 @@ reactorRouter.post("/unpauseReactor", async (req, res) => {
     var reacId = req.body.reacId;
 
     await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: false}});
+});
+
+reactorRouter.post("/callEsporadicEvent", async (req, res) => {
+
+    var evntId = req.body.evntId;
+
+    await Evnt.findByIdAndUpdate(evntId, {$set: {inQueue: true}});
+
+    res.end()
 });
 // ---------- Post Requests ----------
 

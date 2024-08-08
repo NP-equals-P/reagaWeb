@@ -25,9 +25,13 @@ async function checkValidAction(evntId, actiId, component, start, end) {
             
             auxAction = await Acti.findById(myEvent.actions[i])
 
-            if (auxAction.component.toString() === component.toString()) {
-                return false;
+            if ((end > auxAction.start && end <= auxAction.end) || (start >= auxAction.start && start < auxAction.end) || (start <= auxAction.start && end >= auxAction.end)) {
+                if (auxAction.component.toString() === component.toString()) {
+                    return false;
+                }
+
             }
+
         }
     }
 

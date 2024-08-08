@@ -5,6 +5,16 @@
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Reac View </title>
         <script>
+            async function callEspEvent(evntId) {
+                
+                const takenUrl = "http://localhost:3000/api/reactor/callEsporadicEvent";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                evntId: evntId})});
+
+                return;
+            }
+
             function pageChangesDeactive() {
 
                 const editButton = document.getElementById("editReactorButton");
@@ -54,6 +64,36 @@
                 statusLabel.style = "color: yellowgreen";
             }
 
+            function constructInnerHTML(espList) {
+
+                var str = "";
+
+                for (let i=0; i<espList.length; i+=1) {
+                    str += "<style>.evntButton {display: inline-block;width: 6vw;height: 8vh;background-color: white;margin-top: 1vh;margin-bottom: 1vh;margin-left: 1vh;}</style><button class=\"evntButton\" onclick=\"callEspEvent(\'"+ espList[i]._id +"\')\">" + espList[i].name + "</button>"
+                }
+
+                return str;
+
+            }
+
+            async function showEspEvents() {
+
+                const espEventDiv = document.getElementById("espDiv");
+
+                const routId = document.getElementById("routineSelect").value;
+                const takenUrl = "http://localhost:3000/api/reactor/getEsporadicEvents?routId=" + routId;
+
+                const responseCheck = await fetch(takenUrl);
+
+                const espList = await responseCheck.json();
+
+                const espInnerHTML = constructInnerHTML(espList);
+
+                espEventDiv.innerHTML = espInnerHTML;
+
+                return
+            }
+
             async function changeActiveStatus() {
 
                 const activeStatusData = document.getElementById("isReactorActive");
@@ -64,6 +104,8 @@
                     pageChangesDeactive();
 
                     activeStatusData.value = "false"
+
+                    document.getElementById("espDiv").innerHTML = "";
 
                     await deactivateReactor();
 
@@ -78,6 +120,8 @@
                     } else {
                         pageChangesUnpaused();
                     }
+
+                    await showEspEvents();
 
                     await activateReactor();
                 }
@@ -105,9 +149,11 @@
                 }
             }
 
-            function onLoadFunction() {
+            async function onLoadFunction() {
 
                 if (document.getElementById("isReactorActive").value === "true") {
+
+                    await showEspEvents();
 
                     pageChangesActive();
 
@@ -137,9 +183,11 @@
                 const takenUrl = "http://localhost:3000/api/reactor/activateReactor";
                 const reacId = document.getElementById("reacId").value;
 
+                const activeRoutine = document.getElementById("routineSelect").value;
+
                 const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
                 reacId: reacId,
-                activeRoutine: ""})});
+                activeRoutine: activeRoutine})});
             }
 
             async function deactivateReactor() {
@@ -187,14 +235,18 @@
                 <button class="backButt">Back</button>
             </a>
 
-            <label class="reactorLabel" for="reactor">Reactor:</label>
-            <select class="reactorSelect" name="reactor" id="" disabled>
-                <option value="<%= reactor.name %>"><%= reactor.name %></option>
-            </select>
-
+            <label class="reactorLabel" for="reactor"><%= reactor.name %></label>
 
             <span class="activeStatus" style="color: yellowgreen;" id="statusLabel"></span>
-            <select name="activeRoutine" id="routineSelect" class="activeRoutineSelect"></select>
+            <select name="activeRoutine" id="routineSelect" class="activeRoutineSelect">
+                <% for (let i=0; i<routines.length; i+=1) { %>
+                    <% if (reactor.activeRoutine && (reactor.activeRoutine.toString() === routines[i]._id.toString())) { %>
+                        <option value="<%= routines[i]._id %>" selected><%= routines[i].name%></option>
+                    <% } else { %>
+                        <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
+                    <% } %>
+                <% } %>
+            </select>
             <button class="pauseButt" id="pauseButton" onclick="changePausedStatus()">Pause Routine</button>
             <button class="activationButt" id="activateButton" onclick="changeActiveStatus()">Activate Reactor</button>
             <a href="/api/reactor/editReactor?_id=<%= user._id %>&reactorId=<%= reactor._id %>">
@@ -210,10 +262,8 @@
             <button class="ldButton">All Log Data</button>
             <div class="div4">
             </div>
-            <div class="div5">
-                <% for (let i=0; i<esporadicEvents.length; i+=1) { %>
-                    <%- include("./partials/viewEvntButton.ejs", {name: esporadicEvents[i].name, _id: user._id, evntId: esporadicEvents[i]._id, reacId: reactor._id}) %>
-                <% } %>
+            <div class="div5" id="espDiv">
+                    <!-- include("./partials/viewEvntButton.ejs", {name: esporadicEvents[i].name, _id: user._id, evntId: esporadicEvents[i]._id, reacId: reactor._id}) -->
             </div>
         
         </div>
