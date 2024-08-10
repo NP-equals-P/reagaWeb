@@ -39,7 +39,13 @@ const reactorSchema = new Schema({
     creationRoutine: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "routines"
-    }
+    },
+    runs: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "runs"
+        }
+    ]
 });
 
 const Reac = mongoose.model('reactor', reactorSchema);

@@ -69,6 +69,16 @@
                 }
             }
     
+            async function fillFuncVars() {
+
+                const varList = document.getElementById("varList").value;
+
+                for (let i=0; i<=varList.length; i+=2) {
+                    document.getElementById("funcInput" + ((i/2) + 1)).value = varList[i];
+                }
+
+            }
+
             async function pageStart() {
                 var actionType = document.getElementById("actionType").value;
                 const startSelect = document.getElementById("newStart");
@@ -85,6 +95,7 @@
                 await changeType();
                 await changeModel();
                 await changeFunction();
+                await fillFuncVars();
             }
     
             async function changeType() {
@@ -167,6 +178,19 @@
                 await changeFunction();
             }
     
+            async function getFunction() {
+                var functionId = document.getElementById("functionSelect").value;
+    
+                const url = "http://localhost:3000/api/action/getFunction?funcId=" + functionId;
+
+                const response = await fetch(url);
+
+                const json = await response.json();
+
+                return json;
+
+            }
+
             async function getFunctionHTML() {
                 var functionId = document.getElementById("functionSelect").value;
     
@@ -208,13 +232,38 @@
 
             }
 
+            async function getFuncVariables() {
+
+                const functionId = document.getElementById("functionSelect").value;
+                const varList = [];
+
+                var thisFunction;
+                var aux;
+
+                if (functionId) {
+
+                    thisFunction = await getFunction(functionId);
+
+
+                    for (let i=1; i<thisFunction.numVar + 1; i+=1) {
+                        aux = document.getElementById("funcInput" + i).value;
+
+                        varList.push(aux);
+                    }
+
+                    return varList;
+
+                } else {
+                    return []
+                }
+            }
+
             async function saveAction() {
 
                 disableInput()
 
                 const validation = await checkValid()
                 const createButt = document.getElementById("createButton");
-
 
                 if (validation.ret) {
                     document.getElementById("errorLabel").style.display = "none";
@@ -235,6 +284,11 @@
                     const newEnd = document.getElementById("newEnd").value;
                     const newComponent = document.getElementById("componentSelect").value;
                     const newFunction = document.getElementById("functionSelect").value;
+
+                    const funcSelect = document.getElementById("functionSelect");
+                    const newFunctionName = funcSelect.options[funcSelect.selectedIndex].text
+
+                    const funcVars = await getFuncVariables();
                     var newType;
     
                     if (document.getElementById("sensorRadio").checked) {
@@ -256,7 +310,9 @@
                     newStart: newStart,
                     newEnd: newEnd,
                     newComponent: newComponent,
-                    newFunction: newFunction})});
+                    newFunction: newFunction,
+                    funcVars: funcVars,
+                    funcName: newFunctionName})});
 
                 }
    
@@ -350,6 +406,7 @@
 
             <input type="hidden" id="actionType" value=<%= action.type %>>
             <input type="hidden" id="creationStatus" value=<%= action.isCreation%>>
+            <input type="hidden" id="varList" value="<%= action.varList%>">
 
             <input type="hidden" id="actiId" name="actiId" value=<%= action._id %>>
             <input type="hidden" id="routId" name="routId" value=<%= routId %>>

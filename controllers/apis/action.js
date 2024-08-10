@@ -139,6 +139,16 @@ actionRouter.get("/functionHTML", (req, res) => {
     });
 });
 
+actionRouter.get("/getFunction", async (req, res) => {
+
+    var funcId = req.query.funcId;
+
+    const myFunction = await Func.findById(funcId)
+
+    res.end(JSON.stringify(myFunction));
+
+});
+
 actionRouter.get("/checkIntervals", async (req, res) => {
 
     const routId = req.query.routId;
@@ -178,6 +188,8 @@ actionRouter.post("/saveAction", async (req, res) => {
     const newEnd = req.body.newEnd;
     const newComponent = req.body.newComponent;
     const newFunction = req.body.newFunction;
+    const varList = req.body.funcVars;
+    const funcName = req.body.funcName;
 
     await Acti.findByIdAndUpdate(actiId, {
         name: newName,
@@ -185,7 +197,9 @@ actionRouter.post("/saveAction", async (req, res) => {
         start: newStart,
         end: newEnd,
         component: newComponent,
-        function: newFunction
+        function: newFunction,
+        varList: varList,
+        funcName: funcName
     });
 
     const myEvent = await Evnt.findById(evntId);
