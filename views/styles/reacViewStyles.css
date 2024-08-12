@@ -80,12 +80,14 @@ body {
 
 .div4 {
     position: absolute;
-    background-color: rgb(211, 211, 211);
+    background-color: rgb(66, 66, 66);
     height: 40vh;
-    width: 30vw;
+    width: 40vw;
     left: 50vw;
     top: 30vh;
     border: 3px solid black;
+    overflow: auto;
+    white-space: nowrap;
 }
 
 .backButt {
@@ -147,7 +149,7 @@ body {
     position: absolute;
     background-color: rgb(211, 211, 211);
     height: 10vh;
-    width: 30vw;
+    width: 40vw;
     top: 71vh;
     border: 3px solid black;
     left: 50vw;

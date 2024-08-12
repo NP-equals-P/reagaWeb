@@ -5,6 +5,7 @@ const Sens = require('../../models/sensors');
 const Actu = require('../../models/actuators');
 const Rout = require('../../models/routines');
 const Evnt = require('../../models/events');
+const Run = require('../../models/runs');
 
 const { findByIdArray, createNewReactor } = require("./commonFunctions");
 
@@ -66,6 +67,16 @@ reactorRouter.get("/getEsporadicEvents", async (req, res) => {
     const espEventsList = await findByIdArray(routine.esporadicEvents, Evnt);
 
     res.end(JSON.stringify(espEventsList));
+
+});
+
+reactorRouter.get("/getRunLog", async (req, res) => {
+
+    var runId = req.query.runId;
+
+    const run = await Run.findById(runId);
+
+    res.end(JSON.stringify(run.log));
 
 });
 // ---------- Get Requests ----------
@@ -142,14 +153,38 @@ reactorRouter.post("/pauseReactor", async (req, res) => {
 
     var reacId = req.body.reacId;
 
-    await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: true}});
+    const reactor = await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: true}});
+
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const pauseLogStr = "[Reactor] " + reactor.name + " was paused. [Real time: " + day + "/" + month + "/" + year + ", " + hour + ":" + minutes + ":" + seconds + "]"
+
+    await Run.findByIdAndUpdate(reactor.activeRun, {$push: {log: pauseLogStr}})
 });
 
 reactorRouter.post("/unpauseReactor", async (req, res) => {
 
     var reacId = req.body.reacId;
 
-    await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: false}});
+    const reactor = await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: false}});
+
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const pauseLogStr = "[Reactor] " + reactor.name + " was unpaused. [Real time: " + day + "/" + month + "/" + year + ", " + hour + ":" + minutes + ":" + seconds + "]"
+
+    await Run.findByIdAndUpdate(reactor.activeRun, {$push: {log: pauseLogStr}})
 });
 
 reactorRouter.post("/callEsporadicEvent", async (req, res) => {

@@ -40,6 +40,10 @@ const reactorSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "routines"
     },
+    activeRun: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "runs"
+    },
     runs: [
         {
             type: mongoose.Schema.Types.ObjectId,

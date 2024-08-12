@@ -149,6 +149,30 @@
                 }
             }
 
+            async function updateLogAndSeries() {
+
+                const logDiv = document.getElementById("logDiv");
+
+                const runId = document.getElementById("activeRunId").value;
+                const takenUrl = "http://localhost:3000/api/reactor/getRunLog?runId=" + runId;
+
+                while (true) {
+                    const responseCheck = await fetch(takenUrl);
+
+                    const logList = await responseCheck.json();
+
+                    var str = ""
+
+                    for (let i=0; (i<logList.length && i<200); i+=1) {
+                        str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[i] + "</span>";
+                    }
+                    
+                    logDiv.innerHTML = str;
+
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+
             async function onLoadFunction() {
 
                 if (document.getElementById("isReactorActive").value === "true") {
@@ -175,6 +199,8 @@
                     document.getElementById("activateButton").disabled = true;
                     document.getElementById("routineSelect").disabled = true;
                 }
+
+                updateLogAndSeries()
 
             }
 
@@ -227,6 +253,7 @@
         <input type="hidden" id="isReactorActive" value="<%= reactor.isActive %>">
         <input type="hidden" id="isReactorPaused" value="<%= reactor.isPaused %>">
         <input type="hidden" id="numRoutines" value="<%= routines.length %>">
+        <input type="hidden" id="activeRunId" value="<%= reactor.activeRun %>">
 
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
@@ -260,7 +287,7 @@
             </div>
 
             <button class="ldButton">All Log Data</button>
-            <div class="div4">
+            <div class="div4" id="logDiv">
             </div>
             <div class="div5" id="espDiv">
                     <!-- include("./partials/viewEvntButton.ejs", {name: esporadicEvents[i].name, _id: user._id, evntId: esporadicEvents[i]._id, reacId: reactor._id}) -->
