@@ -153,24 +153,51 @@
 
                 const logDiv = document.getElementById("logDiv");
 
-                const runId = document.getElementById("activeRunId").value;
-                const takenUrl = "http://localhost:3000/api/reactor/getRunLog?runId=" + runId;
-
+                
                 while (true) {
-                    const responseCheck = await fetch(takenUrl);
+                    const runId = document.getElementById("activeRunId").value;
 
-                    const logList = await responseCheck.json();
-
-                    var str = ""
-
-                    for (let i=0; (i<logList.length && i<200); i+=1) {
-                        str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[i] + "</span>";
+                    if (runId) {
+                        const takenUrl = "http://localhost:3000/api/reactor/getRunLog?runId=" + runId;
+                        const responseCheck = await fetch(takenUrl);
+    
+                        const logList = await responseCheck.json();
+    
+                        var str = ""
+    
+                        for (let i=0; (i<logList.length && i<200); i+=1) {
+                            str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[i] + "</span>";
+                        }
+                        
+                        logDiv.innerHTML = str;
                     }
-                    
-                    logDiv.innerHTML = str;
 
                     await new Promise(r => setTimeout(r, 2000));
                 }
+            }
+
+            async function showTimeSeries(sensId) {
+                console.log(sensId)
+            }
+
+            async function showSensors() {
+
+                const reacId = document.getElementById("reacId").value;
+                const takenUrl = "http://localhost:3000/api/reactor/getSensors?reacId=" + reacId;
+
+                const responseCheck = await fetch(takenUrl);
+                const sensList = await responseCheck.json();
+
+                var str = "";
+
+                for (let i=0; i<sensList.length; i+=1) {
+
+                    str += "<style>.sensButt {display: inline-block;width: 6vw;height: 8vh;background-color: white;margin-top: 1vh;margin-bottom: 1vh;margin-left: 1vh;}</style><button class=\"sensButt\" onclick=\"showTimeSeries(\'"+ sensList[i]._id +"\')\">" + sensList[i].name + "</button>";
+
+                }
+
+                document.getElementById("sensDiv").innerHTML = str;
+
             }
 
             async function onLoadFunction() {
@@ -199,6 +226,8 @@
                     document.getElementById("activateButton").disabled = true;
                     document.getElementById("routineSelect").disabled = true;
                 }
+
+                showSensors()
 
                 updateLogAndSeries()
 
@@ -283,7 +312,7 @@
             <button class="hdButton">All Historic Data</button>
             <div class="div2">
             </div>
-            <div class="div3">
+            <div class="div3" id="sensDiv">
             </div>
 
             <button class="ldButton">All Log Data</button>

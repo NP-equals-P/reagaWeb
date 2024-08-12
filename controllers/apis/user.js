@@ -4,6 +4,7 @@ const Reac = require('../../models/reactors');
 
 const { findByIdArray } = require("./commonFunctions");
 const { createNewReactor } = require("./commonFunctions");
+const { deleteFullReactor } = require("./commonFunctions");
 
 const userRouter = new Router();
 
@@ -49,22 +50,22 @@ userRouter.post("/tryLogin", (req, res) => {
     });
 });
 
-// userRouter.delete("/deleteUser", (req, res) => {
+userRouter.get("/deleteUser", (req, res) => {
 
-//     const logedId = req.query._id;
+    const logedId = req.query._id;
 
-//     User.findByIdAndDelete(logedId).then(async (user) => {
+    User.findByIdAndDelete(logedId).then(async (user) => {
 
-//         for (let i=0; i<user.reactors.length; i+=1) {
+        for (let i=0; i<user.reactors.length; i+=1) {
 
-//             await deleteFullReactor(user.reactors);
-//         }
+            await deleteFullReactor(user.reactors);
+        }
 
-//         await deleteFullReactor(user.creationReactor);
+        await deleteFullReactor(user.creationReactor);
 
-//         res.redirect("/login");
-//     });
-// });
+        res.redirect("/login");
+    });
+});
 // ---------- Post Requests ----------
 
 // ---------- Get Requests ----------

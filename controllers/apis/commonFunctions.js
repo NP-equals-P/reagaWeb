@@ -5,6 +5,7 @@ const Rout = require('../../models/routines');
 const Evnt = require('../../models/events');
 const Acti = require('../../models/actions');
 const Alrm = require('../../models/alarms');
+const Run = require('../../models/runs');
 
 async function createNewEvent() {
 
@@ -81,6 +82,9 @@ async function deleteFullRoutine(routId) {
         for (let i=0; i<routine.events.length; i+=1) {
             await deleteFullEvent(routine.events[i]);
         }
+        for (let i=0; i<routine.esporadicEvents.length; i+=1) {
+            await deleteFullEvent(routine.esporadicEvents[i]);
+        }
 
         await deleteFullEvent(routine.creationEvent);
 
@@ -99,6 +103,9 @@ async function deleteFullReactor(reacId) {
         }
         for (let i=0; i<resultD.actuators.length; i+=1) {
             await Actu.findByIdAndDelete(resultD.actuators[i]);
+        }
+        for (let i=0; i<resultD.runs.length; i+=1) {
+            await Run.findByIdAndDelete(resultD.runs[i]);
         }
         for (let i=0; i<resultD.routines.length; i+=1) {
             await deleteFullRoutine(resultD.routines[i]);

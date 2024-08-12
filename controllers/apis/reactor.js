@@ -70,6 +70,18 @@ reactorRouter.get("/getEsporadicEvents", async (req, res) => {
 
 });
 
+reactorRouter.get("/getSensors", async (req, res) => {
+
+    const reacId = req.query.reacId;
+
+    const reactor = await Reac.findById(reacId);
+
+    const sensList = await findByIdArray(reactor.sensors, Sens);
+
+    res.end(JSON.stringify(sensList));
+
+});
+
 reactorRouter.get("/getRunLog", async (req, res) => {
 
     var runId = req.query.runId;
