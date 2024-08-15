@@ -151,11 +151,14 @@
 
             async function updateLogAndSeries() {
 
+                const reacId = document.getElementById("reacId").value;
                 const logDiv = document.getElementById("logDiv");
 
-                
                 while (true) {
-                    const runId = document.getElementById("activeRunId").value;
+                    const runUrl = "http://localhost:3000/api/reactor/getActiveRun?reacId=" + reacId;
+                    
+                    const runCheck = await fetch(runUrl);
+                    const runId = (await runCheck.json())._id;
 
                     if (runId) {
                         const takenUrl = "http://localhost:3000/api/reactor/getRunLog?runId=" + runId;
@@ -177,7 +180,19 @@
             }
 
             async function showTimeSeries(sensId) {
-                console.log(sensId)
+                const reacId = document.getElementById("reacId").value;
+                const runUrl = "http://localhost:3000/api/reactor/getActiveRun?reacId=" + reacId;
+
+                const runCheck = await fetch(runUrl);
+                const runId = (await runCheck.json())._id;
+
+                const tsUrl = "http://localhost:3000/api/reactor/getRunTS?runId=" + runId + "&sensId=" + sensId; 
+                    
+                const tsCheck = await fetch(tsUrl);
+
+                const timeSeries = (await runCheck.json());
+
+                console.log(timeSeries)
             }
 
             async function showSensors() {

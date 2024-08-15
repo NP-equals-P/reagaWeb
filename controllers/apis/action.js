@@ -198,8 +198,7 @@ actionRouter.post("/saveAction", async (req, res) => {
         end: newEnd,
         component: newComponent,
         function: newFunction,
-        varList: varList,
-        funcName: funcName
+        varList: varList
     });
 
     const myEvent = await Evnt.findById(evntId);

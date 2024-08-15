@@ -16,7 +16,6 @@ const actionSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "functions"
     },
-    funcName: String,
     varList: Array
 });
 

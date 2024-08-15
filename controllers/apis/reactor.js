@@ -82,6 +82,16 @@ reactorRouter.get("/getSensors", async (req, res) => {
 
 });
 
+reactorRouter.get("/getActiveRun", async (req, res) => {
+    const reacId = req.query.reacId;
+
+    const reactor = await Reac.findById(reacId);
+
+    const activeRun = await Run.findById(reactor.activeRun);
+
+    res.end(JSON.stringify(activeRun));
+});
+
 reactorRouter.get("/getRunLog", async (req, res) => {
 
     var runId = req.query.runId;
@@ -89,6 +99,21 @@ reactorRouter.get("/getRunLog", async (req, res) => {
     const run = await Run.findById(runId);
 
     res.end(JSON.stringify(run.log));
+
+});
+
+reactorRouter.get("/getRunTS", async (req, res) => {
+
+    const runId = req.query.runId;
+    const sensId = req.query.sensId;
+
+    console.log(sensId);
+
+    res.end()
+
+    // const run = await Run.findById(runId);
+
+    // res.end(JSON.stringify(run.log));
 
 });
 // ---------- Get Requests ----------
