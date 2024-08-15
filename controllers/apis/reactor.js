@@ -1,4 +1,7 @@
 const { Router } = require("express");
+const mongoose = require('mongoose');
+const ObjectId = require('mongodb').ObjectId;
+const Schema = mongoose.Schema;
 const User = require('../../models/users');
 const Reac = require('../../models/reactors');
 const Sens = require('../../models/sensors');
@@ -107,13 +110,13 @@ reactorRouter.get("/getRunTS", async (req, res) => {
     const runId = req.query.runId;
     const sensId = req.query.sensId;
 
-    console.log(sensId);
+    const coll = await (mongoose.connection.db.collection("z_runTS[" + runId + "]"))
 
-    res.end()
+    const find = await coll.find({"sensorId": new ObjectId(sensId)})
 
-    // const run = await Run.findById(runId);
+    const measurementsList = await find.toArray();
 
-    // res.end(JSON.stringify(run.log));
+    res.end(JSON.stringify(measurementsList));
 
 });
 // ---------- Get Requests ----------
