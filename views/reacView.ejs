@@ -176,32 +176,41 @@
                         }
                         
                         logDiv.innerHTML = str;
+
+                        const sensId = document.getElementById("selectedSensorId").value;
+                        showTimeSeries(sensId)
                     }
 
                     await new Promise(r => setTimeout(r, 2000));
                 }
             }
 
-            function drawChart(timeSeries) {
+            function drawChart(timeSeries, fullSensor) {
             
-                console.log(timeSeries)
+                // console.log(timeSeries)
 
                 // const sensor = getSensor()
                 const sensor = {"measure": "pH"}
 
-                const preData = [[sensor.measure, "time"]]
+                const preData = [["time", sensor.measure]]
 
                 for (let i=0; i<timeSeries.length; i+=1) {
                     preData.push([timeSeries[i].whenTaken, timeSeries[i].value])
                 }
 
-                const data = google.visualization.arrayToDataTable(preData)
+                var data;
+
+                if (timeSeries.length) {
+                    data = google.visualization.arrayToDataTable(preData)
+                } else {
+                    data = google.visualization.arrayToDataTable([["time", sensor.measure], [0, 0]])
+                }
 
                 const options = {
                     hartArea: {
                         width: '94%'
                     },
-                    title: 'Sensor Readings',
+                    title: fullSensor.name,
                     curveType: 'none',
                     legend: { position: 'bottom' }
                 };
@@ -211,12 +220,21 @@
                 chart.draw(data, options);
             }
 
+            async function changeSelectedSensorId(sensId) {
+                document.getElementById("selectedSensorId").value = sensId;
+            }
+
             async function showTimeSeries(sensId) {
                 const reacId = document.getElementById("reacId").value;
                 const runUrl = "http://localhost:3000/api/reactor/getActiveRun?reacId=" + reacId;
 
                 const runCheck = await fetch(runUrl);
                 const runId = (await runCheck.json())._id;
+
+                const sensUrl = "http://localhost:3000/api/sensor/getSensor?sensId=" + sensId;
+
+                const sensCheck = await fetch(sensUrl);
+                const sensor = await sensCheck.json();
 
                 if (runId) {
                     const tsUrl = "http://localhost:3000/api/reactor/getRunTS?runId=" + runId + "&sensId=" + sensId; 
@@ -225,7 +243,9 @@
     
                     const timeSeries = await tsCheck.json();
     
-                    drawChart(timeSeries)
+                    console.log()
+
+                    drawChart(timeSeries, sensor)
 
                 }
             }
@@ -242,11 +262,12 @@
 
                 for (let i=0; i<sensList.length; i+=1) {
 
-                    str += "<style>.sensButt {display: inline-block;width: 6vw;height: 8vh;background-color: white;margin-top: 1vh;margin-bottom: 1vh;margin-left: 1vh;}</style><button class=\"sensButt\" onclick=\"showTimeSeries(\'"+ sensList[i]._id +"\')\">" + sensList[i].name + "</button>";
+                    str += "<style>.sensButt {display: inline-block;width: 6vw;height: 8vh;background-color: white;margin-top: 1vh;margin-bottom: 1vh;margin-left: 1vh;}</style><button class=\"sensButt\" onclick=\"changeSelectedSensorId(\'"+ sensList[i]._id +"\')\">" + sensList[i].name + "</button>";
 
                 }
 
                 document.getElementById("sensDiv").innerHTML = str;
+                document.getElementById("selectedSensorId").value = sensList[0]._id;
 
             }
 
@@ -333,6 +354,7 @@
         <input type="hidden" id="isReactorPaused" value="<%= reactor.isPaused %>">
         <input type="hidden" id="numRoutines" value="<%= routines.length %>">
         <input type="hidden" id="activeRunId" value="<%= reactor.activeRun %>">
+        <input type="hidden" id="selectedSensorId" value="">
 
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">

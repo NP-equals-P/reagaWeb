@@ -40,6 +40,8 @@ actuatorRouter.post("/saveActuator", async (req, res) => {
     const newModel = req.body.newModel;
 
     await Actu.findByIdAndUpdate(actuId, {name: newName, exit: newExit, model: newModel});
+
+    res.end()
 });
 
 actuatorRouter.post("/createActuator", async (req, res) => {

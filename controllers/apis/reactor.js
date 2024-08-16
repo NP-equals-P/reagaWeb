@@ -10,12 +10,9 @@ const Rout = require('../../models/routines');
 const Evnt = require('../../models/events');
 const Run = require('../../models/runs');
 
-const { findByIdArray, createNewReactor } = require("./commonFunctions");
+const { findByIdArray, createNewReactor, deleteFullReactor } = require("./commonFunctions");
 
 const reactorRouter = new Router();
-
-// ---------- My Functions ----------
-// ---------- My Functions ----------
 
 // ---------- Get Requests ----------
 reactorRouter.get("/editReactor", (req, res) => {

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Reac = require('../../models/reactors');
 const Sens = require('../../models/sensors');
 const Actu = require('../../models/actuators');
@@ -111,6 +112,11 @@ async function deleteFullReactor(reacId) {
             await deleteFullRoutine(resultD.routines[i]);
         }
     
+        for (let i=0; i<resultD.runs.length; i+=1) {
+            const coll = await (mongoose.connection.db.collection("z_runTS[" + resultD.runs[i] + "]"))
+            coll.drop()
+        }
+
         await Sens.findByIdAndDelete(resultD.creationSensor);
         await Actu.findByIdAndDelete(resultD.creationActuator);
         await deleteFullRoutine(resultD.creationRoutine);
