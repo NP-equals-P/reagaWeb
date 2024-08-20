@@ -37,11 +37,36 @@
                 enableInput()
             }
 
-            async function askDiscardOrDelete(strMode) {
-
+            async function discardSensor() {
                 const userId = document.getElementById("_id").value;
                 const reacId = document.getElementById("reacId").value;
                 const sensId = document.getElementById("sensId").value;
+
+                const discardSensorUrl = "http://localhost:3000/api/sensor/dicardSensorEdit";
+
+                await fetch(discardSensorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    _id: userId,
+                    reacId: reacId,
+                    sensId: sensId})});
+
+                document.getElementById("newSensName").value = "";
+                document.getElementById("newExit").value = "";
+            }
+
+            async function deleteSensor() {
+                const userId = document.getElementById("_id").value;
+                const reacId = document.getElementById("reacId").value;
+                const sensId = document.getElementById("sensId").value;
+
+                const deleteSensorUrl = "http://localhost:3000/api/sensor/deleteSensor";
+
+                await fetch(deleteSensorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    _id: userId,
+                    reacId: reacId,
+                    sensId: sensId})});
+            }
+
+            async function askDiscardOrDelete(strMode) {
 
                 disableInput()
 
@@ -49,28 +74,15 @@
 
                     if (confirm("Are you sure you want to DISCARD this edit?")) {
 
-                        const discardSensorUrl = "http://localhost:3000/api/sensor/dicardSensorEdit";
-
-                        await fetch(discardSensorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
-                            _id: userId,
-                            reacId: reacId,
-                            sensId: sensId})});
-
-                        document.getElementById("newSensName").value = "";
-                        document.getElementById("newExit").value = "";
-
+                        await discardSensor()
                     }
                 } else {
                     if (confirm("Are you sure you want to DELETE this sensor?")) {
-                        const deleteSensorUrl = "http://localhost:3000/api/sensor/deleteSensor";
 
-                        await fetch(deleteSensorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
-                            _id: userId,
-                            reacId: reacId,
-                            sensId: sensId})});
+                        const userId = document.getElementById("_id").value;
+                        const reacId = document.getElementById("reacId").value;
 
-                        document.getElementById("newSensName").value = "";
-                        document.getElementById("newExit").value = "";
+                        await deleteSensor()
 
                         window.location.href = "http://localhost:3000/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId;
                     }

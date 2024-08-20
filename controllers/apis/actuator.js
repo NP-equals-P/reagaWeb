@@ -77,9 +77,9 @@ actuatorRouter.post("/dicardActuatorEdit", async (req, res) => {
 
 actuatorRouter.post("/deleteActuator", async (req, res) => {
 
-    var userId = req.body._id;
-    var reacId = req.body.reacId;
-    var actuId = req.body.actuId;
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+    const actuId = req.body.actuId;
 
     await Reac.findByIdAndUpdate(reacId, { $pull: {actuators: actuId}})
 

@@ -77,21 +77,19 @@ sensorRouter.post("/dicardSensorEdit", async (req, res) => {
     await Sens.findByIdAndUpdate(sensId, {$set: {name: "", exit: ""}});
 
     res.end()
-
-    // res.redirect("/api/sensor/editSensor?_id=" + userId + "&sensId=" + newCreationSensor._id + "&reacId=" + reacId);
 });
 
 sensorRouter.post("/deleteSensor", async (req, res) => {
 
-    var userId = req.body._id;
-    var reacId = req.body.reacId;
-    var sensId = req.body.sensId;
+    const userId = req.body._id;
+    const reacId = req.body.reacId;
+    const sensId = req.body.sensId;
 
     await Reac.findByIdAndUpdate(reacId, { $pull: {sensors: sensId}})
 
     await Sens.findByIdAndDelete(sensId)
 
-    res.redirect("/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId);
+    res.end();
 });
 // ---------- Post Requests ----------
 

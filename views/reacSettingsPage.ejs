@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="/styles/addReacPageStyles.css">
+        <link rel="stylesheet" href="/styles/reacSettingsStyle.css">
         <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
         <title> Add Reactor </title>
 
     <script>
+        function disableInput() {
+            document.getElementById("newReacName").disabled = true;
+        }
+
+        function enableInput() {
+            document.getElementById("newReacName").disabled = false;
+        }
+
         async function saveReactor() {
 
+            disableInput()
             
             const newName = document.getElementById("newReacName").value;
             const reacId = document.getElementById("reacId").value;
@@ -19,7 +28,61 @@
                 reacId: reacId,
                 newReacName: newName
             })});
+
+            enableInput()
         }
+
+        async function discardReactor() {
+            const userId = document.getElementById("_id").value;
+            const reacId = document.getElementById("reacId").value;
+
+            const discardReactorUrl = "http://localhost:3000/api/reactor/dicardReactorEdit";
+
+            await fetch(discardReactorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                _id: userId,
+                reacId: reacId})});
+
+            document.getElementById("newReacName").value = "";
+        }
+
+        async function deleteReactor() {
+            const userId = document.getElementById("_id").value;
+            const reacId = document.getElementById("reacId").value;
+
+            const deleteReactorUrl = "http://localhost:3000/api/reactor/deleteReactor";
+
+            await fetch(deleteReactorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                _id: userId,
+                reacId: reacId,})});
+        }
+
+        async function askDiscardOrDelete(strMode) {
+
+            const userId = document.getElementById("_id").value;
+            const reacId = document.getElementById("reacId").value;
+
+            disableInput()
+
+            if (strMode === "discard") {
+
+                if (confirm("Are you sure you want to DISCARD this edit?")) {
+
+                    await discardReactor()
+
+                    window.location.href = "http://localhost:3000/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId;
+                }
+            } else {
+                if (confirm("Are you sure you want to DELETE this reactor?")) {
+
+                    await deleteReactor()
+
+                    window.location.href = "http://localhost:3000/api/user/start?_id=" + userId;
+                }
+            }
+
+            enableInput()
+        }
+
     </script>
     </head>
     <body>
@@ -84,17 +147,9 @@
                         <input type="hidden" name="_id" value=<%= user._id %>>
                         <input type="hidden" name="reacId" value=<%= reactor._id %>>
                     </form>
-                    <form action="/api/reactor/dicardReactorEdit" method="post">
-                        <button class="discardButt">Discard Edit</button>
-                        <input type="hidden" name="_id" value=<%= user._id %>>
-                        <input type="hidden" name="reacId" value=<%= reactor._id %>>
-                    </form>
+                    <button class="discardButt" onclick="askDiscardOrDelete('discard')">Discard Edit</button>
                 <% } else { %>
-                    <form action="/api/reactor/deleteReactor" method="post">
-                        <button class="deleteButt">Delete Reactor</button>
-                        <input type="hidden" name="_id" value=<%= user._id %>>
-                        <input type="hidden" name="reacId" value=<%= reactor._id %>>
-                    </form>
+                    <button class="deleteButt" onclick="askDiscardOrDelete('delete')">Delete Reactor</button>
                 <% } %>
         </div>
     </body>

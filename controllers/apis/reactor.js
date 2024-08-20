@@ -126,6 +126,8 @@ reactorRouter.post("/saveReactor", async (req, res) => {
     const newName = req.body.newReacName;
 
     await Reac.findByIdAndUpdate(reacId, {name: newName})
+
+    res.end()
 });
 
 reactorRouter.post("/createReactor", async (req, res) => {
@@ -148,27 +150,31 @@ reactorRouter.post("/deleteReactor", async (req, res) => {
     const userId = req.body._id;
     const reacId = req.body.reacId;
 
-    await User.findByIdAndUpdate(logedId, { $pull: {reactors: reacId}})
+    await User.findByIdAndUpdate(userId, { $pull: {reactors: reacId}})
 
     await deleteFullReactor(reacId);
 
-    res.redirect("api/user/start?_id=" + userId);
+    res.end();
 
 });
 
 reactorRouter.post("/dicardReactorEdit", async (req, res) => {
 
-    var userId = req.body._id;
-    var reacId = req.body.reacId;
+    const reacId = req.body.reacId;
 
-    const newCreationReactor = await createNewReactor();
+    const oldReactor = await Reac.findByIdAndUpdate(reacId, {$set: {name: "", sensors: [], actuators: [], routines: []}});
 
-    await Reac.findByIdAndDelete(reacId);
+    for (let i=0; i<oldReactor.sensors.length; i+=1) {
+        await Sens.findByIdAndDelete(oldReactor.sensors[i])
+    }
+    for (let i=0; i<oldReactor.actuators.length; i+=1) {
+        await Actu.findByIdAndDelete(oldReactor.actuators[i])
+    }
+    for (let i=0; i<oldReactor.routines.length; i+=1) {
+        await Rout.findByIdAndDelete(oldReactor.routines[i])
+    }
 
-    await User.findByIdAndUpdate(userId, {creationReactor: newCreationReactor._id});
-
-    res.redirect("/api/reactor/editReactor?_id=" + userId + "&reactorId=" + newCreationReactor._id);
-
+    res.end();
 });
 
 reactorRouter.post("/activateReactor", async (req, res) => {
