@@ -1,0 +1,32 @@
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/allTimeSeriesStyle.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> All Log </title>
+        
+        <script>
+            function onLoadFunc() {
+                return;
+            }
+        </script>
+
+    </head>
+    <body onload="onLoadFunc()">
+
+        <input type="hidden" id="reacId" value="<%= reactor._id %>">
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
+        <div class="div1">
+            <a href="/api/reactor/reacView?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="backButt">Back</button>
+            </a>
+
+            <div class="logDiv" id="logDiv">
+            </div>
+
+            <select name="" id="runSelect" onchange="fillLogDiv()"></select>
+
+            <button class="downloadButt" id="downloadButton" onclick="dowloadAllLog()">Download All Log</button>
+        </div>
+    </body>
+</html> 

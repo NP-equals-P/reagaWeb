@@ -82,7 +82,7 @@ body {
     position: absolute;
     background-color: rgb(0, 0, 0);
     height: 40vh;
-    width: 40vw;
+    width: 42vw;
     left: 50vw;
     top: 30vh;
     border: 3px solid rgb(66, 66, 66);
@@ -149,7 +149,7 @@ body {
     position: absolute;
     background-color: rgb(211, 211, 211);
     height: 10vh;
-    width: 40vw;
+    width: 42vw;
     top: 71vh;
     border: 3px solid black;
     left: 50vw;

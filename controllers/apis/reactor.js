@@ -58,6 +58,38 @@ reactorRouter.get("/reacView", (req, res) => {
     });
 });
 
+reactorRouter.get("/allLog", (req, res) => {
+    const userId = req.query._id;
+    const reacId = req.query.reacId;
+
+    User.findById(userId).then((user) => {
+
+        Reac.findById(reacId).then(async (reactor) => {
+
+            res.render("allLogPage", {
+                user: user,
+                reactor: reactor
+            })
+        });
+    });
+});
+
+reactorRouter.get("/allTimeSeries", (req, res) => {
+    const userId = req.query._id;
+    const reacId = req.query.reacId;
+
+    User.findById(userId).then((user) => {
+
+        Reac.findById(reacId).then(async (reactor) => {
+
+            res.render("allTimeSeriesPage", {
+                user: user,
+                reactor: reactor
+            })
+        });
+    });
+});
+
 reactorRouter.get("/getEsporadicEvents", async (req, res) => {
 
     var routId = req.query.routId;
@@ -70,6 +102,16 @@ reactorRouter.get("/getEsporadicEvents", async (req, res) => {
 
 });
 
+reactorRouter.get("/getReactor", async (req, res) => {
+
+    const reacId = req.query.reacId;
+
+    const reactor = await Reac.findById(reacId);
+
+    res.end(JSON.stringify(reactor));
+
+});
+
 reactorRouter.get("/getSensors", async (req, res) => {
 
     const reacId = req.query.reacId;
@@ -79,6 +121,18 @@ reactorRouter.get("/getSensors", async (req, res) => {
     const sensList = await findByIdArray(reactor.sensors, Sens);
 
     res.end(JSON.stringify(sensList));
+
+});
+
+reactorRouter.get("/getRuns", async (req, res) => {
+
+    const reacId = req.query.reacId;
+
+    const reactor = await Reac.findById(reacId);
+
+    const runList = await findByIdArray(reactor.runs, Run);
+
+    res.end(JSON.stringify(runList));
 
 });
 
@@ -135,7 +189,7 @@ reactorRouter.post("/createReactor", async (req, res) => {
     const userId = req.body._id;
     const reacId = req.body.reacId;
 
-    await Reac.findByIdAndUpdate(reacId, {isCreation: false});
+    await Reac.findByIdAndUpdate(reacId, {isCreation: false, isActive: false, isPaused: false});
 
     const newCreationReactor = await createNewReactor()
 

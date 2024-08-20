@@ -1,0 +1,159 @@
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/allLogStyle.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> All Log </title>
+
+        <script>
+            async function getRunList(reacId) {
+                const getRunListUrl = "http://localhost:3000/api/reactor/getRuns?reacId=" + reacId;
+
+                const response = await fetch(getRunListUrl);
+                const runList = await response.json();
+
+                return runList;
+            }
+
+            async function dowloadAllLog() {
+                console.log("ASJIO")
+
+                const reacId = document.getElementById("reacId").value;
+                const runSelect = document.getElementById("runSelect").value;
+
+                const getReactorUrl = "http://localhost:3000/api/reactor/getReactor?reacId=" + reacId;
+        
+                const response = await fetch(getReactorUrl);
+                const reactor = await response.json();
+
+                const runList = await getRunList(reactor._id)
+
+                var content = "";
+
+                for (let i=0; i<runList.length; i+=1) {
+                    if (runList[i]._id.toString() === runSelect) {
+                        for (let j=0; j<runList[i].log.length; j+=1) {
+                            content += runList[i].log[j] + "\n";
+                        }
+
+                        const file = new File(["\ufeff"+content], 'runLog[' + runList[i].startDate + '].txt', {type: "text/plain:charset=UTF-8"});
+
+                        url = window.URL.createObjectURL(file);
+
+                        var a = document.createElement("a");
+                        a.style = "display: none";
+                        a.href = url;
+                        a.download = file.name;
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+
+                        break;
+                    }
+                }
+
+
+            }
+
+            async function fillRunSelect(reactor) {
+
+                const getRunListUrl = "http://localhost:3000/api/reactor/getRuns?reacId=" + reactor._id;
+
+                const response = await fetch(getRunListUrl);
+                const runList = await response.json();
+
+                var str = "";
+                var aux;
+
+                const activeRunId = reactor.activeRun.toString()
+
+                for (let i=0; i<runList.length; i+=1) {
+
+                    if (activeRunId === runList[i]._id.toString()) {
+                        aux = "selected";
+                    } else {
+                        aux = "";
+                    }
+
+                    str += "<option value=" + runList[i]._id + " " + aux + ">" + runList[i].startDate + "</option>"
+                }
+
+                document.getElementById("runSelect").innerHTML = str;
+                document.getElementById("runSelect").style.width = "11vw";
+                document.getElementById("runSelect").style.position = "absolute";
+                document.getElementById("runSelect").style.left = "84vw";
+                document.getElementById("runSelect").style.top = "16vh";
+
+                return runList;
+            }
+
+            async function fillLogDiv() {
+
+                const reacId = document.getElementById("reacId").value;
+                const runList = await getRunList(reacId)
+
+                const runSelect = document.getElementById("runSelect");
+                const runId = runSelect.value;
+
+                var str = "";
+
+                for (let i=0; i<runList.length; i+=1) {
+                    if (runList[i]._id.toString() === runId.toString()) {
+                        for (let j=0; j<runList[i].log.length; j+=1) {
+                            str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + runList[i].log[j] + "</span>";
+                        }
+                    }
+                }
+
+                document.getElementById("logDiv").innerHTML = str;
+            }
+
+            async function checkAndFillLoop() {
+
+                const reacId = document.getElementById("reacId").value;
+                const downloadButton = document.getElementById("downloadButton");
+
+                const getReactorUrl = "http://localhost:3000/api/reactor/getReactor?reacId=" + reacId;
+
+                const response = await fetch(getReactorUrl);
+                const reactor = await response.json();
+                fillRunSelect(reactor)
+
+                while (true) {
+
+                    if (reactor.activeRun) {
+                        downloadButton.disabled = false;
+
+                        await fillLogDiv()
+                    } else {
+                        downloadButton.disabled = true;
+                    }
+
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+
+            }
+
+            function onLoadFunc() {
+                checkAndFillLoop()
+            }
+        </script>
+
+    </head>
+    <body onload="onLoadFunc()">
+
+        <input type="hidden" id="reacId" value="<%= reactor._id %>">
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
+        <div class="div1">
+            <a href="/api/reactor/reacView?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="backButt">Back</button>
+            </a>
+
+            <div class="logDiv" id="logDiv">
+            </div>
+
+            <select name="" id="runSelect" onchange="fillLogDiv()"></select>
+
+            <button class="downloadButt" id="downloadButton" onclick="dowloadAllLog()">Download All Log</button>
+        </div>
+    </body>
+</html> 

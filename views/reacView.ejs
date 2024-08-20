@@ -172,7 +172,7 @@
                         var str = ""
     
                         for (let i=0; (i<logList.length && i<200); i+=1) {
-                            str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[i] + "</span>";
+                            str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[logList.length - 200 + i] + "</span>";
                         }
                         
                         logDiv.innerHTML = str;
@@ -194,8 +194,8 @@
 
                 const preData = [["time", sensor.measure]]
 
-                for (let i=0; i<timeSeries.length; i+=1) {
-                    preData.push([timeSeries[i].whenTaken, timeSeries[i].value])
+                for (let i=0; i<timeSeries.length && i<200; i+=1) {
+                    preData.push([timeSeries[timeSeries.length - 200 + i].whenTaken, timeSeries[timeSeries.length - 200 + i].value])
                 }
 
                 var data;
@@ -381,13 +381,19 @@
                 <button class="erButton" id="editReactorButton">Edit Reactor</button>
             </a>
 
-            <button class="hdButton">All Historic Data</button>
+            <a href="/api/reactor/allTimeSeries?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="hdButton">All Historic Data</button>
+            </a>
+
             <div class="div2" id="chartDiv">
             </div>
             <div class="div3" id="sensDiv">
             </div>
 
-            <button class="ldButton">All Log Data</button>
+            <a href="/api/reactor/allLog?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="ldButton">All Log Data</button>
+            </a>
+
             <div class="div4" id="logDiv">
             </div>
             <div class="div5" id="espDiv">
