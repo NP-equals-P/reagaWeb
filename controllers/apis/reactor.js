@@ -74,7 +74,7 @@ reactorRouter.get("/allLog", (req, res) => {
     });
 });
 
-reactorRouter.get("/allTimeSeries", (req, res) => {
+reactorRouter.get("/allRuns", (req, res) => {
     const userId = req.query._id;
     const reacId = req.query.reacId;
 
@@ -82,7 +82,7 @@ reactorRouter.get("/allTimeSeries", (req, res) => {
 
         Reac.findById(reacId).then(async (reactor) => {
 
-            res.render("allTimeSeriesPage", {
+            res.render("allRunsPage", {
                 user: user,
                 reactor: reactor
             })
