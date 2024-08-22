@@ -187,15 +187,12 @@
 
             function drawChart(timeSeries, fullSensor) {
             
-                // console.log(timeSeries)
-
-                // const sensor = getSensor()
                 const sensor = {"measure": "pH"}
 
                 const preData = [["time", sensor.measure]]
 
-                for (let i=0; i<timeSeries.length && i<200; i+=1) {
-                    preData.push([timeSeries[timeSeries.length - 200 + i].whenTaken, timeSeries[timeSeries.length - 200 + i].value])
+                for (let i=0; i<timeSeries.length && i<100; i+=1) {
+                    preData.push([timeSeries[timeSeries.length - 100 + i].whenTaken, timeSeries[timeSeries.length - 100 + i].value])
                 }
 
                 var data;

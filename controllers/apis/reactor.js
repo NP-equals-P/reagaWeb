@@ -90,6 +90,25 @@ reactorRouter.get("/allRuns", (req, res) => {
     });
 });
 
+reactorRouter.get("/allTimeSeries", (req, res) => {
+    const userId = req.query._id;
+    const reacId = req.query.reacId;
+    const runId = req.query.runId;
+
+    User.findById(userId).then((user) => {
+
+        Reac.findById(reacId).then(async (reactor) => {
+
+            res.render("allTSPage", {
+                user: user,
+                reactor: reactor,
+                runId: runId
+            })
+        });
+    });
+
+});
+
 reactorRouter.get("/getEsporadicEvents", async (req, res) => {
 
     var routId = req.query.routId;

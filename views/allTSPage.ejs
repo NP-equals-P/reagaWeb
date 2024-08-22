@@ -1,0 +1,167 @@
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/allTSStyle.css">
+        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <title> All Runs </title>
+        
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+
+            async function fillSensors() {
+
+                const reacId = document.getElementById("reacId").value;
+                var str = "";
+                var aux;
+
+                const getSensorsUrl = "http://localhost:3000/api/reactor/getSensors?reacId=" + reacId;
+                const sensorsResponse = await fetch(getSensorsUrl);
+                const sensList = await sensorsResponse.json();
+
+                for (let i=0; i<sensList.length; i+=1) {
+                    if (i == 0) {
+                        aux = "checked";
+                    } else {
+                        aux = "";
+                    }
+
+                    str += "<div class='sensButt'><input id=butt" + sensList[i]._id + " type='checkbox' class='sensCB'" + aux + "><label class='labelGeneric'>" + sensList[i].name + "</label></div>";
+                }
+
+                document.getElementById("sensDiv").innerHTML = str;
+
+                return sensList;
+            }
+
+            async function drawChart(allTS, sensList) {
+            
+                for (let k=0; k<sensList.length; k+=1) {
+
+                    if (document.getElementById("butt" + sensList[k]._id).checked) {
+                        
+                    }
+
+                    // const sensor = {"measure": "pH"}
+    
+                    // const preData = [["time", sensor.measure]]
+                    
+                    // for (let i=0; i<allTS[k].length; i+=1) {
+                    //     preData.push([allTS[k][i].whenTaken, allTS[k][i].value])
+                    // }
+
+                    // var data;
+    
+                    // if (allTS[k].length) {
+                    //     data = google.visualization.arrayToDataTable(preData)
+                    // } else {
+                    //     data = google.visualization.arrayToDataTable([["time", sensor.measure], [0, 0]])
+                    // }
+
+                }
+
+                // const options = {
+                //     hartArea: {
+                //         width: '100%'
+                //     },
+                //     title: sensList[k].name,
+                //     curveType: 'none',
+                //     legend: { position: 'bottom' }
+                // };
+
+                // const chart = new google.visualization.LineChart(document.getElementById('graphDiv'));
+
+                // chart.draw(data, options);
+            }
+
+            async function showTimeSeries(sensList) {
+
+                const runId = document.getElementById("runId").value;
+                const allTS = [];
+
+                for (let i=0; i<sensList.length; i+=1) {
+                    const tsUrl = "http://localhost:3000/api/reactor/getRunTS?runId=" + runId + "&sensId=" + sensList[i]._id; 
+                        
+                    const tsCheck = await fetch(tsUrl);
+    
+                    const timeSeries = await tsCheck.json();
+
+                    allTS.push(timeSeries)
+                }
+
+                drawChart(allTS, sensList);
+            }
+
+            async function updateLoop(sensList) {
+                while (true) {
+                    if (document.getElementById("liveUpdate").value === "true") {
+                        await showTimeSeries(sensList)
+                    }
+
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+
+            async function onLoadFunc() {
+                const sensList = await fillSensors()
+                await updateLoop(sensList)
+            }
+
+            function changeLiveUpdate() {
+                if (document.getElementById("liveUpdateCB").checked) {
+                    document.getElementById("liveUpdate").value = "true";
+                } else {
+                    document.getElementById("liveUpdate").value = "false";
+                }
+            }
+
+        </script>
+
+    </head>
+    <body onload="onLoadFunc()">
+
+        <input type="hidden" id="_id" value="<%= user._id %>">
+        <input type="hidden" id="reacId" value="<%= reactor._id %>">
+        <input type="hidden" id="runId" value="<%= runId %>">
+
+        <input type="hidden" id="liveUpdate" value="true">
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
+        <div class="div1">
+            <a href="/api/reactor/allRuns?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="backButt">Back</button>
+            </a>
+
+            <button class="downloadButt" id="downloadButton">Download Time Series</button>
+
+            <div class="graphDiv" id="graphDiv">
+            </div>
+
+            <div class="sensDiv" id="sensDiv">
+            </div>
+
+            <div class="controlPanel">
+                <label class="labelGeneric">Live Update?</label>
+                <input type="checkbox" class="liveUpdateCB" checked id="liveUpdateCB" onchange="changeLiveUpdate()">
+
+                <label class="labelGeneric">Normalized?</label>
+                <input type="checkbox" class="normalizedCB" disabled>
+
+                <label class="labelGeneric">Show Events?</label>
+                <input type="checkbox" class="eventsCB" disabled>
+
+                <br><br>
+
+                <label class="labelGeneric">Interval Start:</label>
+                <input type="date" class="startDate" disabled>
+                <input type="time" class="startTime" disabled>
+
+                <br>
+
+                <label class="labelGeneric">Interval End:</label>
+                <input type="date" class="endDate" disabled>
+                <input type="time" class="endTime" disabled>
+            </div>
+
+        </div>
+    </body>
+</html> 

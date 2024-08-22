@@ -7,11 +7,13 @@
         <script>
             function putAllButtons(runList) {
                 const runsDiv = document.getElementById("runsDiv")
+                const userId = document.getElementById("_id").value;
+                const reacId = document.getElementById("reacId").value;
 
                 var myHtml = "";
 
                 for (let i=0; i<runList.length; i+=1) {
-                    myHtml += "<button class='runButt'>" + runList[runList.length - i - 1].startDate + "</button>";
+                    myHtml += "<a href=/api/reactor/allTimeSeries?_id=" + userId + "&reacId=" + reacId + "&runId=" + runList[i]._id + "><button class='runButt'>" + runList[runList.length - i - 1].startDate + "</button></a>";
                 }
 
                 runsDiv.innerHTML = myHtml;
@@ -37,6 +39,7 @@
     </head>
     <body onload="onLoadFunc()">
 
+        <input type="hidden" id="_id" value="<%= user._id %>">
         <input type="hidden" id="reacId" value="<%= reactor._id %>">
 
         <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
