@@ -21,7 +21,7 @@ body {
     background-color: white;
     border: 3px solid rgb(0, 0, 0);
     position: absolute;
-    height: 55vh;
+    height: 56vh;
     width: 80vw;
     left: 10vw;
 }
@@ -31,7 +31,7 @@ body {
     border: 3px solid rgb(0, 0, 0);
     position: absolute;
     height: 8vh;
-    top: 72vh;
+    top: 73.5vh;
     width: 80vw;
     left: 10vw;
     overflow-x:scroll;

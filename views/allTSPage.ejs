@@ -34,43 +34,52 @@
             }
 
             async function drawChart(allTS, sensList) {
-            
+
+                var data;
+                var leastFlag = false;
+                const preData = [["time"]]
+
                 for (let k=0; k<sensList.length; k+=1) {
-
-                    if (document.getElementById("butt" + sensList[k]._id).checked) {
-                        
-                    }
-
-                    // const sensor = {"measure": "pH"}
-    
-                    // const preData = [["time", sensor.measure]]
                     
-                    // for (let i=0; i<allTS[k].length; i+=1) {
-                    //     preData.push([allTS[k][i].whenTaken, allTS[k][i].value])
-                    // }
+                    if (document.getElementById("butt" + sensList[k]._id).checked) {
 
-                    // var data;
-    
-                    // if (allTS[k].length) {
-                    //     data = google.visualization.arrayToDataTable(preData)
-                    // } else {
-                    //     data = google.visualization.arrayToDataTable([["time", sensor.measure], [0, 0]])
-                    // }
+                        leastFlag = true;
 
+                        const sensor = {"measure": "pH"}
+
+                        preData[0].push(sensor.measure);
+
+                        for (let i=0; i<allTS[k].length; i+=1) {
+                            preData.push([allTS[k][i].whenTaken, allTS[k][i].value]);
+                        }
+
+                        console.log(allTS[k].length)
+        
+                        if (true) {
+                            data = google.visualization.arrayToDataTable(preData)
+                        } else {
+                            data = google.visualization.arrayToDataTable([["time", sensor.measure], [0, 0]])
+                        }
+                    }
                 }
 
-                // const options = {
-                //     hartArea: {
-                //         width: '100%'
-                //     },
-                //     title: sensList[k].name,
-                //     curveType: 'none',
-                //     legend: { position: 'bottom' }
-                // };
+                if (leastFlag) {
 
-                // const chart = new google.visualization.LineChart(document.getElementById('graphDiv'));
+                    const options = {
+                        hartArea: {
+                            width: '100%'
+                        },
+                        title: "Read Values",
+                        curveType: 'none',
+                        legend: { position: 'bottom' }
+                    };
 
-                // chart.draw(data, options);
+                    const chart = new google.visualization.LineChart(document.getElementById('graphDiv'));
+    
+                    chart.draw(data, options);
+                } else {
+                    document.getElementById('graphDiv').innerHTML = ""
+                }
             }
 
             async function showTimeSeries(sensList) {
