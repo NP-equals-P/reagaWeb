@@ -180,13 +180,11 @@ reactorRouter.get("/getRunTS", async (req, res) => {
     const runId = req.query.runId;
     const sensId = req.query.sensId;
 
-    const coll = await (mongoose.connection.db.collection("z_runTS[" + runId + "]"))
+    const coll = await (mongoose.connection.db.collection("z_runTS[" + runId + "]"));
 
-    const find = await coll.find({"sensorId": new ObjectId(sensId)}).limit(52)
+    const find = await coll.find({"sensorId": new ObjectId(sensId)});
 
     const measurementsList = await find.toArray();
-
-    console.log(measurementsList.length, sensId)
 
     res.end(JSON.stringify(measurementsList));
 

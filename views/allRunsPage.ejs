@@ -13,7 +13,7 @@
                 var myHtml = "";
 
                 for (let i=0; i<runList.length; i+=1) {
-                    myHtml += "<a href=/api/reactor/allTimeSeries?_id=" + userId + "&reacId=" + reacId + "&runId=" + runList[i]._id + "><button class='runButt'>" + runList[runList.length - i - 1].startDate + "</button></a>";
+                    myHtml += "<a href=/api/reactor/allTimeSeries?_id=" + userId + "&reacId=" + reacId + "&runId=" + runList[runList.length - i - 1]._id + "><button class='runButt'>" + runList[runList.length - i - 1].startDate + "</button></a>";
                 }
 
                 runsDiv.innerHTML = myHtml;
