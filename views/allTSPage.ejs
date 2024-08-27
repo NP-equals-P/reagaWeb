@@ -8,26 +8,61 @@
         <script type="text/javascript">
             google.charts.load('current', {'packages':['corechart']});
 
-            function calcMaxTime(allTs) {
-                var max = new Date(-8640000000000000);
+            function compactTS(allTS, sensList) {
+                const preData = [["time"]]
+                var checkedNum = 0;
+                var before;
 
-                console.log(max)
+                for (let k=0; k<sensList.length; k+=1) {
+                    
+                    if (document.getElementById("butt" + sensList[k]._id).checked) {
 
-                for (let i=0; i<allTs.length; i+=1) {
-                    for (let j=0; j<allTs[i].length; j+=1) {
-                        if (Date.parse(allTs[i][j].whenTaken) > max) {
-                            max = allTs[i][j].whenTaken;
+                        checkedNum += 1;
+
+                        const sensor = {"measure": sensList[k].name + "(pH)"} //<-- fix this
+                        preData[0].push(sensor.measure);                      //<--
+
+                        if (checkedNum == 1) {
+                            for (let j=0; j<allTS[k].length; j+=1) {
+                                preData.push([allTS[k][j].whenTaken, allTS[k][j].value]);
+                            }
+                        } else {
+                            var oldSize = preData.length;
+                            for (let m=0, j=1; j+m<allTS[k].length + preData.length - 1;) {
+                                if (preData[j][0] == allTS[k][m].whenTaken) {
+                                    preData[j].push(allTS[k][m].value);
+                                    m += 1;
+                                    j += 1;
+                                } else {
+                                    before = j;
+                                    console.log(j, preData[j][0])
+                                    if (preData[j] && (Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
+                                        const newColl = [allTS[k][m].whenTaken]
+
+                                        for (let h=0; h<checkedNum-1; h+=1) {
+                                            newColl.push(null);
+                                        }
+
+                                        newColl.push(allTS[k][m].value);
+
+                                        preData.splice(j+1, 0, newColl)
+                                        m += 1;
+                                    }
+
+                                    j += 1;
+
+                                    if (preData[before].length == checkedNum) {
+                                        preData[before].push(null);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
-                console.log(max)
+                console.log(preData)
 
-                return 0;
-            }
-
-            function calcMinTime(allTs) {
-                return 0;
+                return preData
             }
 
             async function fillSensors() {
@@ -58,33 +93,12 @@
             async function drawChart(allTS, sensList) {
 
                 var data;
-                var leastFlag = false;
-                const preData = [["time"]]
+                var leastFlag = true;
 
-                const minDate = calcMinTime(allTS);
-                const maxDate = calcMaxTime(allTS);
-
-                for (let k=0; k<sensList.length; k+=1) {
-                    
-                    if (document.getElementById("butt" + sensList[k]._id).checked) {
-
-                        leastFlag = true;
-
-                        const sensor = {"measure": sensList[k].name + "(pH)"}
-
-                        preData[0].push(sensor.measure);
-
-                        for (let i=0; i<allTS[k].length; i+=1) {
-                            preData.push([allTS[k][i].whenTaken, allTS[k][i].value]);
-
-                        }
-                    }
-                    console.log(preData[0]);
-                }
-
+                const singleTS = compactTS(allTS, sensList);
 
                 if (true) {
-                    data = google.visualization.arrayToDataTable(preData)
+                    data = google.visualization.arrayToDataTable(singleTS)
                 }
 
                 if (leastFlag) {
