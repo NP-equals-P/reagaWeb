@@ -35,25 +35,40 @@
                                     j += 1;
                                 } else {
                                     before = j;
-                                    console.log(j, preData[j][0])
-                                    if (preData[j] && (Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
-                                        const newColl = [allTS[k][m].whenTaken]
 
-                                        for (let h=0; h<checkedNum-1; h+=1) {
-                                            newColl.push(null);
+                                    console.log(j, allTS[k][m].whenTaken)
+
+                                    if (j+m == preData.length + 1) {
+                                        console.log("CABOU", j+m)
+
+                                        // for (let b=m; b<allTS[k].length; b+=1) {
+                                        //     console.log()
+                                        // }
+
+                                        break;
+
+
+                                    } else {
+                                        if ((Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
+                                            const newColl = [allTS[k][m].whenTaken]
+    
+                                            for (let h=0; h<checkedNum-1; h+=1) {
+                                                newColl.push(null);
+                                            }
+    
+                                            newColl.push(allTS[k][m].value);
+    
+                                            preData.splice(j+1, 0, newColl)
+                                            m += 1;
                                         }
-
-                                        newColl.push(allTS[k][m].value);
-
-                                        preData.splice(j+1, 0, newColl)
-                                        m += 1;
+    
+                                        j += 1;
+    
+                                        if (preData[before].length == checkedNum) {
+                                            preData[before].push(null);
+                                        }
                                     }
 
-                                    j += 1;
-
-                                    if (preData[before].length == checkedNum) {
-                                        preData[before].push(null);
-                                    }
                                 }
                             }
                         }
