@@ -8,6 +8,42 @@
         <script type="text/javascript">
             google.charts.load('current', {'packages':['corechart']});
 
+            function cutTS(allTS) {
+
+                const startDate = document.getElementById("startDate").value
+                const startTime = document.getElementById("startTime").value
+
+                const endDate = document.getElementById("endDate").value
+                const endTime = document.getElementById("endTime").value
+
+                if (startDate && startTime && endDate && endTime) {
+
+                    const startDatetime = new Date(startDate + " " + startTime)
+                    const endDatetime = new Date(endDate + " " + endTime)
+
+                    const aux = allTS.length
+
+                    for (let i=1; i<allTS.length; i+=1) {
+
+                        const auxDate = new Date(allTS[i][0]);
+                        auxDate.setHours(auxDate.getHours() + 3)
+
+                        if (!((auxDate >= startDatetime) && (auxDate <= endDatetime))) {
+                            console.log(startDatetime, auxDate, endDatetime)
+                            allTS.splice(i, i)
+                            i -= 1;
+                        }
+                    }
+
+                    console.log(allTS)
+
+                    return allTS
+
+                } else {
+                    return allTS
+                }
+            }
+
             function compactTS(allTS, sensList) {
                 const preData = [["time"]]
                 var checkedNum = 0;
@@ -36,46 +72,51 @@
                                 } else {
                                     before = j;
 
-                                    console.log(j, allTS[k][m].whenTaken)
+                                    if (j == preData.length - 1) {
 
-                                    if (j+m == preData.length + 1) {
-                                        console.log("CABOU", j+m)
+                                        for (let b=m; b<allTS[k].length; b+=1) {
 
-                                        // for (let b=m; b<allTS[k].length; b+=1) {
-                                        //     console.log()
-                                        // }
-
-                                        break;
-
-
-                                    } else {
-                                        if ((Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
-                                            const newColl = [allTS[k][m].whenTaken]
-    
+                                            const newColl = [allTS[k][b].whenTaken]
+                                            
                                             for (let h=0; h<checkedNum-1; h+=1) {
                                                 newColl.push(null);
                                             }
-    
+                                            
                                             newColl.push(allTS[k][m].value);
-    
-                                            preData.splice(j+1, 0, newColl)
-                                            m += 1;
+                                            
+                                            preData.push(newColl);
+                                            preData[j].push(null);
+                                        
                                         }
-    
-                                        j += 1;
-    
-                                        if (preData[before].length == checkedNum) {
-                                            preData[before].push(null);
+                                        break;
+
+                                    } 
+                                    
+                                    if ((Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
+                                        const newColl = [allTS[k][m].whenTaken]
+
+                                        for (let h=0; h<checkedNum-1; h+=1) {
+                                            newColl.push(null);
                                         }
+
+                                        newColl.push(allTS[k][m].value);
+
+                                        preData.splice(j+1, 0, newColl)
+                                        m += 1;
                                     }
+
+                                    j += 1;
+
+                                    if (preData[before].length == checkedNum) {
+                                        preData[before].push(null);
+                                    }
+                                    
 
                                 }
                             }
                         }
                     }
                 }
-
-                console.log(preData)
 
                 return preData
             }
@@ -97,12 +138,10 @@
                         aux = "";
                     }
 
-                    str += "<div class='sensButt'><input id=butt" + sensList[i]._id + " type='checkbox' class='sensCB'" + aux + "><label class='labelGeneric'>" + sensList[i].name + "</label></div>";
+                    str += "<div onchange='showTimeSeries()' class='sensButt'><input id=butt" + sensList[i]._id + " type='checkbox' class='sensCB'" + aux + "><label class='labelGeneric'>" + sensList[i].name + "</label></div>";
                 }
 
                 document.getElementById("sensDiv").innerHTML = str;
-
-                return sensList;
             }
 
             async function drawChart(allTS, sensList) {
@@ -112,13 +151,16 @@
 
                 const singleTS = compactTS(allTS, sensList);
 
+                const intervalTS = cutTS(singleTS)
+
                 if (true) {
-                    data = google.visualization.arrayToDataTable(singleTS)
+                    data = google.visualization.arrayToDataTable(intervalTS)
                 }
 
                 if (leastFlag) {
 
                     const options = {
+                        interpolateNulls: true,
                         hartArea: {
                             width: '100%'
                         },
@@ -135,7 +177,13 @@
                 }
             }
 
-            async function showTimeSeries(sensList) {
+            async function showTimeSeries() {
+
+                const reacId = document.getElementById("reacId").value;
+
+                const getSensorsUrl = "http://localhost:3000/api/reactor/getSensors?reacId=" + reacId;
+                const sensorsResponse = await fetch(getSensorsUrl);
+                const sensList = await sensorsResponse.json();
 
                 const runId = document.getElementById("runId").value;
                 const allTS = [];
@@ -153,10 +201,12 @@
                 drawChart(allTS, sensList);
             }
 
-            async function updateLoop(sensList) {
+            async function updateLoop() {
+                await fillSensors()
+
                 while (true) {
                     if (document.getElementById("liveUpdate").value === "true") {
-                        await showTimeSeries(sensList)
+                        await showTimeSeries()
                     }
 
                     await new Promise(r => setTimeout(r, 2000));
@@ -164,8 +214,7 @@
             }
 
             async function onLoadFunc() {
-                const sensList = await fillSensors()
-                await updateLoop(sensList)
+                await updateLoop()
             }
 
             function changeLiveUpdate() {
@@ -214,14 +263,14 @@
                 <br><br>
 
                 <label class="labelGeneric">Interval Start:</label>
-                <input type="date" class="startDate" disabled>
-                <input type="time" class="startTime" disabled>
+                <input type="date" class="startDate" id="startDate" onchange="showTimeSeries()">
+                <input type="time" class="startTime" id="startTime" step="1" onchange="showTimeSeries()">
 
                 <br>
 
                 <label class="labelGeneric">Interval End:</label>
-                <input type="date" class="endDate" disabled>
-                <input type="time" class="endTime" disabled>
+                <input type="date" class="endDate" id="endDate" onchange="showTimeSeries()">
+                <input type="time" class="endTime" id="endTime" step="1" onchange="showTimeSeries()">
             </div>
 
         </div>
