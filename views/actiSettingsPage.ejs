@@ -6,6 +6,16 @@
 
             var components;
     
+            function noComponentMode() {
+                document.getElementById("componentSelect").disabled = true;
+                document.getElementById("functionSelect").disabled = true;
+            }
+
+            function someComponentMode() {
+                document.getElementById("componentSelect").disabled = false;
+                document.getElementById("functionSelect").disabled = false;
+            }
+
             async function showValidationMsg() {
 
             }
@@ -92,10 +102,8 @@
     
                 endSelect.min = Number(startSelect.value) + 1;
 
+                
                 await changeType();
-                await changeModel();
-                await changeFunction();
-                await fillFuncVars();
             }
     
             async function changeType() {
@@ -105,33 +113,44 @@
                 var aux;
     
                 if (document.getElementById("actuatorRadio").checked) {
-                    for (let i=0; i<components.actuators.length; i+=1) {
-    
-                        if (dataComponent === components.actuators[i]._id.toString()) {
-                            aux = "selected";
-                        } else {
-                            aux = "";
+                    if (components.actuators.length > 0) {
+                        for (let i=0; i<components.actuators.length; i+=1) {
+        
+                            if (dataComponent === components.actuators[i]._id.toString()) {
+                                aux = "selected";
+                            } else {
+                                aux = "";
+                            }
+        
+                            str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
+                            componentSelect.innerHTML = str;
                         }
-    
-                        str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
-                        componentSelect.innerHTML = str;
+
+                        someComponentMode();
+                        await changeModel();
+                    } else {
+                        noComponentMode()
                     }
                 } else {
-                    for (let i=0; i<components.sensors.length; i+=1) {
-    
-                        if (dataComponent === components.sensors[i]._id.toString()) {
-                            aux = "selected";
-                        } else {
-                            aux = "";
+                    if (components.sensors.length > 0) {
+                        for (let i=0; i<components.sensors.length; i+=1) {
+        
+                            if (dataComponent === components.sensors[i]._id.toString()) {
+                                aux = "selected";
+                            } else {
+                                aux = "";
+                            }
+        
+                            str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
+                            componentSelect.innerHTML = str;
                         }
-    
-                        str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
-                        componentSelect.innerHTML = str;
+
+                        someComponentMode();
+                        await changeModel();
+                    } else {
+                        noComponentMode()
                     }
                 }
-    
-                await changeModel();
-                await changeFunction();
             }
     
             async function getModelFunctions() {
@@ -143,18 +162,23 @@
                     type = "actuator";
                 }
     
-                const url = "http://localhost:3000/api/action/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        throw new Error(`Response status: ${response.status}`);
+                if (document.getElementById("componentSelect").value) {
+                    const url = "http://localhost:3000/api/action/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error(`Response status: ${response.status}`);
+                        }
+        
+                        const json = await response.json();
+                        return json;
+                    } catch (error) {
+                        console.error(error.message);
                     }
-    
-                    const json = await response.json();
-                    return json;
-                } catch (error) {
-                    console.error(error.message);
+                } else {
+                    return []
                 }
+
             }
     
             async function changeModel() {
@@ -163,7 +187,7 @@
                 var dataFunction = document.getElementById("currentFunction").value;
                 var str = "";
                 var aux;
-    
+
                 for (let i=0; i<functions.length; i+=1) {
                     if (dataFunction.toString() && (dataFunction.toString() === functions[i]._id.toString())) {
                         aux = "selected";
@@ -175,7 +199,7 @@
                     functionSelect.innerHTML = str;
                 }
     
-                await changeFunction();
+                // await changeFunction();
             }
     
             async function getFunction() {
@@ -392,8 +416,13 @@
 
             <select name="newComponent" id="componentSelect" class="componentSelect" onchange="changeModelAndSaveAction()"></select>
 
+
+
             <label for="" class="functionLabel">Function</label>
             <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunctionAndSaveAction()"></select>
+
+            <label for="" class="frequencyLabel">Call Frequency</label>
+            <input type="number" name="newFrequency" id="frequencyInput" class="frequencyInput" onchange="" min="0"></input>
 
             <label for="" class="startLabel">Starts</label>
             <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>" onchange="changeStart()" min="0">

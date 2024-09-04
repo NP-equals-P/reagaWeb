@@ -29,7 +29,6 @@
                         auxDate.setHours(auxDate.getHours() + 3)
 
                         if (!((auxDate >= startDatetime) && (auxDate <= endDatetime))) {
-                            console.log(startDatetime, auxDate, endDatetime)
                             allTS.splice(i, i)
                             i -= 1;
                         }
@@ -44,7 +43,7 @@
                 }
             }
 
-            function compactTS(allTS, sensList) {
+            async function compactTS(allTS, sensList) {
                 const preData = [["time"]]
                 var checkedNum = 0;
                 var before;
@@ -55,10 +54,20 @@
 
                         checkedNum += 1;
 
-                        const sensor = {"measure": sensList[k].name + "(pH)"} //<-- fix this
-                        preData[0].push(sensor.measure);                      //<--
+                        const modelMeasureUrl = "http://localhost:3000/api/sensor/getModelMeasure?modlId=" + sensList[k].model;
+                        const modelCheck = await fetch(modelMeasureUrl);
 
-                        if (checkedNum == 1) {
+                        const modelMeasure = await modelCheck.json();
+
+                        const sensor = {"measure": sensList[k].name + " (" + modelMeasure.measures + ")"} 
+                        preData[0].push(sensor.measure);               
+
+                        if (allTS[k].length == 0) {
+                            preData[1].push(0);
+                            for (let h=2; h<preData.length; h+=1) {
+                                preData[h].push(null);
+                            }
+                        } else if (checkedNum == 1) {
                             for (let j=0; j<allTS[k].length; j+=1) {
                                 preData.push([allTS[k][j].whenTaken, allTS[k][j].value]);
                             }
@@ -73,7 +82,6 @@
                                     before = j;
 
                                     if (j == preData.length - 1) {
-                                        console.log("SIOAD")
                                         for (let b=m; b<allTS[k].length; b+=1) {
 
                                             const newColl = [allTS[k][b].whenTaken]
@@ -90,8 +98,7 @@
                                         }
                                         break;
 
-                                    } else if (m == allTS[k].length - 1) {
-                                        console.log("DJASO")
+                                    } else if (m == allTS[k].length) {
                                         for (a=j + 1;  a<preData.length; a+=1) {
                                             preData[a].push(null)
                                         }
@@ -158,7 +165,7 @@
                 var data;
                 var leastFlag = true;
 
-                const singleTS = compactTS(allTS, sensList);
+                const singleTS = await compactTS(allTS, sensList);
 
                 const intervalTS = cutTS(singleTS)
 
@@ -173,7 +180,7 @@
                         hartArea: {
                             width: '100%'
                         },
-                        title: "Read Values",
+                        title: "Sensors Time Series",
                         curveType: 'none',
                         legend: { position: 'bottom' }
                     };

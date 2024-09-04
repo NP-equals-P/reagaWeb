@@ -193,11 +193,14 @@
                 }
             }
 
-            function drawChart(timeSeries, fullSensor) {
+            async function drawChart(timeSeries, fullSensor) {
             
-                const sensor = {"measure": "pH"}
+                const modelMeasureUrl = "http://localhost:3000/api/sensor/getModelMeasure?modlId=" + fullSensor.model;
+                const responseCheck = await fetch(modelMeasureUrl);
 
-                const preData = [["time", sensor.measure]]
+                const modelMeasure = await responseCheck.json();
+
+                const preData = [["time", modelMeasure.measures]]
 
                 if (timeSeries.length >= 100) {
                     for (let i=0; i<timeSeries.length && i<100; i+=1) {
@@ -215,7 +218,7 @@
                 if (timeSeries.length) {
                     data = google.visualization.arrayToDataTable(preData)
                 } else {
-                    data = google.visualization.arrayToDataTable([["time", sensor.measure], [0, 0]])
+                    data = google.visualization.arrayToDataTable([["time", modelMeasure.measures], [0, 0]])
                 }
 
                 const options = {

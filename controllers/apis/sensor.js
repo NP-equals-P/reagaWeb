@@ -38,6 +38,16 @@ sensorRouter.get("/getSensor", async (req, res) => {
     res.end(JSON.stringify(sensor));
 
 });
+
+sensorRouter.get("/getModelMeasure", async (req, res) => {
+
+    const modlId = req.query.modlId;
+
+    const model = await CoMo.findById(modlId);
+
+    res.end(JSON.stringify(model));
+
+});
 // ---------- Get Requests ----------
 
 // ---------- Post Requests ----------
