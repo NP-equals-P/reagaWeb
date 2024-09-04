@@ -65,7 +65,7 @@
                         } else {
                             var oldSize = preData.length;
                             for (let m=0, j=1; j+m<allTS[k].length + preData.length - 1;) {
-                                if (preData[j][0] == allTS[k][m].whenTaken) {
+                                if (allTS[k][m] != undefined && preData[j][0] == allTS[k][m].whenTaken) {
                                     preData[j].push(allTS[k][m].value);
                                     m += 1;
                                     j += 1;
@@ -73,7 +73,7 @@
                                     before = j;
 
                                     if (j == preData.length - 1) {
-
+                                        console.log("SIOAD")
                                         for (let b=m; b<allTS[k].length; b+=1) {
 
                                             const newColl = [allTS[k][b].whenTaken]
@@ -90,9 +90,15 @@
                                         }
                                         break;
 
-                                    } 
-                                    
-                                    if ((Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
+                                    } else if (m == allTS[k].length - 1) {
+                                        console.log("DJASO")
+                                        for (a=j + 1;  a<preData.length; a+=1) {
+                                            preData[a].push(null)
+                                        }
+                                        break;
+                                    }
+
+                                    if (allTS[k][m] && (Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
                                         const newColl = [allTS[k][m].whenTaken]
 
                                         for (let h=0; h<checkedNum-1; h+=1) {
@@ -113,10 +119,13 @@
                                     
 
                                 }
+
                             }
                         }
                     }
                 }
+
+                console.log(preData)
 
                 return preData
             }

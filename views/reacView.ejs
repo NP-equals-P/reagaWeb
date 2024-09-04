@@ -171,13 +171,21 @@
     
                         var str = ""
     
-                        for (let i=0; (i<logList.length && i<200); i+=1) {
-                            str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[logList.length - 200 + i] + "</span>";
+                        if (logList.length >= 200) {
+                            for (let i=0; (i<logList.length && i<200); i+=1) {
+                                str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[logList.length - 200 + i] + "</span>";
+                            }
+                        } else {
+                            for (let i=0; (i<logList.length); i+=1) {
+                                str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[logList.length - i - 1] + "</span>";
+                            }       
                         }
+
                         
                         logDiv.innerHTML = str;
 
                         const sensId = document.getElementById("selectedSensorId").value;
+                        console.log(sensId)
                         showTimeSeries(sensId)
                     }
 
@@ -191,9 +199,16 @@
 
                 const preData = [["time", sensor.measure]]
 
-                for (let i=0; i<timeSeries.length && i<100; i+=1) {
-                    preData.push([timeSeries[timeSeries.length - 100 + i].whenTaken, timeSeries[timeSeries.length - 100 + i].value])
+                if (timeSeries.length >= 100) {
+                    for (let i=0; i<timeSeries.length && i<100; i+=1) {
+                        preData.push([timeSeries[timeSeries.length - 100 + i].whenTaken, timeSeries[timeSeries.length - 100 + i].value])
+                    }
+                } else {
+                    for (let i=0; i<timeSeries.length; i+=1) {
+                        preData.push([timeSeries[i].whenTaken, timeSeries[i].value])
+                    } 
                 }
+
 
                 var data;
 
@@ -207,7 +222,7 @@
                     hartArea: {
                         width: '94%'
                     },
-                    title: fullSensor.name,
+                    title: fullSensor.name + " (last 200 values)",
                     curveType: 'none',
                     legend: { position: 'bottom' }
                 };
@@ -239,8 +254,6 @@
                     const tsCheck = await fetch(tsUrl);
     
                     const timeSeries = await tsCheck.json();
-    
-                    console.log()
 
                     drawChart(timeSeries, sensor)
 
@@ -264,6 +277,7 @@
                 }
 
                 document.getElementById("sensDiv").innerHTML = str;
+                console.log(sensList[0]._id);
                 document.getElementById("selectedSensorId").value = sensList[0]._id;
 
             }

@@ -271,17 +271,7 @@ reactorRouter.post("/pauseReactor", async (req, res) => {
 
     const reactor = await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: true}});
 
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    const hour = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    const pauseLogStr = "[Reactor] " + reactor.name + " was paused. [Real time: " + day + "/" + month + "/" + year + ", " + hour + ":" + minutes + ":" + seconds + "]"
-
-    await Run.findByIdAndUpdate(reactor.activeRun, {$push: {log: pauseLogStr}})
+    res.end();
 });
 
 reactorRouter.post("/unpauseReactor", async (req, res) => {
@@ -290,17 +280,7 @@ reactorRouter.post("/unpauseReactor", async (req, res) => {
 
     const reactor = await Reac.findByIdAndUpdate(reacId, {$set: {isPaused: false}});
 
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    const hour = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    const pauseLogStr = "[Reactor] " + reactor.name + " was unpaused. [Real time: " + day + "/" + month + "/" + year + ", " + hour + ":" + minutes + ":" + seconds + "]"
-
-    await Run.findByIdAndUpdate(reactor.activeRun, {$push: {log: pauseLogStr}})
+    res.end()
 });
 
 reactorRouter.post("/callEsporadicEvent", async (req, res) => {
