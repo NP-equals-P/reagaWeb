@@ -146,11 +146,21 @@ body {
 
 .addRoutButt {
     position: absolute;
-    height: 18vh;
+    height: 13vh;
+    top: 5vh;
     width: 18vh;
     margin: 1vh;
     border-radius: 8px;
     font-size: 50px;
+}
+
+.routinesLabel {
+    position: absolute;
+    color: rgb(228, 228, 228);
+    font-weight: bold;
+    left: 2vw;
+    top: 1vh;
+    font-size: 20px;
 }
 
 .routList {

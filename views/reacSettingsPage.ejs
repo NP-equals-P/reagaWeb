@@ -131,6 +131,7 @@
                     </div>
                 </div>
                 <div class="routineModule">
+                    <span for="" class="routinesLabel">Routines</span>
                     <a href="/api/routine/editRoutine?_id=<%= user._id + "&reacId=" + reactor._id + "&routId=" + reactor.creationRoutine %>">
                         <button class="addRoutButt">+</button>
                     </a>
@@ -147,7 +148,7 @@
                         <input type="hidden" name="_id" value=<%= user._id %>>
                         <input type="hidden" name="reacId" value=<%= reactor._id %>>
                     </form>
-                    <button class="discardButt" onclick="askDiscardOrDelete('discard')">Discard Edit</button>
+                    <button class="discardButt" onclick="askDiscardOrDelete('discard')">Discard Creation</button>
                 <% } else { %>
                     <button class="deleteButt" onclick="askDiscardOrDelete('delete')">Delete Reactor</button>
                 <% } %>
