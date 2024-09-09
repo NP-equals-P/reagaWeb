@@ -190,6 +190,7 @@ actionRouter.post("/saveAction", async (req, res) => {
     const newFunction = req.body.newFunction;
     const varList = req.body.funcVars;
     const funcName = req.body.funcName;
+    const frequency = req.body.frequency;
 
     await Acti.findByIdAndUpdate(actiId, {
         name: newName,
@@ -198,7 +199,8 @@ actionRouter.post("/saveAction", async (req, res) => {
         end: newEnd,
         component: newComponent,
         function: newFunction,
-        varList: varList
+        varList: varList,
+        frequency: frequency
     });
 
     const myEvent = await Evnt.findById(evntId);

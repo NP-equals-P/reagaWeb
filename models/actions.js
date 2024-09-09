@@ -8,6 +8,7 @@ const actionSchema = new Schema({
     callType: String,
     start: Number,
     end: Number,
+    frequency: Number,
     component: {
         type: mongoose.Schema.Types.ObjectId,
         value: ""

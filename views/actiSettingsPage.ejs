@@ -199,7 +199,7 @@
                     functionSelect.innerHTML = str;
                 }
     
-                // await changeFunction();
+                await changeFunction();
             }
     
             async function getFunction() {
@@ -233,9 +233,18 @@
             }
     
             async function changeFunction() {
-                var funcHTMLStr = await getFunctionHTML();
+                const func = await getFunction();
     
-                document.getElementById("varDiv").innerHTML = funcHTMLStr.html;
+                const frequencyInput = document.getElementById("frequencyInput")
+
+                
+                if (func.isRegular) {
+                    frequencyInput.disabled = false;
+                } else {
+                    frequencyInput.disabled = true;
+                }
+
+                document.getElementById("varDiv").innerHTML = func.html;
             }
     
             async function checkValid() {
@@ -309,8 +318,10 @@
                     const newComponent = document.getElementById("componentSelect").value;
                     const newFunction = document.getElementById("functionSelect").value;
 
+                    const newFrequency = document.getElementById("frequencyInput").value;
+
                     const funcSelect = document.getElementById("functionSelect");
-                    const newFunctionName = funcSelect.options[funcSelect.selectedIndex].text
+                    const newFunctionName = funcSelect.options[funcSelect.selectedIndex].text;
 
                     const funcVars = await getFuncVariables();
                     var newType;
@@ -336,7 +347,8 @@
                     newComponent: newComponent,
                     newFunction: newFunction,
                     funcVars: funcVars,
-                    funcName: newFunctionName})});
+                    funcName: newFunctionName,
+                    frequency: newFrequency})});
 
                 }
    
@@ -391,7 +403,7 @@
         </script>
 
         <link rel="stylesheet" href="/styles/actiSettingsStyle.css">
-        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
         <title> Add Action </title>
     </head>
 
@@ -422,7 +434,7 @@
             <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunctionAndSaveAction()"></select>
 
             <label for="" class="frequencyLabel">Call Frequency</label>
-            <input type="number" name="newFrequency" id="frequencyInput" class="frequencyInput" onchange="" min="0"></input>
+            <input type="number" name="newFrequency" id="frequencyInput" class="frequencyInput" onchange="saveAction()" min="0" max="3600" value="<%=action.frequency%>"></input>
 
             <label for="" class="startLabel">Starts</label>
             <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>" onchange="changeStart()" min="0">
