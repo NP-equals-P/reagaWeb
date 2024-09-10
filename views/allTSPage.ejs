@@ -1,0 +1,294 @@
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/allTSStyle.css">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
+        <title> All Runs </title>
+        
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+
+            function cutTS(allTS) {
+
+                const startDate = document.getElementById("startDate").value
+                const startTime = document.getElementById("startTime").value
+
+                const endDate = document.getElementById("endDate").value
+                const endTime = document.getElementById("endTime").value
+
+                if (startDate && startTime && endDate && endTime) {
+
+                    const startDatetime = new Date(startDate + " " + startTime)
+                    const endDatetime = new Date(endDate + " " + endTime)
+
+                    const aux = allTS.length
+
+                    for (let i=1; i<allTS.length; i+=1) {
+
+                        const auxDate = new Date(allTS[i][0]);
+                        auxDate.setHours(auxDate.getHours() + 3)
+
+                        if (!((auxDate >= startDatetime) && (auxDate <= endDatetime))) {
+                            allTS.splice(i, i)
+                            i -= 1;
+                        }
+                    }
+
+                    console.log(allTS)
+
+                    return allTS
+
+                } else {
+                    return allTS
+                }
+            }
+
+            async function compactTS(allTS, sensList) {
+                const preData = [["time"]]
+                var checkedNum = 0;
+                var before;
+
+                for (let k=0; k<sensList.length; k+=1) {
+                    
+                    if (document.getElementById("butt" + sensList[k]._id).checked) {
+
+                        checkedNum += 1;
+
+                        const modelMeasureUrl = "http://localhost:3000/api/sensor/getModelMeasure?modlId=" + sensList[k].model;
+                        const modelCheck = await fetch(modelMeasureUrl);
+
+                        const modelMeasure = await modelCheck.json();
+
+                        const sensor = {"measure": sensList[k].name + " (" + modelMeasure.measures + ")"} 
+                        preData[0].push(sensor.measure);               
+
+                        if (allTS[k].length == 0) {
+                            preData[1].push(0);
+                            for (let h=2; h<preData.length; h+=1) {
+                                preData[h].push(null);
+                            }
+                        } else if (checkedNum == 1) {
+                            for (let j=0; j<allTS[k].length; j+=1) {
+                                preData.push([allTS[k][j].whenTaken, allTS[k][j].value]);
+                            }
+                        } else {
+                            var oldSize = preData.length;
+                            for (let m=0, j=1; j+m<allTS[k].length + preData.length - 1;) {
+                                if (allTS[k][m] != undefined && preData[j][0] == allTS[k][m].whenTaken) {
+                                    preData[j].push(allTS[k][m].value);
+                                    m += 1;
+                                    j += 1;
+                                } else {
+                                    before = j;
+
+                                    if (j == preData.length - 1) {
+                                        for (let b=m; b<allTS[k].length; b+=1) {
+
+                                            const newColl = [allTS[k][b].whenTaken]
+                                            
+                                            for (let h=0; h<checkedNum-1; h+=1) {
+                                                newColl.push(null);
+                                            }
+                                            
+                                            newColl.push(allTS[k][m].value);
+                                            
+                                            preData.push(newColl);
+                                            preData[j].push(null);
+                                        
+                                        }
+                                        break;
+
+                                    } else if (m == allTS[k].length) {
+                                        for (a=j + 1;  a<preData.length; a+=1) {
+                                            preData[a].push(null)
+                                        }
+                                        break;
+                                    }
+
+                                    if (allTS[k][m] && (Date.parse(preData[j][0]) < Date.parse(allTS[k][m].whenTaken) && Date.parse(preData[j+1][0]) > Date.parse(allTS[k][m].whenTaken))) {
+                                        const newColl = [allTS[k][m].whenTaken]
+
+                                        for (let h=0; h<checkedNum-1; h+=1) {
+                                            newColl.push(null);
+                                        }
+
+                                        newColl.push(allTS[k][m].value);
+
+                                        preData.splice(j+1, 0, newColl)
+                                        m += 1;
+                                    }
+
+                                    j += 1;
+
+                                    if (preData[before].length == checkedNum) {
+                                        preData[before].push(null);
+                                    }
+                                    
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                console.log(preData)
+
+                return preData
+            }
+
+            async function fillSensors() {
+
+                const reacId = document.getElementById("reacId").value;
+                var str = "";
+                var aux;
+
+                const getSensorsUrl = "http://localhost:3000/api/reactor/getSensors?reacId=" + reacId;
+                const sensorsResponse = await fetch(getSensorsUrl);
+                const sensList = await sensorsResponse.json();
+
+                for (let i=0; i<sensList.length; i+=1) {
+                    if (i == 0) {
+                        aux = "checked";
+                    } else {
+                        aux = "";
+                    }
+
+                    str += "<div onchange='showTimeSeries()' class='sensButt'><input id=butt" + sensList[i]._id + " type='checkbox' class='sensCB'" + aux + "><label class='labelGeneric'>" + sensList[i].name + "</label></div>";
+                }
+
+                document.getElementById("sensDiv").innerHTML = str;
+            }
+
+            async function drawChart(allTS, sensList) {
+
+                var data;
+                var leastFlag = true;
+
+                const singleTS = await compactTS(allTS, sensList);
+
+                const intervalTS = cutTS(singleTS)
+
+                if (true) {
+                    data = google.visualization.arrayToDataTable(intervalTS)
+                }
+
+                if (leastFlag) {
+
+                    const options = {
+                        interpolateNulls: true,
+                        hartArea: {
+                            width: '100%'
+                        },
+                        title: "Sensors Time Series",
+                        curveType: 'none',
+                        legend: { position: 'bottom' }
+                    };
+
+                    const chart = new google.visualization.LineChart(document.getElementById('graphDiv'));
+    
+                    chart.draw(data, options);
+                } else {
+                    document.getElementById('graphDiv').innerHTML = ""
+                }
+            }
+
+            async function showTimeSeries() {
+
+                const reacId = document.getElementById("reacId").value;
+
+                const getSensorsUrl = "http://localhost:3000/api/reactor/getSensors?reacId=" + reacId;
+                const sensorsResponse = await fetch(getSensorsUrl);
+                const sensList = await sensorsResponse.json();
+
+                const runId = document.getElementById("runId").value;
+                const allTS = [];
+
+                for (let i=0; i<sensList.length; i+=1) {
+                    const tsUrl = "http://localhost:3000/api/reactor/getRunTS?runId=" + runId + "&sensId=" + sensList[i]._id; 
+                        
+                    const tsCheck = await fetch(tsUrl);
+    
+                    const timeSeries = await tsCheck.json();
+
+                    allTS.push(timeSeries)
+                }
+
+                drawChart(allTS, sensList);
+            }
+
+            async function updateLoop() {
+                await fillSensors()
+
+                while (true) {
+                    if (document.getElementById("liveUpdate").value === "true") {
+                        await showTimeSeries()
+                    }
+
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+
+            async function onLoadFunc() {
+                await updateLoop()
+            }
+
+            function changeLiveUpdate() {
+                if (document.getElementById("liveUpdateCB").checked) {
+                    document.getElementById("liveUpdate").value = "true";
+                } else {
+                    document.getElementById("liveUpdate").value = "false";
+                }
+            }
+
+        </script>
+
+    </head>
+    <body onload="onLoadFunc()">
+
+        <input type="hidden" id="_id" value="<%= user._id %>">
+        <input type="hidden" id="reacId" value="<%= reactor._id %>">
+        <input type="hidden" id="runId" value="<%= runId %>">
+
+        <input type="hidden" id="liveUpdate" value="true">
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
+        <div class="div1">
+            <a href="/api/reactor/allRuns?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="backButt">Back</button>
+            </a>
+
+            <button class="downloadButt" id="downloadButton">Download Time Series</button>
+
+            <div class="graphDiv" id="graphDiv">
+            </div>
+
+            <div class="sensDiv" id="sensDiv">
+            </div>
+
+            <div class="controlPanel">
+                <label class="labelGeneric">Live Update?</label>
+                <input type="checkbox" class="liveUpdateCB" checked id="liveUpdateCB" onchange="changeLiveUpdate()">
+
+                <label class="labelGeneric">Normalized?</label>
+                <input type="checkbox" class="normalizedCB" disabled>
+
+                <label class="labelGeneric">Show Events?</label>
+                <input type="checkbox" class="eventsCB" disabled>
+
+                <br><br>
+
+                <label class="labelGeneric">Interval Start:</label>
+                <input type="date" class="startDate" id="startDate" onchange="showTimeSeries()">
+                <input type="time" class="startTime" id="startTime" step="1" onchange="showTimeSeries()">
+
+                <br>
+
+                <label class="labelGeneric">Interval End:</label>
+                <input type="date" class="endDate" id="endDate" onchange="showTimeSeries()">
+                <input type="time" class="endTime" id="endTime" step="1" onchange="showTimeSeries()">
+            </div>
+
+        </div>
+    </body>
+</html> 

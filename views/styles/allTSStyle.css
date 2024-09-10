@@ -1,0 +1,81 @@
+.backButt {
+    height: 6vh;
+    width: 8vw;
+    border-radius: 10px;
+    font-weight: bolder;
+    font-size: 15px;
+    margin: 6px;
+}
+
+.div1 {
+    background-color: rgb(53, 99, 115);
+    height: 92vh;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
+.graphDiv {
+    background-color: white;
+    border: 3px solid rgb(0, 0, 0);
+    position: absolute;
+    height: 56vh;
+    width: 80vw;
+    left: 10vw;
+}
+
+.sensDiv {
+    background-color: white;
+    border: 3px solid rgb(0, 0, 0);
+    position: absolute;
+    height: 8vh;
+    top: 73.5vh;
+    width: 80vw;
+    left: 10vw;
+    overflow-x:scroll;
+}
+
+.controlPanel {
+    background-color: rgb(128, 128, 128);
+    border: 2px solid rgb(0, 0, 0);
+    position: absolute;
+    height: 16vh;
+    top: 83vh;
+    width: 80vw;
+    left: 10vw;
+}
+
+.labelGeneric {
+    color: rgb(240, 240, 240);
+    font-weight: bold;
+    margin: 4px;
+}
+
+.downloadButt {
+    border-radius: 10px;
+    font-weight: bolder;
+    font-size: 15px;
+    height: 5vh;
+    position: absolute;
+    top: 10vh;
+    left: 77.5vw;
+}
+
+.endDate {
+    margin-left: 6px;
+}
+
+.sensButt {
+    height: 4vh;
+    width: 10vw;
+    background-color: gray;
+    border: 1px solid rgb(0, 0, 0);
+    display: inline-block;
+    margin: 4px;
+}
+
+.sensCB {
+    height: 3vh;
+}

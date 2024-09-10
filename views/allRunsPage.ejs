@@ -1,0 +1,55 @@
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/styles/allRunsStyle.css">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
+        <title> All Runs </title>
+        
+        <script>
+            function putAllButtons(runList) {
+                const runsDiv = document.getElementById("runsDiv")
+                const userId = document.getElementById("_id").value;
+                const reacId = document.getElementById("reacId").value;
+
+                var myHtml = "";
+
+                for (let i=0; i<runList.length; i+=1) {
+                    myHtml += "<a href=/api/reactor/allTimeSeries?_id=" + userId + "&reacId=" + reacId + "&runId=" + runList[runList.length - i - 1]._id + "><button class='runButt'>" + runList[runList.length - i - 1].startDate + "</button></a>";
+                }
+
+                runsDiv.innerHTML = myHtml;
+            }
+
+            async function getAllRuns(reacId) {
+                const getRunListUrl = "http://localhost:3000/api/reactor/getRuns?reacId=" + reacId;
+
+                const response = await fetch(getRunListUrl);
+                const runList = await response.json();
+
+                return runList;
+            }
+
+            async function onLoadFunc() {
+                const reacId = document.getElementById("reacId").value
+
+                const runList = await getAllRuns(reacId);
+                putAllButtons(runList)
+            }
+        </script>
+
+    </head>
+    <body onload="onLoadFunc()">
+
+        <input type="hidden" id="_id" value="<%= user._id %>">
+        <input type="hidden" id="reacId" value="<%= reactor._id %>">
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
+        <div class="div1">
+            <a href="/api/reactor/reacView?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="backButt">Back</button>
+            </a>
+
+            <div class="runsDiv" id="runsDiv">
+            </div>
+        </div>
+    </body>
+</html> 

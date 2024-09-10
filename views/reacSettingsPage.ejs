@@ -1,64 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="/styles/addReacPageStyles.css">
-        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/styles/reacSettingsStyle.css">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
         <title> Add Reactor </title>
 
+    <script>
+        function disableInput() {
+            document.getElementById("newReacName").disabled = true;
+        }
+
+        function enableInput() {
+            document.getElementById("newReacName").disabled = false;
+        }
+
+        async function saveReactor() {
+
+            disableInput()
+            
+            const newName = document.getElementById("newReacName").value;
+            const reacId = document.getElementById("reacId").value;
+
+            
+            const takenUrl = "http://localhost:3000/api/reactor/saveReactor";
+
+            const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId,
+                newReacName: newName
+            })});
+
+            enableInput()
+        }
+
+        async function discardReactor() {
+            const userId = document.getElementById("_id").value;
+            const reacId = document.getElementById("reacId").value;
+
+            const discardReactorUrl = "http://localhost:3000/api/reactor/dicardReactorEdit";
+
+            await fetch(discardReactorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                _id: userId,
+                reacId: reacId})});
+
+            document.getElementById("newReacName").value = "";
+        }
+
+        async function deleteReactor() {
+            const userId = document.getElementById("_id").value;
+            const reacId = document.getElementById("reacId").value;
+
+            const deleteReactorUrl = "http://localhost:3000/api/reactor/deleteReactor";
+
+            await fetch(deleteReactorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                _id: userId,
+                reacId: reacId,})});
+        }
+
+        async function askDiscardOrDelete(strMode) {
+
+            const userId = document.getElementById("_id").value;
+            const reacId = document.getElementById("reacId").value;
+
+            disableInput()
+
+            if (strMode === "discard") {
+
+                if (confirm("Are you sure you want to DISCARD this edit?")) {
+
+                    await discardReactor()
+
+                    window.location.href = "http://localhost:3000/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId;
+                }
+            } else {
+                if (confirm("Are you sure you want to DELETE this reactor?")) {
+
+                    await deleteReactor()
+
+                    window.location.href = "http://localhost:3000/api/user/start?_id=" + userId;
+                }
+            }
+
+            enableInput()
+        }
+
+    </script>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
+        <% var backType; %>
+        <% if (reactor.isCreation) { %>
+            <% backType = "/api/user/start?_id=" + user._id %>
+        <% } else { %>
+            <% backType = "/api/reactor/reacView?_id=" + user._id + "&reacId=" + reactor._id %>
+        <% } %>
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
 
         <div class="div1">
             <button class="reacIconButton"></button>
 
-            <form action="/createSaveReac" method="post">
                 <label for="newReacName" class="nameLabel">Name:</label>
-                <input type="text" class="nameInput" id="newReacName" name="newReacName" value="<%= data.reactor.name %>">
+                <input type="text" class="nameInput" id="newReacName" name="newReacName" value="<%= reactor.name %>" onchange="saveReactor()">
 
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= data.reactor._id %>>
+                <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
+                <input type="hidden" id="reacId" name="reacId" value=<%= reactor._id %>>
                 
-                <button class="backButt" name="type" value="saveBack">Back</button>
-
-                <% if (data.reactor.isCreation) { %>
-                    <button class="confirmButt" name="type" value="create">Create Reactor</button>
-                <% } %>
+                <a href="<%= backType %>">
+                    <button class="backButt" name="type" value="saveBack">Back</button>
+                </a>
 
                 <div class="compModule">
                     <span for="" class="sensorsLabel">Sensors</span>
-                    <button class="addSensButt" name="type" value="saveSensors">+</button>
+                    <a href="/api/sensor/editSensor?_id=<%= user._id + "&reacId=" + reactor.id + "&sensId=" + reactor.creationSensor %>">
+                        <button class="addSensButt" name="type" value="saveSensors">+</button>
+                    </a>
+
                     <div class="sensList">
-                        <% for (let i=0; i<data.sensors.length; i+=1) { %>
-                            <%- include("./partials/sensButton.ejs", {sensor: data.sensors[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% for (let i=0; i<sensors.length; i+=1) { %>
+                            <%- include("./partials/sensButton.ejs", {sensor: sensors[i], _id: user._id, reacId: reactor._id}) %>
                         <% } %>
                     </div>
 
                     <span for="" class="actuatorsLabel">Actuators</span>
-                    <button class="addActuButt" name="type" value="saveActuators">+</button>
+                    <a href="/api/actuator/editActuator?_id=<%= user._id + "&reacId=" + reactor.id + "&actuId=" + reactor.creationActuator %>">
+                        <button class="addActuButt">+</button>
+                    </a>
                     <div class="actuList">
-                        <% for (let i=0; i<data.actuators.length; i+=1) { %>
-                            <%- include("./partials/actuButton.ejs", {actuator: data.actuators[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% for (let i=0; i<actuators.length; i+=1) { %>
+                            <%- include("./partials/actuButton.ejs", {actuator: actuators[i], _id: user._id, reacId: reactor._id}) %>
                         <% } %>
                     </div>
                 </div>
                 <div class="routineModule">
-                    <button class="addRoutButt" name="type" value="saveRoutines">+</button>
+                    <span for="" class="routinesLabel">Routines</span>
+                    <a href="/api/routine/editRoutine?_id=<%= user._id + "&reacId=" + reactor._id + "&routId=" + reactor.creationRoutine %>">
+                        <button class="addRoutButt">+</button>
+                    </a>
                     <div class="routList">
-                        <% for (let i=0; i<data.routines.length; i+=1) { %>
-                            <%- include("./partials/routButton.ejs", {routine: data.routines[i], _id: _id, reacId: data.reactor._id}) %>
+                        <% for (let i=0; i<routines.length; i+=1) { %>
+                            <%- include("./partials/routButton.ejs", {routine: routines[i], _id: user._id, reacId: reactor._id}) %>
                         <% } %>
                     </div>
                 </div>
-            </form>
 
-            <% if (data.reactor.isCreation) { %>
-                <form action="/dicardReactorEdit" method="post">
-                    <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= data.reactor._id %>>
-                </form>
-            <% } %>
+                <% if (reactor.isCreation) { %>
+                    <form action="/api/reactor/createReactor" method="post">
+                        <button class="confirmButt">Create Reactor</button>
+                        <input type="hidden" name="_id" value=<%= user._id %>>
+                        <input type="hidden" name="reacId" value=<%= reactor._id %>>
+                    </form>
+                    <button class="discardButt" onclick="askDiscardOrDelete('discard')">Discard Creation</button>
+                <% } else { %>
+                    <button class="deleteButt" onclick="askDiscardOrDelete('delete')">Delete Reactor</button>
+                <% } %>
         </div>
     </body>
 </html>

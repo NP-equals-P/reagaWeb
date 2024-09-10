@@ -5,8 +5,10 @@ const actionSchema = new Schema({
     name: String,
     isCreation: Boolean,
     type: String,
+    callType: String,
     start: Number,
-    duration: Number,
+    end: Number,
+    frequency: Number,
     component: {
         type: mongoose.Schema.Types.ObjectId,
         value: ""
@@ -15,7 +17,6 @@ const actionSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "functions"
     },
-    funcName: String,
     varList: Array
 });
 

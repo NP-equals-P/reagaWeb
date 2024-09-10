@@ -1,67 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="/styles/addSensStyles.css">
-        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/styles/compSettingsStyle.css">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
         <title> Add Actuator </title>
+
+        <script>
+            function disableInput() {
+                document.getElementById("newActuName").disabled = true;
+                document.getElementById("newExit").disabled = true;
+                document.getElementById("modlId").disabled = true;
+            }
+
+            function enableInput() {
+                document.getElementById("newActuName").disabled = false;
+                document.getElementById("newExit").disabled = false;
+                document.getElementById("modlId").disabled = false;
+            }
+
+            async function saveActuator() {
+
+                disableInput()
+
+                const newName = document.getElementById("newActuName").value;
+                const newExit = document.getElementById("newExit").value;
+                const newModel = document.getElementById("modlId").value;
+                const actuId = document.getElementById("actuId").value;
+
+                const takenUrl = "http://localhost:3000/api/actuator/saveActuator";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    actuId: actuId,
+                    newActuName: newName,
+                    newExit: newExit,
+                    newModel: newModel})});
+
+
+                enableInput()
+            }
+
+            async function askDiscardOrDelete(strMode) {
+
+                const userId = document.getElementById("_id").value;
+                const reacId = document.getElementById("reacId").value;
+                const actuId = document.getElementById("actuId").value;
+
+                disableInput()
+
+                if (strMode === "discard") {
+
+                    if (confirm("Are you sure you want to DISCARD this edit?")) {
+
+                        const discardActuatorUrl = "http://localhost:3000/api/actuator/dicardActuatorEdit";
+
+                        await fetch(discardActuatorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                            _id: userId,
+                            reacId: reacId,
+                            actuId: actuId})});
+
+                        document.getElementById("newSensName").value = "";
+                        document.getElementById("newExit").value = "";
+
+                    }
+                } else {
+                    if (confirm("Are you sure you want to DELETE this actuator?")) {
+                        const deleteActuatorUrl = "http://localhost:3000/api/actuator/deleteActuator";
+
+                        await fetch(deleteActuatorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                            _id: userId,
+                            reacId: reacId,
+                            actuId: actuId})});
+
+                        window.location.href = "http://localhost:3000/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId;
+                    }
+                }
+
+                enableInput()
+            }
+        </script>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
+        <input type="hidden" id="_id" value=<%= user._id %>>
+        <input type="hidden" id="actuId" value=<%= actuator._id %>>
+        <input type="hidden" id="reacId" value=<%= reacId %>>
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
             <div class="formModule">
-                <form action="/createSaveActuator" method="post">
-                    <button class="backButt" name="type" value="saveBack">Back</button>
+                <a href="/api/reactor/editReactor?_id=<%= user._id.toString() + "&reactorId=" + reacId %>">
+                    <button class="backButt">Back</button>
+                </a>
 
-                    <label for="" class="inputLabel">Name</label>
-                    <br><br>
-                    <input type="text" class="dataInput" id="newActuName" name="newActuName" value="<%= data.name %>">
-                    <br><br><br>
+                <label for="" class="inputLabel">Name</label>
+                <br><br>
+                <input type="text" class="dataInput" id="newActuName" name="newActuName" value="<%= actuator.name %>" onchange="saveActuator()">
+                <br><br><br>
 
-                    <label for="" class="inputLabel">Exit</label>
-                    <br><br>
-                    <input type="text" class="dataInput" id="newExit" name="newExit" value="<%= data.exit %>">
-                    <br><br><br>
+                <label for="" class="inputLabel">Exit</label>
+                <br><br>
+                <input type="text" class="dataInput" id="newExit" name="newExit" value="<%= actuator.exit %>" onchange="saveActuator()">
+                <br><br><br>
 
-                    <label for="" class="inputLabel">Model</label>
-                    <br><br>
-                    <select name="modlId" id="modlId" class="modelSelect">
-                        <% for (let i=0; i<models.length; i+=1) { %>
-                            <% if (models[i].type === "actuator") { %>
-                                <% if (data.model && (models[i]._id.toString() === data.model.toString())) { %>
-                                    <option value="<%= models[i]._id %>" selected><%= models[i].name %></option>
-                                <% } else { %>
-                                    <option value="<%= models[i]._id %>"><%= models[i].name %></option>
-                                <% } %>
+                <label for="" class="inputLabel">Model</label>
+                <br><br>
+                <select name="modlId" id="modlId" class="modelSelect" onchange="saveActuator()">
+                    <% for (let i=0; i<models.length; i+=1) { %>
+                        <% if (models[i].type === "actuator") { %>
+                            <% if (actuator.model && (models[i]._id.toString() === actuator.model.toString())) { %>
+                                <option value="<%= models[i]._id %>" selected><%= models[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= models[i]._id %>"><%= models[i].name %></option>
                             <% } %>
                         <% } %>
-                    </select>
-
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="actuId" name="actuId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <% if (data.isCreation) { %>
-                        <button class="confirmButt" name="type" id="type" value="create">Create Actuator</button>
                     <% } %>
-                </form>
+                </select>
+
+                <% if (actuator.isCreation) { %>
+                    <form action="/api/actuator/createActuator" method="post">
+                        <button class="confirmButt">Create Actuator</button>
+                        <input type="hidden" name="_id" value=<%= user._id %>>
+                        <input type="hidden" name="actuId" value=<%= actuator._id %>>
+                        <input type="hidden" name="reacId" value=<%= reacId %>>
+                    </form>
+                    <button class="discardButt" onclick="askDiscardOrDelete('discard')">Discard Edit</button>
+                <% } else { %>
+                    <button class="deleteButt" onclick="askDiscardOrDelete('delete')">Delete Actuator</button>
+                <% } %>
+
+                <input type="hidden" id="actuId" name="actuId" value=<%= actuator._id %>>
             </div>
             
             <div class="div2">
             </div>
-
-            <% if (data.isCreation) { %>
-                <form action="/dicardActuatorEdit" method="post">
-                    <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="actuId" name="actuId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                </form>
-            <% } else { %>
-                <form action="/deleteActuator" method="post">
-                    <button class="deleteButt">Delete Actuator</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="actuId" name="actuId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-            <% } %>
         </div>
     </body>
 </html>

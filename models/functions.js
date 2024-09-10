@@ -5,7 +5,8 @@ const functionSchema = new Schema({
     name: String,
     numberVars: Number,
     stringVars: Number,
-    html: String
+    html: String,
+    isRegular: Boolean
 });
 
 const Function = mongoose.model('function', functionSchema);

@@ -6,7 +6,7 @@ const eventSchema = new Schema({
     type: String,
     isCreation: Boolean,
     start: Number,
-    duration: Number,
+    end: Number,
     inQueue: Boolean,
     actions: [
         {

@@ -109,7 +109,7 @@ body {
     left: 5vw;
 }
 
-.durationInput {
+.endInput {
     position: absolute;
     top: 70vh;
     width: 10vw;
@@ -117,7 +117,7 @@ body {
     border-radius: 10px;
 }
 
-.durationLabel {
+.endLabel {
     position: absolute;
     font-weight: bold;
     color: rgb(206, 206, 206);
@@ -160,6 +160,7 @@ body {
 .errorMsg {
     color: red;
     font-weight: bold;
+    display: none;
 }
 
 .functionLabel {
@@ -170,6 +171,24 @@ body {
     color: rgb(206, 206, 206);
     font-size: 1.5em;
 }
+
+.frequencyLabel {
+    position: absolute;
+    left: 25vw;
+    top: 45vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.frequencyInput {
+    position: absolute;
+    left: 25vw;
+    top: 50vh;
+    width: 10vw;
+    border-radius: 10px;
+}
+
 .functionSelect {
     position: absolute;
     left: 25vw;

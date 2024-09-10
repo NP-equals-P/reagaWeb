@@ -13,6 +13,6 @@
         margin: 1vw;
     }
 </style>
-<a href="/reacView?_id=<%= _id %>&reacId=<%= reacId %>" class="hyperLink">
-    <button class="reacButton"><%= name  %></button>
+<a href="/api/reactor/reacView?_id=<%= user._id %>&reacId=<%= reactor._id %>" class="hyperLink">
+    <button class="reacButton"><%= reactor.name  %></button>
 </a>

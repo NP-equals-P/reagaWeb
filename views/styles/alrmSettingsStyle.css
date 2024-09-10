@@ -9,7 +9,7 @@ body {
     text-align: center;
 }
 
-.nameLabel {
+.varLabel {
     position: absolute;
     top: 20vh;
     font-weight: bold;
@@ -18,96 +18,41 @@ body {
     left: 5vw;
 }
 
-.nameInput {
+.evtLabel {
+    position: absolute;
+    top: 26vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
     left: 5vw;
-    position: absolute;
-    height: 3vh;
-    width: 15vw;
-    border-radius: 10px;
-    top: 25vh;
 }
 
-.normalRadio {
+.varRadio {
     position: absolute;
-    left: 5vw;
-    top: 40vh;
+    left: 3vw;
+    top: 20vh;
 }
 
-.normalLabel {
+.evtRadio {
     position: absolute;
-    left: 7vw;
-    top: 39vh;
-    font-weight: bold;
-    color: rgb(206, 206, 206);
-    font-size: 1.5em;
+    left: 3vw;
+    top: 26vh;
 }
 
-.esporadicRadio {
+.limitInput {
     position: absolute;
-    left: 5vw;
-    top: 45vh;
-}
-
-.esporadicLabel {
-    position: absolute;
-    left: 7vw;
-    top: 44vh;
-    font-weight: bold;
-    color: rgb(206, 206, 206);
-    font-size: 1.5em;
-}
-
-.div2 {
-    width: 50vw;
-    height: 50vh;
-    left: 40vw;
-    background-color: rgb(46, 131, 160);
-    position: absolute;
-    border: 3px solid black;
-}
-
-.startInput {
-    position: absolute;
-    top: 65vh;
-    width: 10vw;
-    left: 40vw;
+    left: 30vw;
+    top: 20vh;
     border-radius: 10px;
 }
 
-.startLabel {
+.limitLabel {
     position: absolute;
+    top: 15vh;
     font-weight: bold;
     color: rgb(206, 206, 206);
     font-size: 1.5em;
-    top: 69vh;
-    left: 40vw;
-}
-
-.durationInput {
-    position: absolute;
-    top: 65vh;
-    width: 10vw;
-    left: 79.3vw;
-    border-radius: 10px;
-}
-
-.durationLabel {
-    position: absolute;
-    font-weight: bold;
-    color: rgb(206, 206, 206);
-    font-size: 1.5em;
-    top: 69vh;
-    left: 79.5vw;
-}
-
-.addActionButt {
-    width: 7vw;
-    height: 6vh;
-    position: absolute;
-    left: 32vw;
-    top: 55vh;
-    border-radius: 10px;
-    font-weight: bold;
+    left: 30vw;
 }
 
 .backButt {
@@ -117,6 +62,90 @@ body {
     border-radius: 10px;
     top: 9vh;
     left: 1vh;
+    font-weight: bold;
+}
+
+.inputName {
+    position: absolute;
+    height: 3vh;
+    width: 15vw;
+    border-radius: 10px;
+    top: 20vh;
+}
+
+.titleLabel {
+    position: absolute;
+    top: 15vh;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.msgArea {
+    top: 20vh;
+    left: 70vw;
+    width: 25vw;
+    position: absolute;
+    resize:vertical;
+    border-radius: 10px;
+}
+
+.msgLabel {
+    position: absolute;
+    top: 15vh;
+    left: 70vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.sensLabel {
+    position: absolute;
+    top: 35vh;
+    left: 3vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.sensSelect {
+    width: 10vw;
+    height: 3vh;
+    position: absolute;
+    left: 3vw;
+    top: 40vh;
+}
+
+.triggerCB {
+    position: absolute;
+    top: 67vh;
+    left: 4vw;
+}
+
+.triggerCBLabel {
+    position: absolute;
+    top: 62vh;
+    left: 2vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.eventLabel {
+    position: absolute;
+    top: 74vh;
+    left: 3vw;
+    font-weight: bold;
+    color: rgb(206, 206, 206);
+    font-size: 1.5em;
+}
+
+.evntSelect {
+    width: 10vw;
+    height: 3vh;
+    position: absolute;
+    left: 3vw;
+    top: 78vh;
 }
 
 .confirmButt {
@@ -148,12 +177,4 @@ body {
     position: absolute;
     left: 6px;
     top: 93vh;
-}
-
-.errorMsg {
-    color: red;
-    font-weight: bold;
-    position: absolute;
-    top: 88vh;
-    left: 85vw;
 }

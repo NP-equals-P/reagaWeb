@@ -2,104 +2,416 @@
 <html>
     <head>
         <link rel="stylesheet" href="/styles/reacViewStyles.css">
-        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
         <title> Reac View </title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+
+            async function callEspEvent(evntId) {
+                
+                const takenUrl = "http://localhost:3000/api/reactor/callEsporadicEvent";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                evntId: evntId})});
+
+                return;
+            }
+
+            function pageChangesDeactive() {
+
+                const editButton = document.getElementById("editReactorButton");
+                const activateButton = document.getElementById("activateButton");
+                const pauseButton = document.getElementById("pauseButton");
+                const routineSelect = document.getElementById("routineSelect");
+                const statusLabel = document.getElementById("statusLabel");
+
+                editButton.disabled = false;
+                activateButton.innerText = "Activate Reactor"
+                pauseButton.disabled = true;
+                routineSelect.disabled = false;
+                statusLabel.innerText = "(not active)";
+                statusLabel.style = "color: red"
+            }
+
+            function pageChangesActive() {
+
+                const editButton = document.getElementById("editReactorButton");
+                const activateButton = document.getElementById("activateButton");
+                const pauseButton = document.getElementById("pauseButton");
+                const routineSelect = document.getElementById("routineSelect");
+
+                editButton.disabled = true;
+                activateButton.innerText = "Disactivate Reactor"
+                pauseButton.disabled = false;
+                routineSelect.disabled = true;
+            }
+
+            function pageChangesPaused() {
+                
+                const pauseButton = document.getElementById("pauseButton");
+                const statusLabel = document.getElementById("statusLabel");
+
+                pauseButton.innerText = "Unpause Reactor";
+                statusLabel.innerText = "(paused)";
+                statusLabel.style = "color: yellow";
+            }
+
+            function pageChangesUnpaused() {
+
+                const pauseButton = document.getElementById("pauseButton");
+                const statusLabel = document.getElementById("statusLabel");
+
+                pauseButton.innerText = "Pause Reactor";
+                statusLabel.innerText = "(active)";
+                statusLabel.style = "color: yellowgreen";
+            }
+
+            function constructInnerHTML(espList) {
+
+                var str = "";
+
+                for (let i=0; i<espList.length; i+=1) {
+                    str += "<style>.evntButton {display: inline-block;width: 6vw;height: 8vh;background-color: white;margin-top: 1vh;margin-bottom: 1vh;margin-left: 1vh;}</style><button class=\"evntButton\" onclick=\"callEspEvent(\'"+ espList[i]._id +"\')\">" + espList[i].name + "</button>"
+                }
+
+                return str;
+
+            }
+
+            async function showEspEvents() {
+
+                const espEventDiv = document.getElementById("espDiv");
+
+                const routId = document.getElementById("routineSelect").value;
+                const takenUrl = "http://localhost:3000/api/reactor/getEsporadicEvents?routId=" + routId;
+
+                const responseCheck = await fetch(takenUrl);
+
+                const espList = await responseCheck.json();
+
+                const espInnerHTML = constructInnerHTML(espList);
+
+                espEventDiv.innerHTML = espInnerHTML;
+
+                return
+            }
+
+            async function changeActiveStatus() {
+
+                const activeStatusData = document.getElementById("isReactorActive");
+                const pausedStatusData = document.getElementById("isReactorPaused");
+
+                if (activeStatusData.value === "true") {
+
+                    pageChangesDeactive();
+
+                    activeStatusData.value = "false"
+
+                    document.getElementById("espDiv").innerHTML = "";
+
+                    await deactivateReactor();
+
+                } else {
+
+                    pageChangesActive();
+
+                    activeStatusData.value = "true"
+
+                    if (pausedStatusData.value === "true") {
+                        pageChangesPaused();
+                    } else {
+                        pageChangesUnpaused();
+                    }
+
+                    await showEspEvents();
+
+                    await activateReactor();
+                }
+            }
+
+            async function changePausedStatus() {
+
+                const pausedStatusData = document.getElementById("isReactorPaused");
+
+                if (pausedStatusData.value === "true") {
+
+                    pausedStatusData.value = "false";
+
+                    pageChangesUnpaused();
+
+                    unpauseReactor();
+
+                } else {
+
+                    pausedStatusData.value = "true";
+
+                    pageChangesPaused();
+
+                    pauseReactor();
+                }
+            }
+
+            async function updateLogAndSeries() {
+
+                const reacId = document.getElementById("reacId").value;
+                const logDiv = document.getElementById("logDiv");
+
+                while (true) {
+                    const runUrl = "http://localhost:3000/api/reactor/getActiveRun?reacId=" + reacId;
+                    
+                    const runCheck = await fetch(runUrl);
+                    const runId = (await runCheck.json())._id;
+
+                    if (runId) {
+                        const takenUrl = "http://localhost:3000/api/reactor/getRunLog?runId=" + runId;
+                        const responseCheck = await fetch(takenUrl);
+    
+                        const logList = await responseCheck.json();
+    
+                        var str = ""
+    
+                        if (logList.length >= 200) {
+                            for (let i=0; (i<logList.length && i<200); i+=1) {
+                                str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[logList.length - 200 + i] + "</span>";
+                            }
+                        } else {
+                            for (let i=0; (i<logList.length); i+=1) {
+                                str += "<span style='color: rgb(30, 255, 0); font-size: 12px; display: block'>" + logList[logList.length - i - 1] + "</span>";
+                            }       
+                        }
+
+                        
+                        logDiv.innerHTML = str;
+
+                        const sensId = document.getElementById("selectedSensorId").value;
+                        console.log(sensId)
+                        showTimeSeries(sensId)
+                    }
+
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+
+            async function drawChart(timeSeries, fullSensor) {
+            
+                const modelMeasureUrl = "http://localhost:3000/api/sensor/getModelMeasure?modlId=" + fullSensor.model;
+                const responseCheck = await fetch(modelMeasureUrl);
+
+                const modelMeasure = await responseCheck.json();
+
+                const preData = [["time", modelMeasure.measures]]
+
+                if (timeSeries.length >= 100) {
+                    for (let i=0; i<timeSeries.length && i<100; i+=1) {
+                        preData.push([timeSeries[timeSeries.length - 100 + i].whenTaken, timeSeries[timeSeries.length - 100 + i].value])
+                    }
+                } else {
+                    for (let i=0; i<timeSeries.length; i+=1) {
+                        preData.push([timeSeries[i].whenTaken, timeSeries[i].value])
+                    } 
+                }
+
+
+                var data;
+
+                if (timeSeries.length) {
+                    data = google.visualization.arrayToDataTable(preData)
+                } else {
+                    data = google.visualization.arrayToDataTable([["time", modelMeasure.measures], [0, 0]])
+                }
+
+                const options = {
+                    hartArea: {
+                        width: '94%'
+                    },
+                    title: fullSensor.name + " (last 200 values)",
+                    curveType: 'none',
+                    legend: { position: 'bottom' }
+                };
+
+                const chart = new google.visualization.LineChart(document.getElementById('chartDiv'));
+
+                chart.draw(data, options);
+            }
+
+            async function changeSelectedSensorId(sensId) {
+                document.getElementById("selectedSensorId").value = sensId;
+            }
+
+            async function showTimeSeries(sensId) {
+                const reacId = document.getElementById("reacId").value;
+                const runUrl = "http://localhost:3000/api/reactor/getActiveRun?reacId=" + reacId;
+
+                const runCheck = await fetch(runUrl);
+                const runId = (await runCheck.json())._id;
+
+                const sensUrl = "http://localhost:3000/api/sensor/getSensor?sensId=" + sensId;
+
+                const sensCheck = await fetch(sensUrl);
+                const sensor = await sensCheck.json();
+
+                if (runId) {
+                    const tsUrl = "http://localhost:3000/api/reactor/getRunTS?runId=" + runId + "&sensId=" + sensId; 
+                        
+                    const tsCheck = await fetch(tsUrl);
+    
+                    const timeSeries = await tsCheck.json();
+
+                    drawChart(timeSeries, sensor)
+
+                }
+            }
+
+            async function showSensors() {
+
+                const reacId = document.getElementById("reacId").value;
+                const takenUrl = "http://localhost:3000/api/reactor/getSensors?reacId=" + reacId;
+
+                const responseCheck = await fetch(takenUrl);
+                const sensList = await responseCheck.json();
+
+                var str = "";
+
+                for (let i=0; i<sensList.length; i+=1) {
+
+                    str += "<style>.sensButt {display: inline-block;width: 6vw;height: 8vh;background-color: white;margin-top: 1vh;margin-bottom: 1vh;margin-left: 1vh;}</style><button class=\"sensButt\" onclick=\"changeSelectedSensorId(\'"+ sensList[i]._id +"\')\">" + sensList[i].name + "</button>";
+
+                }
+
+                document.getElementById("sensDiv").innerHTML = str;
+                console.log(sensList[0]._id);
+                document.getElementById("selectedSensorId").value = sensList[0]._id;
+
+            }
+
+            async function onLoadFunction() {
+
+                if (document.getElementById("isReactorActive").value === "true") {
+
+                    await showEspEvents();
+
+                    pageChangesActive();
+
+                    if (document.getElementById("isReactorPaused").value === "true") {
+
+                        pageChangesPaused();
+                    } else {
+
+                        pageChangesUnpaused()
+                    }
+
+                } else {
+
+                    pageChangesDeactive();
+                }
+
+                if (document.getElementById("numRoutines").value === "0") {
+
+                    document.getElementById("activateButton").disabled = true;
+                    document.getElementById("routineSelect").disabled = true;
+                }
+
+                showSensors()
+
+                updateLogAndSeries()
+
+            }
+
+            async function activateReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/activateReactor";
+                const reacId = document.getElementById("reacId").value;
+
+                const activeRoutine = document.getElementById("routineSelect").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId,
+                activeRoutine: activeRoutine})});
+            }
+
+            async function deactivateReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/deactivateReactor";
+                const reacId = document.getElementById("reacId").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId,})});
+
+                return;
+            }
+
+            async function pauseReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/pauseReactor";
+                const reacId = document.getElementById("reacId").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId})});
+            }
+
+            async function unpauseReactor() {
+
+                const takenUrl = "http://localhost:3000/api/reactor/unpauseReactor";
+                const reacId = document.getElementById("reacId").value;
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                reacId: reacId})});
+            }
+        </script>
     </head>
-    <body>
-        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
+    <body onload="onLoadFunction()">
+
+        <input type="hidden" id="_id" value="<%= user.id %>">
+        <input type="hidden" id="reacId" value="<%= reactor._id %>">
+        <input type="hidden" id="isReactorActive" value="<%= reactor.isActive %>">
+        <input type="hidden" id="isReactorPaused" value="<%= reactor.isPaused %>">
+        <input type="hidden" id="numRoutines" value="<%= routines.length %>">
+        <input type="hidden" id="activeRunId" value="<%= reactor.activeRun %>">
+        <input type="hidden" id="selectedSensorId" value="">
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
-            <a href="/start?_id=<%= _id %>">
+
+            <a href="/api/user/start?_id=<%= user._id %>">
                 <button class="backButt">Back</button>
             </a>
 
-            <label class="reactorLabel" for="reactor">Reactor:</label>
-            <select class="reactorSelect" name="reactor" id="" disabled>
-                <option value="<%= data.name %>"><%= data.name %></option>
+            <label class="reactorLabel" for="reactor"><%= reactor.name %></label>
+
+            <span class="activeStatus" style="color: yellowgreen;" id="statusLabel"></span>
+            <select name="activeRoutine" id="routineSelect" class="activeRoutineSelect">
+                <% for (let i=0; i<routines.length; i+=1) { %>
+                    <% if (reactor.activeRoutine && (reactor.activeRoutine.toString() === routines[i]._id.toString())) { %>
+                        <option value="<%= routines[i]._id %>" selected><%= routines[i].name%></option>
+                    <% } else { %>
+                        <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
+                    <% } %>
+                <% } %>
             </select>
-            <% if (!data.isActive) { %>
-                <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
-                    <button class="erButton">Edit Reactor</button>
-                </a>
-            <% } else { %>
-                <a href="/editReac?_id=<%= _id %>&reacId=<%= data._id %>">
-                    <button class="erButton" disabled>Edit Reactor</button>
-                </a>
-            <% } %>
+            <button class="pauseButt" id="pauseButton" onclick="changePausedStatus()">Pause Routine</button>
+            <button class="activationButt" id="activateButton" onclick="changeActiveStatus()">Activate Reactor</button>
+            <a href="/api/reactor/editReactor?_id=<%= user._id %>&reactorId=<%= reactor._id %>">
+                <button class="erButton" id="editReactorButton">Edit Reactor</button>
+            </a>
 
-            <% if (data.isActive) { %>
-                <% if (data.isPaused) { %>
-                    <form action="/unpauseReactor" method="post">
-                        <button class="pauseButt">Unpause Routine</button>
-                        <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                        <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    </form>
-                <% } else { %>
-                    <form action="/pauseReactor" method="post">
-                        <button class="pauseButt">Pause Routine</button>
-                        <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                        <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    </form>
-                <% } %>
+            <a href="/api/reactor/allRuns?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="hdButton">All Historic Data</button>
+            </a>
 
-                <form action="/deactivateReactor" method="post">
-                    <button class="activationButt">Deactivate Reactor</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    <select name="" id="" class="activeRoutineSelect" disabled>
-                        <% for (let i=0; i<routines.length; i+=1) { %>
-                            <% if (routines[i]._id.toString() === activeRoutine.toString()) { %>
-                                <option value="<%= routines[i]._id %>" selected><%= routines[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                </form>
-                <% if (data.isPaused) { %>
-                    <span class="activeStatus" style="color: yellow;">(is paused)</span>
-                <% } else { %>
-                    <span class="activeStatus" style="color: greenyellow;">(is active)</span>
-                <% } %>
-            <% } else { %>
-                <button class="pauseButt" disabled>Pause Routine</button>
-
-                <form action="/activateReactor" method="post">
-                    <button class="activationButt">Activate Reactor</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-                    <select name="activeRoutine" id="activeRoutine" class="activeRoutineSelect">
-                        <% for (let i=0; i<routines.length; i+=1) { %>
-                            <% if (activeRoutine && routines[i]._id.toString() === activeRoutine.toString()) { %>
-                                <option value="<%= routines[i]._id %>" selected><%= routines[i].name %></option>
-                            <% } else { %>
-                                <option value="<%= routines[i]._id %>"><%= routines[i].name %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                </form>
-                <span class="activeStatus" style="color: red;">(is not active)</span>
-            <% } %>
-
-
-            <form action="/deleteReactor" method="post">
-                <button class="deleteButt">Delete Reactor</button>
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= data._id %>>
-            </form>
-
-            <button class="hdButton">All Historic Data</button>
-            <div class="div2">
+            <div class="div2" id="chartDiv">
             </div>
-            <div class="div3">
+            <div class="div3" id="sensDiv">
             </div>
 
-            <button class="ldButton">All Log Data</button>
-            <div class="div4">
+            <a href="/api/reactor/allLog?_id=<%= user._id + "&reacId=" + reactor._id%>">
+                <button class="ldButton">All Log Data</button>
+            </a>
+
+            <div class="div4" id="logDiv">
             </div>
-            <div class="div5">
-                <% for (let i=0; i<espEvents.length; i+=1) { %>
-                    <%- include("./partials/viewEvntButton.ejs", {name: espEvents[i].name, _id: _id, evntId: espEvents[i]._id, reacId: data._id}) %>
-                <% } %>
+            <div class="div5" id="espDiv">
+                    <!-- include("./partials/viewEvntButton.ejs", {name: esporadicEvents[i].name, _id: user._id, evntId: esporadicEvents[i]._id, reacId: reactor._id}) -->
             </div>
         
         </div>

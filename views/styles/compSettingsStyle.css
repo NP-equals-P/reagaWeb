@@ -63,8 +63,8 @@ body {
     border-radius: 10px;
     font-weight: bold;
     position: absolute;
-    left: 6px;
-    top: 93vh;
+    top: 73vh;
+    left: -9vw;
 }
 
 .confirmButt {
@@ -84,6 +84,6 @@ body {
     font-weight: bold;
     color: red;
     position: absolute;
-    left: 6px;
-    top: 93vh;
+    left: -9vw;
+    top: 73vh;
 }

@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const CoMoSchema = new Schema({
     name: String,
     type: String,
+    measures: String,
     functions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "functions"

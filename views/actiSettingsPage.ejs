@@ -1,226 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
-    <script>
-
-        var components;
-
-        async function onLoadFunction() {
-            components = await getComponents();
-
-            pageStart()
-        }
-
-        async function getComponents() {
-            const url = "http://localhost:3000/components?reacId=" + document.getElementById("reacId").value;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const json = await response.json();
-                return json;
-            } catch (error) {
-                console.error(error.message);
-            }
-        }
-
-        async function pageStart() {
-            var actionType = document.getElementById("actionType").value;
-            
-            if (actionType === "sensor") {
-                document.getElementById("sensorRadio").checked = true
-            } else {
-                document.getElementById("actuatorRadio").checked = true
-            }
-
-            await changeType();
-            await changeModel();
-            await changeFunction();
-        }
-
-        async function changeType() {
-            var componentSelect = document.getElementById("componentSelect");
-            var dataComponent = document.getElementById("currentComponent").value;
-            var str = "";
-            var aux;
-
-            if (document.getElementById("sensorRadio").checked) {
-                for (let i=0; i<components.sensors.length; i+=1) {
-
-                    if (dataComponent === components.sensors[i]._id.toString()) {
-                        aux = "selected";
-                    } else {
-                        aux = "";
-                    }
-
-                    str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
-                    componentSelect.innerHTML = str;
-                }
-            } else {
-                for (let i=0; i<components.actuators.length; i+=1) {
-
-                    if (dataComponent === components.actuators[i]._id.toString()) {
-                        aux = "selected";
-                    } else {
-                        aux = "";
-                    }
-
-                    str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
-                    componentSelect.innerHTML = str;
-                }
-            }
-
-            await changeModel();
-            await changeFunction();
-        }
-
-        async function getModelFunctions() {
-            var type;
-
-            if (document.getElementById("sensorRadio").checked) {
-                type = "sensor";
-            } else {
-                type = "actuator";
-            }
-
-            const url = "http://localhost:3000/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const json = await response.json();
-                return json;
-            } catch (error) {
-                console.error(error.message);
-            }
-        }
-
-        async function changeModel() {
-            var functions = await getModelFunctions();
-            var functionSelect = document.getElementById("functionSelect");
-            var dataFunction = document.getElementById("currentFunction").value;
-            var str = "";
-            var aux;
-
-            for (let i=0; i<functions.length; i+=1) {
-                if (dataFunction.toString() && (dataFunction.toString() === functions[i]._id.toString())) {
-                    aux = "selected";
-                } else {
-                    aux = "";
-                }
-
-                str += "<option value=" + functions[i]._id + " " + aux + ">" + functions[i].name + "</option>"
-                functionSelect.innerHTML = str;
-            }
-
-            await changeFunction();
-        }
-
-        async function getFunctionHTML() {
-            var functionId = document.getElementById("functionSelect").value;
-
-            const url = "http://localhost:3000/functionHTML?funcId=" + document.getElementById("functionSelect").value;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const json = await response.json();
-                return json;
-            } catch (error) {
-                console.error(error.message);
-            }
-        }
-
-        async function changeFunction() {
-            var funcHTMLStr = await getFunctionHTML();
-
-            document.getElementById("varDiv").innerHTML = funcHTMLStr.html;
-        }
-
-    </script>
-
     <head>
-        <link rel="stylesheet" href="/styles/addActPageStyles.css">
-        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+
+        <script>
+
+            var components;
+    
+            function noComponentMode() {
+                document.getElementById("componentSelect").disabled = true;
+                document.getElementById("functionSelect").disabled = true;
+            }
+
+            function someComponentMode() {
+                document.getElementById("componentSelect").disabled = false;
+                document.getElementById("functionSelect").disabled = false;
+            }
+
+            async function showValidationMsg() {
+
+            }
+
+            function disableInput() {
+                document.getElementById("newActiName").disabled = true;
+                document.getElementById("newStart").disabled = true;
+                document.getElementById("newEnd").disabled = true;
+                document.getElementById("componentSelect").disabled = true;
+                document.getElementById("functionSelect").disabled = true;
+                document.getElementById("sensorRadio").disabled = true;
+                document.getElementById("actuatorRadio").disabled = true;
+            }
+
+            function enableInput() {
+                document.getElementById("newActiName").disabled = false;
+                document.getElementById("newStart").disabled = false;
+                document.getElementById("newEnd").disabled = false;
+                document.getElementById("componentSelect").disabled = false;
+                document.getElementById("functionSelect").disabled = false;
+                document.getElementById("sensorRadio").disabled = false;
+                document.getElementById("actuatorRadio").disabled = false;
+            }
+
+            async function onLoadFunction() {
+                components = await getComponents();
+    
+                pageStart();
+
+                const validation = await checkValid();
+                const createButt = document.getElementById("createButton");
+
+                if (validation.ret) {
+                    document.getElementById("errorLabel").style.display = "none";
+
+                    if (createButt) {
+                        createButt.disabled = false;
+                    }
+
+                } else {
+                    document.getElementById("errorLabel").style.display = "block";
+
+                    if (createButt) {
+                        createButt.disabled = true;
+                    }
+                }
+            }
+    
+            async function getComponents() {
+                const url = "http://localhost:3000/api/action/components?reacId=" + document.getElementById("reacId").value;
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+    
+                    const json = await response.json();
+                    return json;
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+    
+            async function fillFuncVars() {
+
+                const varList = document.getElementById("varList").value;
+
+                for (let i=0; i<=varList.length; i+=2) {
+                    document.getElementById("funcInput" + ((i/2) + 1)).value = varList[i];
+                }
+
+            }
+
+            async function pageStart() {
+                var actionType = document.getElementById("actionType").value;
+                const startSelect = document.getElementById("newStart");
+                const endSelect = document.getElementById("newEnd");
+                
+                if (actionType === "sensor") {
+                    document.getElementById("sensorRadio").checked = true
+                } else {
+                    document.getElementById("actuatorRadio").checked = true
+                }
+    
+                endSelect.min = Number(startSelect.value) + 1;
+
+                
+                await changeType();
+            }
+    
+            async function changeType() {
+                var componentSelect = document.getElementById("componentSelect");
+                var dataComponent = document.getElementById("currentComponent").value;
+                var str = "";
+                var aux;
+    
+                if (document.getElementById("actuatorRadio").checked) {
+                    if (components.actuators.length > 0) {
+                        for (let i=0; i<components.actuators.length; i+=1) {
+        
+                            if (dataComponent === components.actuators[i]._id.toString()) {
+                                aux = "selected";
+                            } else {
+                                aux = "";
+                            }
+        
+                            str += "<option value=" + components.actuators[i]._id + " " + aux + ">" + components.actuators[i].name + "</option>"
+                            componentSelect.innerHTML = str;
+                        }
+
+                        someComponentMode();
+                        await changeModel();
+                    } else {
+                        noComponentMode()
+                    }
+                } else {
+                    if (components.sensors.length > 0) {
+                        for (let i=0; i<components.sensors.length; i+=1) {
+        
+                            if (dataComponent === components.sensors[i]._id.toString()) {
+                                aux = "selected";
+                            } else {
+                                aux = "";
+                            }
+        
+                            str += "<option value=" + components.sensors[i]._id + " " + aux + ">" + components.sensors[i].name + "</option>"
+                            componentSelect.innerHTML = str;
+                        }
+
+                        someComponentMode();
+                        await changeModel();
+                    } else {
+                        noComponentMode()
+                    }
+                }
+            }
+    
+            async function getModelFunctions() {
+                var type;
+    
+                if (document.getElementById("sensorRadio").checked) {
+                    type = "sensor";
+                } else {
+                    type = "actuator";
+                }
+    
+                if (document.getElementById("componentSelect").value) {
+                    const url = "http://localhost:3000/api/action/modelFunctions?compId=" + document.getElementById("componentSelect").value + "&type=" + type;
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error(`Response status: ${response.status}`);
+                        }
+        
+                        const json = await response.json();
+                        return json;
+                    } catch (error) {
+                        console.error(error.message);
+                    }
+                } else {
+                    return []
+                }
+
+            }
+    
+            async function changeModel() {
+                var functions = await getModelFunctions();
+                var functionSelect = document.getElementById("functionSelect");
+                var dataFunction = document.getElementById("currentFunction").value;
+                var str = "";
+                var aux;
+
+                for (let i=0; i<functions.length; i+=1) {
+                    if (dataFunction.toString() && (dataFunction.toString() === functions[i]._id.toString())) {
+                        aux = "selected";
+                    } else {
+                        aux = "";
+                    }
+    
+                    str += "<option value=" + functions[i]._id + " " + aux + ">" + functions[i].name + "</option>"
+                    functionSelect.innerHTML = str;
+                }
+    
+                await changeFunction();
+            }
+    
+            async function getFunction() {
+                var functionId = document.getElementById("functionSelect").value;
+    
+                const url = "http://localhost:3000/api/action/getFunction?funcId=" + functionId;
+
+                const response = await fetch(url);
+
+                const json = await response.json();
+
+                return json;
+
+            }
+
+            async function getFunctionHTML() {
+                var functionId = document.getElementById("functionSelect").value;
+    
+                const url = "http://localhost:3000/api/action/functionHTML?funcId=" + document.getElementById("functionSelect").value;
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Response status: ${response.status}`);
+                    }
+    
+                    const json = await response.json();
+                    return json;
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+    
+            async function changeFunction() {
+                const func = await getFunction();
+    
+                const frequencyInput = document.getElementById("frequencyInput")
+
+                
+                if (func.isRegular) {
+                    frequencyInput.disabled = false;
+                } else {
+                    frequencyInput.disabled = true;
+                }
+
+                document.getElementById("varDiv").innerHTML = func.html;
+            }
+    
+            async function checkValid() {
+
+                const newStart = document.getElementById("newStart").value;
+                const newEnd = document.getElementById("newEnd").value;
+                const newComponent = document.getElementById("componentSelect").value;
+
+                const routId = document.getElementById("routId").value;
+                const evntId = document.getElementById("evntId").value;
+                const actiId = document.getElementById("actiId").value;
+
+                const takenUrl = "http://localhost:3000/api/action/checkIntervals?routId=" + routId + "&evntId=" + evntId + "&actiId=" + actiId + "&start=" + newStart + "&end=" + newEnd + "&component=" + newComponent;
+
+                const responseCheck = await fetch(takenUrl);
+
+                return await responseCheck.json();
+
+            }
+
+            async function getFuncVariables() {
+
+                const functionId = document.getElementById("functionSelect").value;
+                const varList = [];
+
+                var thisFunction;
+                var aux;
+
+                if (functionId) {
+
+                    thisFunction = await getFunction(functionId);
+
+
+                    for (let i=1; i<thisFunction.numVar + 1; i+=1) {
+                        aux = document.getElementById("funcInput" + i).value;
+
+                        varList.push(aux);
+                    }
+
+                    return varList;
+
+                } else {
+                    return []
+                }
+            }
+
+            async function saveAction() {
+
+                disableInput()
+
+                const validation = await checkValid()
+                const createButt = document.getElementById("createButton");
+
+                console.log("SDAISODU")
+
+                if (validation.ret) {
+                    document.getElementById("errorLabel").style.display = "none";
+                    if (createButt) {
+                        createButt.disabled = false;
+                    }
+                } else {
+                    document.getElementById("errorLabel").style.display = "block";
+                    if (createButt) {
+                        createButt.disabled = true;
+                    }
+                }
+
+                if (validation.ret || (document.getElementById("creationStatus").value === "true")) {
+
+                    const newName = document.getElementById("newActiName").value;
+                    const newStart = document.getElementById("newStart").value;
+                    const newEnd = document.getElementById("newEnd").value;
+                    const newComponent = document.getElementById("componentSelect").value;
+                    const newFunction = document.getElementById("functionSelect").value;
+
+                    const newFrequency = document.getElementById("frequencyInput").value;
+
+                    const funcSelect = document.getElementById("functionSelect");
+                    const newFunctionName = funcSelect.options[funcSelect.selectedIndex].text;
+
+                    const funcVars = await getFuncVariables();
+                    var newType;
+    
+                    if (document.getElementById("sensorRadio").checked) {
+                        newType = "sensor";
+                    } else {
+                        newType = "actuator";
+                    }
+    
+                    const actiId = document.getElementById("actiId").value;
+                    const evntId = document.getElementById("evntId").value;
+    
+                    const takenUrl = "http://localhost:3000/api/action/saveAction";
+    
+                    const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    evntId: evntId,
+                    actiId: actiId,
+                    newActiName: newName,
+                    newType: newType,
+                    newStart: newStart,
+                    newEnd: newEnd,
+                    newComponent: newComponent,
+                    newFunction: newFunction,
+                    funcVars: funcVars,
+                    funcName: newFunctionName,
+                    frequency: newFrequency})});
+
+                }
+   
+                enableInput()
+
+                return;
+            }
+
+            async function changeTypeAndSaveAction() {
+                await changeType();
+                await saveAction();
+            }
+
+            async function changeModelAndSaveAction() {
+                await changeModel();
+                await saveAction();
+            }
+
+            async function changeFunctionAndSaveAction() {
+                await changeFunction();
+                await saveAction();
+            }
+
+            async function changeStart() {
+
+                const endSelect = document.getElementById("newEnd");
+                const startSelect = document.getElementById("newStart");
+
+                const newMinimun = Number(startSelect.value) + 1;
+
+                endSelect.min = newMinimun;
+
+                if (endSelect.value < newMinimun) {
+                    endSelect.value = newMinimun;
+                }
+
+                await saveAction();
+
+            }
+
+            async function changeEnd() {
+
+                const endSelect = document.getElementById("newEnd");
+
+                if (Number(endSelect.value) < Number(endSelect.min)) {
+                    endSelect.value = endSelect.min;
+                }
+
+                await saveAction()
+            }
+
+        </script>
+
+        <link rel="stylesheet" href="/styles/actiSettingsStyle.css">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
         <title> Add Action </title>
     </head>
 
     <body onload="onLoadFunction()">
-        <input type="hidden" id="actionType" name="actionType" value=<%= data.type %>>
-        <%- include('./partials/nav.ejs', {name: username}) %>
+        <input type="hidden" id="actionType" name="actionType" value=<%= action.type %>>
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
-            <% if (mode === "intervalError") { %>
-                <br>
-                <span class="errorMsg">Error: Conflicting Interval</span>
-            <% } %>
-            <form action="/createSaveAction" method="post" id="mainForm">
+
+            <a href="/api/event/editEvent?_id=<%= user._id + "&reacId=" + reacId + "&routId=" + routId + "&evntId=" + evntId %>">
                 <button class="backButt" name="type" value="saveBack">Back</button>
+            </a>
 
-                <label for="" class="nameLabel">Name</label>
-                <input type="text" name="newActiName" id="newActiName" class="nameInput" value="<%= data.name %>">
+            <label for="" class="nameLabel">Name</label>
+            <input type="text" name="newActiName" id="newActiName" class="nameInput" value="<%= action.name %>" onchange="saveAction()">
 
-                <label for="" class="sensorLabel">Sensor</label>
-                <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" onclick="changeType()">
-                <label for="" class="actuatorLabel">Actuator</label>
-                <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" onclick="changeType()">
+            <label for="" class="sensorLabel">Sensor</label>
+            <input type="radio" name="group" id="sensorRadio" value="sensor" class="sensorRadio" onchange="changeTypeAndSaveAction()">
+            <label for="" class="actuatorLabel">Actuator</label>
+            <input type="radio" name="group" id="actuatorRadio" value="actuator" class="actuatorRadio" onchange="changeTypeAndSaveAction()">
 
-                <label for="" class="componentLabel">Chosen component:</label>
+            <label for="" class="componentLabel">Chosen component:</label>
 
-                <select name="newComponent" id="componentSelect" class="componentSelect" onchange="changeModel()"></select>
+            <select name="newComponent" id="componentSelect" class="componentSelect" onchange="changeModelAndSaveAction()"></select>
 
-                <label for="" class="functionLabel">Function</label>
-                <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunction()"></select>
 
-                <label for="" class="startLabel">Start</label>
-                <input type="number" name="newStart" id="" class="startInput" value="<%=data.start%>">
 
-                <label for="" class="durationLabel">Duration</label>
-                <input type="number" name="newDuration" id="" class="durationInput" value="<%=data.duration%>">
+            <label for="" class="functionLabel">Function</label>
+            <select name="newFunction" id="functionSelect" class="functionSelect" onchange="changeFunctionAndSaveAction()"></select>
 
-                <input type="hidden" id="currentComponent" value=<%= data.component %>>
-                <input type="hidden" id="currentFunction" value=<%= data.function %>>
+            <label for="" class="frequencyLabel">Call Frequency</label>
+            <input type="number" name="newFrequency" id="frequencyInput" class="frequencyInput" onchange="saveAction()" min="0" max="3600" value="<%=action.frequency%>"></input>
 
-                <input type="hidden" id="actiId" name="actiId" value=<%= data._id %>>
-                <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
-                <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+            <label for="" class="startLabel">Starts</label>
+            <input type="number" name="newStart" id="newStart" class="startInput" value="<%=action.start%>" onchange="changeStart()" min="0">
 
-                <% if (data.isCreation) { %>
-                    <button class="confirmButt" name="type" id="type" value="create">Create Action</button>
-                <% } %>
+            <label for="" class="endLabel">Ends</label>
+            <input type="number" name="newEnd" id="newEnd" class="endInput" value="<%=action.end%>" onchange="changeEnd()">
 
-                <div class="div2" id="varDiv">
-                </div>
-            </form>
-            
+            <input type="hidden" id="currentComponent" value=<%= action.component %>>
+            <input type="hidden" id="currentFunction" value=<%= action.function %>>
 
-            <div><input type="hidden" id="reacId" name="AAA" value="AAAAAAA"></div>
+            <input type="hidden" id="actionType" value=<%= action.type %>>
+            <input type="hidden" id="creationStatus" value=<%= action.isCreation%>>
+            <input type="hidden" id="varList" value="<%= action.varList%>">
 
-            <% if (data.isCreation) { %>
-                <form action="/dicardActionEdit" method="post">
+            <input type="hidden" id="actiId" name="actiId" value=<%= action._id %>>
+            <input type="hidden" id="routId" name="routId" value=<%= routId %>>
+            <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
+            <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
+            <input type="hidden" id="_id" name="_id" value=<%= user._id %>>
+
+            <div class="div2" id="varDiv">
+            </div>
+    
+            <label class="errorMsg" id="errorLabel">Interval Error</label>
+
+            <% if (action.isCreation) { %>
+                <form action="/api/action/createAction" method="post">
+                    <button class="confirmButt" id="createButton">Create Action</button>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" name="actiId" value=<%= action._id %>>
+                </form>
+                <form action="/api/action/dicardActionEdit" method="post">
                     <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="actiId" name="actiId" value=<%= data._id %>>
-                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                    <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" name="actiId" value=<%= action._id %>>
                 </form>
             <% } else { %>
-                <form action="/deleteAction" method="post">
+                <form action="/api/action/deleteAction" method="post">
                     <button class="deleteButt">Delete Action</button>
-                    <input type="hidden" id="actiId" name="actiId" value=<%= data._id %>>
-                    <input type="hidden" id="routId" name="routId" value=<%= routId %>>
-                    <input type="hidden" id="evntId" name="evntId" value=<%= evntId %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
+                    <input type="hidden" name="_id" value=<%= user._id %>>
+                    <input type="hidden" name="reacId" value=<%= reacId %>>
+                    <input type="hidden" name="routId" value=<%= routId %>>
+                    <input type="hidden" name="evntId" value=<%= evntId %>>
+                    <input type="hidden" name="actiId" value=<%= action._id %>>
                 </form>
             <% } %>
+
         </div>
     </body>
 </html>

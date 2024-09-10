@@ -1,67 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="/styles/addSensStyles.css">
-        <link rel="icon" href="./pictures/logo.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/styles/compSettingsStyle.css">
+        <link rel="icon" href="../../pictures/logo.ico" type="image/x-icon">
         <title> Add Sensor </title>
+        <script>
+            function disableInput() {
+                document.getElementById("newSensName").disabled = true;
+                document.getElementById("newExit").disabled = true;
+                document.getElementById("modelId").disabled = true;
+            }
+
+            function enableInput() {
+                document.getElementById("newSensName").disabled = false;
+                document.getElementById("newExit").disabled = false;
+                document.getElementById("modelId").disabled = false;
+            }
+
+            async function saveSensor() {
+
+                disableInput()
+
+                const newName = document.getElementById("newSensName").value;
+                const newExit = document.getElementById("newExit").value;
+                const newModel = document.getElementById("modelId").value;
+                const sensId = document.getElementById("sensId").value;
+
+                const takenUrl = "http://localhost:3000/api/sensor/saveSensor";
+
+                const responseCheck = await fetch(takenUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    sensId: sensId,
+                    newSensName: newName,
+                    newExit: newExit,
+                    newModel: newModel})});
+
+                enableInput()
+            }
+
+            async function discardSensor() {
+                const userId = document.getElementById("_id").value;
+                const reacId = document.getElementById("reacId").value;
+                const sensId = document.getElementById("sensId").value;
+
+                const discardSensorUrl = "http://localhost:3000/api/sensor/dicardSensorEdit";
+
+                await fetch(discardSensorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    _id: userId,
+                    reacId: reacId,
+                    sensId: sensId})});
+
+                document.getElementById("newSensName").value = "";
+                document.getElementById("newExit").value = "";
+            }
+
+            async function deleteSensor() {
+                const userId = document.getElementById("_id").value;
+                const reacId = document.getElementById("reacId").value;
+                const sensId = document.getElementById("sensId").value;
+
+                const deleteSensorUrl = "http://localhost:3000/api/sensor/deleteSensor";
+
+                await fetch(deleteSensorUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    _id: userId,
+                    reacId: reacId,
+                    sensId: sensId})});
+            }
+
+            async function askDiscardOrDelete(strMode) {
+
+                disableInput()
+
+                if (strMode === "discard") {
+
+                    if (confirm("Are you sure you want to DISCARD this edit?")) {
+
+                        await discardSensor()
+                    }
+                } else {
+                    if (confirm("Are you sure you want to DELETE this sensor?")) {
+
+                        const userId = document.getElementById("_id").value;
+                        const reacId = document.getElementById("reacId").value;
+
+                        await deleteSensor()
+
+                        window.location.href = "http://localhost:3000/api/reactor/editReactor?_id=" + userId + "&reactorId=" + reacId;
+                    }
+                }
+
+                enableInput()
+            }
+        </script>
     </head>
     <body>
-        <%- include('./partials/nav.ejs', {name: username, _id: _id}) %>
+        <input type="hidden" id="_id" value=<%= user._id %>>
+        <input type="hidden" id="sensId" value=<%= sensor._id %>>
+        <input type="hidden" id="reacId" value=<%= reacId %>>
+
+        <%- include('./partials/nav.ejs', {name: user.username, _id: user._id}) %>
         <div class="div1">
             <div class="formModule">
-                <form action="/createSaveSensor" method="post">
-                    <button class="backButt" name="type" value="saveBack">Back</button>
+                <a href="/api/reactor/editReactor?_id=<%= user._id.toString() + "&reactorId=" + reacId %>">
+                    <button class="backButt">Back</button>
+                </a>
 
-                    <label for="" class="inputLabel">Name</label>
-                    <br><br>
-                    <input type="text" class="dataInput" id="newSensName" name="newSensName" value="<%= data.name %>">
-                    <br><br><br>
+                <label for="" class="inputLabel">Name</label>
+                <br><br>
+                <input type="text" class="dataInput" id="newSensName" name="newSensName" value="<%= sensor.name %>" onchange="saveSensor()">
+                <br><br><br>
 
-                    <label for="" class="inputLabel">Exit</label>
-                    <br><br>
-                    <input type="text" class="dataInput" id="newExit" name="newExit" value="<%= data.exit %>">
-                    <br><br><br>
+                <label for="" class="inputLabel">Exit</label>
+                <br><br>
+                <input type="text" class="dataInput" id="newExit" name="newExit" value="<%= sensor.exit %>" onchange="saveSensor()">
+                <br><br><br>
 
-                    <label for="" class="inputLabel">Model</label>
-                    <br><br>
-                    <select name="modelId" id="modelId" class="modelSelect">
-                        <% for (let i=0; i<models.length; i+=1) { %>
-                            <% if (models[i].type === "sensor") { %>
-                                <% if (data.model && (models[i]._id.toString() === data.model.toString())) { %>
-                                    <option value="<%= models[i]._id %>" selected><%= models[i].name %></option>
-                                <% } else { %>
-                                    <option value="<%= models[i]._id %>"><%= models[i].name %></option>
-                                <% } %>
+                <label for="" class="inputLabel">Model</label>
+                <br><br>
+                <select name="modelId" id="modelId" class="modelSelect" onchange="saveSensor()">
+                    <% for (let i=0; i<models.length; i+=1) { %>
+                        <% if (models[i].type === "sensor") { %>
+                            <% if (sensor.model && (models[i]._id.toString() === sensor.model.toString())) { %>
+                                <option value="<%= models[i]._id %>" selected><%= models[i].name %></option>
+                            <% } else { %>
+                                <option value="<%= models[i]._id %>"><%= models[i].name %></option>
                             <% } %>
                         <% } %>
-                    </select>
-
-                    <input type="hidden" id="_id" name="_id" value='<%= _id %>'>
-                    <input type="hidden" id="sensId" name="sensId" value='<%= data._id %>'>
-                    <input type="hidden" id="reacId" name="reacId" value='<%= reacId %>'>
-                    <% if (data.isCreation) { %>
-                        <button class="confirmButt" name="type" id="type" value="create">Create Sensor</button>
                     <% } %>
-                </form>
-            </div>
+                </select>
 
+                <% if (sensor.isCreation) { %>
+                    <form action="/api/sensor/createSensor" method="post">
+                        <button class="confirmButt">Create Sensor</button>
+                        <input type="hidden" name="_id" value=<%= user._id %>>
+                        <input type="hidden" name="sensId" value=<%= sensor._id %>>
+                        <input type="hidden" name="reacId" value=<%= reacId %>>
+                    </form>
+                    <button class="discardButt" onclick="askDiscardOrDelete('discard')">Discard Edit</button>
+                <% } else { %>
+                    <button class="deleteButt" onclick="askDiscardOrDelete('delete')">Delete Sensor</button>
+                <% } %>
+
+                <input type="hidden" id="sensId" name="sensId" value='<%= sensor._id %>'>
+            </div>
+            
             <div class="div2">
             </div>
-
-            <% if (data.isCreation) { %>
-                <form action="/dicardSensorEdit" method="post">
-                    <button class="discardButt">Discard Edit</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="sensId" name="sensId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-                </form>
-            <% } else { %>
-                <form action="/deleteSensor" method="post">
-                    <button class="deleteButt">Delete Sensor</button>
-                    <input type="hidden" id="_id" name="_id" value=<%= _id %>>
-                    <input type="hidden" id="sensId" name="sensId" value=<%= data._id %>>
-                    <input type="hidden" id="reacId" name="reacId" value=<%= reacId %>>
-            <% } %>
         </div>
     </body>
 </html>
