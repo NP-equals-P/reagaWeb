@@ -230,6 +230,11 @@
             }
 
             async function onLoadFunc() {
+
+                if (document.getElementById("activeRunId").value === document.getElementById("runId").value) {
+                    document.getElementById("deleteButt").disabled = true;
+                }
+
                 await updateLoop()
             }
 
@@ -241,6 +246,30 @@
                 }
             }
 
+            async function deleteRun() {
+                const runId = document.getElementById("runId").value;
+                const reacId = document.getElementById("reacId").value;
+
+                const deleteRunUrl = "http://localhost:3000/api/reactor/deleteRun";
+
+                await fetch(deleteRunUrl, {method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    reacId: reacId,
+                    runId: runId})});
+            }
+
+            async function askDelete() {
+
+                if (confirm("Are you sure you want to DELETE this run?")) {
+
+                    const userId = document.getElementById("_id").value;
+                    const reacId = document.getElementById("reacId").value;
+
+                    await deleteRun()
+
+                    window.location.href = "http://localhost:3000/api/reactor/allRuns?_id=" + userId + "&reacId=" + reacId;
+                }
+            }
+
         </script>
 
     </head>
@@ -249,6 +278,7 @@
         <input type="hidden" id="_id" value="<%= user._id %>">
         <input type="hidden" id="reacId" value="<%= reactor._id %>">
         <input type="hidden" id="runId" value="<%= runId %>">
+        <input type="hidden" id="activeRunId" value="<%= activeRunId %>">
 
         <input type="hidden" id="liveUpdate" value="true">
 
@@ -265,6 +295,8 @@
 
             <div class="sensDiv" id="sensDiv">
             </div>
+
+            <button class="deleteButt" onclick="askDelete()" id="deleteButt">Delete Run</button>
 
             <div class="controlPanel">
                 <label class="labelGeneric">Live Update?</label>

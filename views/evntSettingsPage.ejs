@@ -25,7 +25,6 @@
                 document.getElementById("newEnd").disabled = false;
                 document.getElementById("newEvntName").disabled = false;
                 document.getElementById("newNormalType").disabled = false;
-                document.getElementById("newEsporadicType").disabled = false;
             }
 
             async function onLoadFunc() {
@@ -149,7 +148,7 @@
                 <label for="" class="normalLabel">Normal</label>
                 <input type="radio" name="group" id="newNormalType" class="normalRadio" checked onchange="typeChange()">
                 <label for="" class="esporadicLabel">Esporadic</label>
-                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" onchange="typeChange()">
+                <input type="radio" name="group" id="newEsporadicType" class="esporadicRadio" onchange="typeChange()" disabled>
             <% } %>
 
             <div class="div2">

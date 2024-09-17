@@ -102,7 +102,8 @@ reactorRouter.get("/allTimeSeries", (req, res) => {
             res.render("allTSPage", {
                 user: user,
                 reactor: reactor,
-                runId: runId
+                runId: runId,
+                activeRunId: reactor.activeRun
             })
         });
     });
@@ -290,6 +291,20 @@ reactorRouter.post("/callEsporadicEvent", async (req, res) => {
     await Evnt.findByIdAndUpdate(evntId, {$set: {inQueue: true}});
 
     res.end()
+});
+
+reactorRouter.post("/deleteRun", async (req, res) => {
+
+    const reacId = req.body.reacId;
+    const runId = req.body.runId;
+
+    await Reac.findByIdAndUpdate(reacId, { $pull: {runs: runId}})
+
+    await Run.findByIdAndDelete(runId)
+
+    await mongoose.connection.db.collection("z_runTS[" + runId + "]").drop()
+
+    res.end();
 });
 // ---------- Post Requests ----------
 

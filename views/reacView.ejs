@@ -43,7 +43,6 @@
 
                 editButton.disabled = true;
                 activateButton.innerText = "Disactivate Reactor"
-                pauseButton.disabled = false;
                 routineSelect.disabled = true;
             }
 
@@ -389,7 +388,7 @@
                     <% } %>
                 <% } %>
             </select>
-            <button class="pauseButt" id="pauseButton" onclick="changePausedStatus()">Pause Routine</button>
+            <button class="pauseButt" id="pauseButton" onclick="changePausedStatus()" disabled>Pause Routine</button>
             <button class="activationButt" id="activateButton" onclick="changeActiveStatus()">Activate Reactor</button>
             <a href="/api/reactor/editReactor?_id=<%= user._id %>&reactorId=<%= reactor._id %>">
                 <button class="erButton" id="editReactorButton">Edit Reactor</button>
