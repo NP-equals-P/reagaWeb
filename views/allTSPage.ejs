@@ -34,8 +34,6 @@
                         }
                     }
 
-                    console.log(allTS)
-
                     return allTS
 
                 } else {
@@ -131,8 +129,6 @@
                         }
                     }
                 }
-
-                console.log(preData)
 
                 return preData
             }
@@ -270,6 +266,92 @@
                 }
             }
 
+            function findSensorIndex(dataPoint, sensorList) {
+                for (let i=0; i<sensorList.length; i+=1) {
+                    if (dataPoint.sensorId === sensorList[i]._id) {
+                        return i
+                    }
+                }
+            }
+
+            async function dowloadAllTSData() {
+
+                const runId = document.getElementById("runId").value;
+                const reacId = document.getElementById("reacId").value;
+
+
+                const getAllRunTSUrl = "http://localhost:3000/api/reactor/getAllRunTS?runId=" + runId;
+        
+                const tSResponse = await fetch(getAllRunTSUrl);
+
+                const data = await tSResponse.json();
+
+
+                const getAllSensorsUrl = "http://localhost:3000/api/reactor/getSensors?reacId=" + reacId;
+        
+                const sensorResponse = await fetch(getAllSensorsUrl);
+
+                const sensorList = await sensorResponse.json();
+
+
+                const getRunUrl = "http://localhost:3000/api/reactor/getRun?runId=" + runId;
+        
+                const runResponse = await fetch(getRunUrl);
+
+                const runInfo = await runResponse.json();
+
+
+
+                content = "dateTime,";
+
+                for (let j=0; j<sensorList.length; j+=1) {
+                    if (j != sensorList.length - 1) {
+                        content += sensorList[j].name + ",";
+                    } else {
+                        content += sensorList[j].name + "\n";
+                    }
+                }
+
+                var indx;
+
+                for (let i=0; i<data.length; i+=1) {
+
+                    content += data[i].whenTaken + ",";
+
+                    indx = findSensorIndex(data[i], sensorList)
+
+                    for (let k=0; k<sensorList.length; k+=1) {
+                        if (k == indx) {
+                            if (k == sensorList.length - 1) {
+                                content += data[i].value + "\n";
+                            } else {
+                                content += data[i].value + ",";
+                            }
+                        } else {
+                            if (k == sensorList.length - 1) {
+                                content += "\n";
+                            } else {
+                                content += ",";
+                            }
+                        }
+                    }
+                }
+
+                console.log(content)
+
+                const file = new File(["\ufeff"+content], 'runTimeSeries[' + runInfo.startDate + '].csv', {type: "text/plain:charset=UTF-8"});
+
+                url = window.URL.createObjectURL(file);
+
+                var a = document.createElement("a");
+                a.style = "display: none";
+                a.href = url;
+                a.download = file.name;
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+            }
+
         </script>
 
     </head>
@@ -288,7 +370,7 @@
                 <button class="backButt">Back</button>
             </a>
 
-            <button class="downloadButt" id="downloadButton">Download Time Series</button>
+            <button class="downloadButt" id="downloadButton" onclick="dowloadAllTSData()">Download Time Series</button>
 
             <div class="graphDiv" id="graphDiv">
             </div>

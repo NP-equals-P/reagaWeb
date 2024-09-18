@@ -156,6 +156,16 @@ reactorRouter.get("/getRuns", async (req, res) => {
 
 });
 
+reactorRouter.get("/getRun", async (req, res) => {
+
+    const runId = req.query.runId;
+
+    const run = await Run.findById(runId);
+
+    res.end(JSON.stringify(run));
+
+});
+
 reactorRouter.get("/getActiveRun", async (req, res) => {
     const reacId = req.query.reacId;
 
@@ -185,6 +195,20 @@ reactorRouter.get("/getRunTS", async (req, res) => {
 
     const find = await coll.find({"sensorId": new ObjectId(sensId)});
 
+    const measurementsList = await find.toArray();
+
+    res.end(JSON.stringify(measurementsList));
+
+});
+
+reactorRouter.get("/getAllRunTS", async (req, res) => {
+
+    const runId = req.query.runId;
+    
+    const coll = await (mongoose.connection.db.collection("z_runTS[" + runId + "]"));
+    
+    const find = await coll.find({}).sort("whenTaken");
+    
     const measurementsList = await find.toArray();
 
     res.end(JSON.stringify(measurementsList));
