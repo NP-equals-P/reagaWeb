@@ -23,7 +23,8 @@
 
                 const newName = document.getElementById("newSensName").value;
                 const newExit = document.getElementById("newExit").value;
-                const newModel = document.getElementById("modelId").value;
+                // console.log(document.getElementById("modelId").data("value"))
+                const newModel = (document.getElementById("modelId").value);
                 const sensId = document.getElementById("sensId").value;
 
                 const takenUrl = "http://localhost:3000/api/sensor/saveSensor";
@@ -120,9 +121,9 @@
                     <% for (let i=0; i<models.length; i+=1) { %>
                         <% if (models[i].type === "sensor") { %>
                             <% if (sensor.model && (models[i]._id.toString() === sensor.model.toString())) { %>
-                                <option value="<%= models[i]._id %>" selected><%= models[i].name %></option>
+                                <option data-value='<%= {"modelId": [models[i]._id, "APP"]} %>' selected><%= models[i].name %></option>
                             <% } else { %>
-                                <option value="<%= models[i]._id %>"><%= models[i].name %></option>
+                                <option value="<%= {"modelId": models[i]._id, "more":"APP"} %>"><%= models[i].name %></option>
                             <% } %>
                         <% } %>
                     <% } %>

@@ -4,6 +4,8 @@ const Reac = require('../../models/reactors');
 const Sens = require('../../models/sensors');
 const CoMo = require('../../models/componentsModels');
 
+const { ObjectId } = require('mongodb');
+
 const sensorRouter = new Router();
 
 // ---------- Get Requests ----------
@@ -58,6 +60,8 @@ sensorRouter.post("/saveSensor", async (req, res) => {
     const newName = req.body.newSensName;
     const newExit = req.body.newExit;
     const newModel = req.body.newModel;
+
+    console.log(newModel, "AAAAAAAAa")
 
     await Sens.findByIdAndUpdate(sensId, {name: newName, exit: newExit, model: newModel});
 
